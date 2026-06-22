@@ -1,0 +1,202 @@
+$border: #dde2ec;
+$header-bg: #f4f6fb;
+$occupied-bg: #1a3a6b;
+$occupied-hover: #254f95;
+$teal: #26a69a;
+$available-hover-bg: #eaf7f5;
+$text-primary: #1a2540;
+$text-muted: #8492b0;
+$full-color: #c0392b;
+$sticky-shadow: 4px 0 8px rgba(0, 0, 0, 0.05);
+
+.sg-wrapper {
+  overflow: auto;
+  max-height: calc(100vh - 200px);
+  border: 1px solid $border;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(26, 37, 64, 0.06);
+}
+
+.sg {
+  border-collapse: collapse;
+  min-width: 100%;
+  font-size: 12px;
+  font-family: Inter, system-ui, sans-serif;
+
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+
+  &__head-row {
+    background: $header-bg;
+  }
+
+  &__structure-col {
+    position: sticky;
+    left: 0;
+    z-index: 25;
+    background: $header-bg;
+    min-width: 220px;
+    width: 220px;
+    padding: 12px 18px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: $text-primary;
+    border-right: 2px solid $border;
+    border-bottom: 1px solid $border;
+    box-shadow: $sticky-shadow;
+  }
+
+  &__hour-col {
+    min-width: 90px;
+    width: 90px;
+    padding: 14px 4px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: $text-primary;
+    border-right: 1px solid $border;
+    border-bottom: 1px solid $border;
+    white-space: nowrap;
+    background: $header-bg;
+  }
+
+  &__company-row {
+    background: #fff;
+    transition: background 0.12s;
+
+    &:nth-child(even) {
+      background: #fafbfd;
+    }
+
+    &:hover {
+      background: #f5f7ff;
+    }
+  }
+
+  &__company-cell {
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    background: inherit;
+    min-width: 220px;
+    width: 220px;
+    padding: 10px 18px;
+    border-right: 2px solid $border;
+    border-bottom: 1px solid $border;
+    box-shadow: $sticky-shadow;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    vertical-align: middle;
+  }
+
+  &__bay-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-primary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__chips {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-top: 2px;
+  }
+
+  &__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+
+    strong {
+      font-weight: 700;
+      font-size: 11px;
+    }
+
+    &--assigned {
+      background: #eaecf5;
+      color: #3a4a6b;
+    }
+
+    &--allocated {
+      background: rgba(38, 166, 154, 0.13);
+      color: darken(#26a69a, 12%);
+    }
+
+    &--full {
+      background: rgba(192, 57, 43, 0.1);
+      color: $full-color;
+    }
+  }
+
+  &__slot-cell {
+    padding: 0;
+    height: 46px;
+    border-right: 1px solid $border;
+    border-bottom: 1px solid $border;
+    vertical-align: middle;
+    text-align: center;
+  }
+
+  &__slot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s, box-shadow 0.15s;
+    padding: 0;
+    font-family: inherit;
+
+    &--available {
+      background: #fff;
+
+      &:hover {
+        background: $available-hover-bg;
+      }
+    }
+
+    &--occupied {
+      background: $occupied-bg;
+      border-color: $occupied-bg;
+
+      &:hover {
+        background: $occupied-hover;
+        border-color: $occupied-hover;
+        transform: scale(1.06);
+        box-shadow: 0 3px 10px rgba(26, 58, 107, 0.35);
+      }
+    }
+
+    &--disabled {
+      background: #f2f4f7;
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  }
+
+  &__slot-badge {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+    pointer-events: none;
+  }
+}

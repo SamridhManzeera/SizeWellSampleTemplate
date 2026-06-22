@@ -1,0 +1,240 @@
+$teal: #26a69a;
+$navy: #1a3a6b;
+$border: #dde2ec;
+$text-primary: #1a2540;
+$text-muted: #8492b0;
+$bg-meta: #f4f6fb;
+$error: #c0392b;
+$warn: #e67e22;
+$radius: 12px;
+
+.am-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 18, 45, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: amFadeIn 0.15s ease;
+}
+
+.am {
+  background: #fff;
+  border-radius: $radius;
+  width: 500px;
+  max-width: calc(100vw - 32px);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.22);
+  animation: amSlideUp 0.2s ease;
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid $border;
+  }
+
+  &__header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__mode-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+
+    &--create {
+      background: rgba(38, 166, 154, 0.12);
+      color: darken($teal, 8%);
+    }
+
+    &--edit {
+      background: rgba(26, 58, 107, 0.1);
+      color: $navy;
+    }
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: $text-primary;
+  }
+
+  &__close {
+    background: none;
+    border: none;
+    font-size: 15px;
+    color: $text-muted;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 5px;
+    line-height: 1;
+    transition: background 0.15s, color 0.15s;
+
+    &:hover {
+      background: $border;
+      color: $text-primary;
+    }
+  }
+
+  &__meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 16px;
+    padding: 14px 22px;
+    background: $bg-meta;
+    border-bottom: 1px solid $border;
+  }
+
+  &__meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__meta-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  &__meta-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-primary;
+
+    &--warn  { color: $error; }
+    &--low   { color: $warn; }
+  }
+
+  &__form {
+    padding: 18px 22px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  &__label {
+    font-size: 12px;
+    font-weight: 600;
+    color: $text-primary;
+  }
+
+  &__req {
+    color: $error;
+  }
+
+  &__input,
+  &__textarea {
+    border: 1.5px solid $border;
+    border-radius: 7px;
+    padding: 9px 12px;
+    font-size: 13px;
+    color: $text-primary;
+    font-family: inherit;
+    outline: none;
+    background: #fff;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    resize: vertical;
+
+    &:focus {
+      border-color: $teal;
+      box-shadow: 0 0 0 3px rgba(38, 166, 154, 0.14);
+    }
+
+    &::placeholder {
+      color: #b8c2d4;
+    }
+  }
+
+  &__input--upper {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+  }
+
+  &__error {
+    margin: 0;
+    font-size: 12px;
+    color: $error;
+    background: rgba($error, 0.06);
+    border: 1px solid rgba($error, 0.2);
+    border-radius: 6px;
+    padding: 8px 12px;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding-top: 2px;
+  }
+
+  &__btn {
+    padding: 9px 22px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+    transition: background 0.15s, opacity 0.15s;
+
+    &--cancel {
+      background: $border;
+      color: $text-primary;
+
+      &:hover {
+        background: darken($border, 8%);
+      }
+    }
+
+    &--confirm {
+      background: $teal;
+      color: #fff;
+
+      &:hover:not(:disabled) {
+        background: darken($teal, 7%);
+      }
+
+      &:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+@keyframes amFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes amSlideUp {
+  from { transform: translateY(18px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}

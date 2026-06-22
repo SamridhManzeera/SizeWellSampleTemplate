@@ -6,6 +6,7 @@ export function Navbar() {
   return (
     <header className="header d-flex" id="header">
       <Link to={ROUTES.HOMEPAGE}>Home page</Link>
+      <Link to={ROUTES.BOOKING_SCHEDULE}>Booking Schedule</Link>
       <Link to={ROUTES.LOGIN}>Login</Link>
     </header>
   );

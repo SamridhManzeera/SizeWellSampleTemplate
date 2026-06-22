@@ -1,0 +1,41 @@
+export interface CompanyGroup {
+  id: string;
+  name: string;
+}
+
+export interface Company {
+  id: string;
+  name: string;
+  groupId: string;
+  assignedDeliveries: number;
+}
+
+export interface Allocation {
+  id: string;
+  companyId: string;
+  companyName: string;
+  date: string;
+  hour: number;
+  deliveryCount: number;
+  notes: string;
+  driverName: string;
+  vehicleNumber: string;
+  createdAt: string;
+}
+
+export type SlotKey = string; // `${companyId}-${date}-${hour}`
+
+export type ModalMode = 'create' | 'edit';
+
+export interface ModalState {
+  open: boolean;
+  mode: ModalMode;
+  companyId: string;
+  hour: number;
+  existingAllocation?: Allocation;
+}
+
+export interface DrawerState {
+  open: boolean;
+  allocation: Allocation | null;
+}

@@ -1,13 +1,13 @@
 import { Navigate } from 'react-router-dom';
 import { ROUTES_CONFIG, WILDCARD_ROUTES } from '../Shared/Constants';
-import Dashboard from '../Views/Dashboard/Dashboard';
+import BookingSchedule from '../Views/BookingSchedule';
 import { CustomRouter } from './RootRoutes';
 
 // eslint-disable-next-line import/prefer-default-export
 export const PUBLIC_ROUTES: Array<CustomRouter> = [
   {
     path: ROUTES_CONFIG.HOMEPAGE.path,
-    element: <Dashboard />,
+    element: <BookingSchedule />,
     title: ROUTES_CONFIG.HOMEPAGE.title,
   },
   {
