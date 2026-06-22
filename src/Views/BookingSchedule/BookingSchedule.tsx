@@ -11,8 +11,12 @@ function getTodayString(): string {
 }
 
 function formatDateDisplay(dateStr: string): string {
-  const [y, m, d] = dateStr.split('-');
-  return `${d}/${m}/${y}`;
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
 }
 
 function buildInitialAllocations(): Map<SlotKey, Allocation> {
@@ -25,16 +29,17 @@ function buildInitialAllocations(): Map<SlotKey, Allocation> {
 
 let idCounter = MOCK_ALLOCATIONS.length + 1;
 
-const LEGEND_ITEMS = [
-  { label: 'Occupied', color: '#1a3a6b' },
-  { label: 'Available', color: '#fff', border: '#dde2ec' },
-  { label: 'Full', color: '#f2f4f7', border: '#ccc' },
-];
+function PeopleIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+    </svg>
+  );
+}
 
 export default function BookingSchedule() {
   const [selectedDate, setSelectedDate] = useState(getTodayString());
   const [allocations, setAllocations] = useState<Map<SlotKey, Allocation>>(buildInitialAllocations);
-
   const [modalState, setModalState] = useState<ModalState>({
     open: false,
     mode: 'create',
@@ -48,13 +53,12 @@ export default function BookingSchedule() {
 
   const dateInputRef = useRef<HTMLInputElement>(null);
 
-  // ── Derived state ──────────────────────────────────────────
+  // ── Derived ────────────────────────────────────────────────
   const allocatedCountsByCompany = useMemo(() => {
     const counts = new Map<string, number>();
     allocations.forEach((a) => {
-      if (a.date === selectedDate) {
+      if (a.date === selectedDate)
         counts.set(a.companyId, (counts.get(a.companyId) ?? 0) + a.deliveryCount);
-      }
     });
     return counts;
   }, [allocations, selectedDate]);
@@ -66,8 +70,9 @@ export default function BookingSchedule() {
   }, [allocatedCountsByCompany]);
 
   const totalAssigned = MOCK_COMPANIES.reduce((s, c) => s + c.assignedDeliveries, 0);
+  const isToday = selectedDate === getTodayString();
 
-  // ── Slot interactions ──────────────────────────────────────
+  // ── Handlers ──────────────────────────────────────────────
   function handleAvailableSlotClick(companyId: string, hour: number) {
     setModalState({ open: true, mode: 'create', companyId, hour });
   }
@@ -103,7 +108,6 @@ export default function BookingSchedule() {
   }) {
     const company = MOCK_COMPANIES.find((c) => c.id === modalState.companyId);
     if (!company) return;
-
     const key = buildSlotKey(modalState.companyId, selectedDate, modalState.hour);
 
     if (modalState.mode === 'edit' && modalState.existingAllocation) {
@@ -111,18 +115,18 @@ export default function BookingSchedule() {
         new Map(prev).set(key, { ...modalState.existingAllocation!, ...data })
       );
     } else {
-      const newAllocation: Allocation = {
-        id: `a${idCounter++}`,
-        companyId: modalState.companyId,
-        companyName: company.name,
-        date: selectedDate,
-        hour: modalState.hour,
-        ...data,
-        createdAt: new Date().toISOString(),
-      };
-      setAllocations((prev) => new Map(prev).set(key, newAllocation));
+      setAllocations((prev) =>
+        new Map(prev).set(key, {
+          id: `a${idCounter++}`,
+          companyId: modalState.companyId,
+          companyName: company.name,
+          date: selectedDate,
+          hour: modalState.hour,
+          ...data,
+          createdAt: new Date().toISOString(),
+        })
+      );
     }
-
     handleModalClose();
   }
 
@@ -131,63 +135,86 @@ export default function BookingSchedule() {
 
   return (
     <div className="bs">
-      {/* ── Header ──────────────────────────────────────────── */}
+      {/* ── Page header ───────────────────────────────────────── */}
       <div className="bs__header">
         <div className="bs__title-block">
-          <div className="bs__accent" />
-          <div>
-            <h1 className="bs__title">Full Schedule</h1>
-            <p className="bs__subtitle">All time slots</p>
-          </div>
+          <h1 className="bs__title">Full Schedule</h1>
+          <p className="bs__subtitle">All time slots overview</p>
         </div>
 
-        <div className="bs__header-stats">
-          <div className="bs__stat">
-            <span className="bs__stat-val">{totalAllocatedToday}</span>
-            <span className="bs__stat-label">Allocated</span>
+        <div className="bs__kpi-row">
+          {/* Allocated card */}
+          <div className="bs__kpi-card">
+            <div className="bs__kpi-icon bs__kpi-icon--blue">
+              <PeopleIcon />
+            </div>
+            <div className="bs__kpi-info">
+              <span className="bs__kpi-num bs__kpi-num--navy">{totalAllocatedToday}</span>
+              <span className="bs__kpi-label">Allocated</span>
+            </div>
           </div>
-          <div className="bs__stat-sep" />
-          <div className="bs__stat">
-            <span className="bs__stat-val">{totalAssigned}</span>
-            <span className="bs__stat-label">Total Assigned</span>
+          {/* Total Assigned card */}
+          <div className="bs__kpi-card">
+            <div className="bs__kpi-icon bs__kpi-icon--green">
+              <PeopleIcon />
+            </div>
+            <div className="bs__kpi-info">
+              <span className="bs__kpi-num bs__kpi-num--green">{totalAssigned}</span>
+              <span className="bs__kpi-label">Total Assigned</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ── Date control row ────────────────────────────────── */}
-      <div className="bs__controls">
-        <div className="bs__date-pill" onClick={() => dateInputRef.current?.showPicker()}>
-          <span className="bs__date-icon">📅</span>
-          <span className="bs__date-text">{formatDateDisplay(selectedDate)}</span>
-          <span className="bs__chevron">▾</span>
+      {/* ── Toolbar ───────────────────────────────────────────── */}
+      <div className="bs__toolbar">
+        {/* Date navigation */}
+        <div className="bs__date-nav">
+          <button
+            type="button"
+            className="bs__date-pill"
+            onClick={() => dateInputRef.current?.showPicker()}
+            aria-label="Select date"
+          >
+            <span className="bs__cal-icon">📅</span>
+            <span className="bs__date-label">{formatDateDisplay(selectedDate)}</span>
+            <span className="bs__chevron">▾</span>
+          </button>
+          <button
+            type="button"
+            className={`bs__today-btn${isToday ? ' bs__today-btn--active' : ''}`}
+            onClick={() => setSelectedDate(getTodayString())}
+          >
+            Today
+          </button>
           <input
             ref={dateInputRef}
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
             className="bs__date-hidden"
-            aria-label="Select schedule date"
+            aria-label="Select date"
           />
+        </div>
+
+        {/* Legend */}
+        <div className="bs__legend">
+          <span className="bs__legend-item">
+            <span className="bs__legend-dot bs__legend-dot--occupied" />
+            Occupied
+          </span>
+          <span className="bs__legend-item">
+            <span className="bs__legend-dot bs__legend-dot--available" />
+            Available
+          </span>
+          <span className="bs__legend-item">
+            <span className="bs__legend-dot bs__legend-dot--full" />
+            Full
+          </span>
         </div>
       </div>
 
-      {/* ── Legend ──────────────────────────────────────────── */}
-      <div className="bs__legend">
-        {LEGEND_ITEMS.map((item) => (
-          <span key={item.label} className="bs__legend-item">
-            <span
-              className="bs__legend-dot"
-              style={{
-                background: item.color,
-                border: item.border ? `1.5px solid ${item.border}` : undefined,
-              }}
-            />
-            {item.label}
-          </span>
-        ))}
-      </div>
-
-      {/* ── Grid ────────────────────────────────────────────── */}
+      {/* ── Grid ──────────────────────────────────────────────── */}
       <div className="bs__grid-area">
         <ScheduleGrid
           companies={MOCK_COMPANIES}

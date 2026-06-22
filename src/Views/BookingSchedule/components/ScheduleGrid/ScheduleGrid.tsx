@@ -1,3 +1,4 @@
+import { CSSProperties } from 'react';
 import { Company, Allocation, SlotKey } from '../../types';
 import { buildSlotKey } from '../../mockData';
 import './ScheduleGrid.scss';
@@ -13,8 +14,15 @@ interface ScheduleGridProps {
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
-function formatHour(hour: number): string {
-  return `${String(hour).padStart(2, '0')}:00`;
+const ROW_COLORS = [
+  '#6c5ce7', '#00b894', '#e17055', '#0984e3',
+  '#fd79a8', '#00cec9', '#a29bfe', '#e74c3c', '#55efc4',
+];
+
+function formatHour(hour: number): { time: string; period: string } {
+  const period = hour < 12 ? 'AM' : 'PM';
+  const h = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+  return { time: `${String(h).padStart(2, '0')}:00`, period };
 }
 
 function ScheduleGrid({
@@ -28,33 +36,60 @@ function ScheduleGrid({
   return (
     <div className="sg-wrapper">
       <table className="sg">
+        {/* ── Column sizing ───────────────────────────────────── */}
+        <colgroup>
+          <col className="sg__col-company" />
+          <col className="sg__col-stat" />
+          <col className="sg__col-stat" />
+          {HOURS.map((h) => <col key={h} className="sg__col-hour" />)}
+        </colgroup>
+
+        {/* ── Header ──────────────────────────────────────────── */}
         <thead>
-          <tr className="sg__head-row">
-            <th className="sg__structure-col">STRUCTURE</th>
-            {HOURS.map((hour) => (
-              <th key={hour} className="sg__hour-col">
-                {formatHour(hour)}
-              </th>
-            ))}
+          <tr>
+            <th className="sg__th sg__th--company">Company / Structure</th>
+            <th className="sg__th sg__th--stat sg__th--assigned">Assigned</th>
+            <th className="sg__th sg__th--stat sg__th--allocated">Allocated</th>
+            {HOURS.map((hour) => {
+              const { time, period } = formatHour(hour);
+              return (
+                <th key={hour} className="sg__th sg__th--hour">
+                  <span className="sg__time">{time}</span>
+                  <span className="sg__period">{period}</span>
+                </th>
+              );
+            })}
           </tr>
         </thead>
+
+        {/* ── Body ────────────────────────────────────────────── */}
         <tbody>
-          {companies.map((company) => {
+          {companies.map((company, idx) => {
             const allocated = allocatedCounts.get(company.id) ?? 0;
             const isFull = allocated >= company.assignedDeliveries;
+            const accentColor = ROW_COLORS[idx % ROW_COLORS.length];
 
             return (
-              <tr key={company.id} className="sg__company-row">
-                <td className="sg__company-cell">
-                  <span className="sg__bay-name">{company.name}</span>
-                  <div className="sg__chips">
-                    <span className="sg__chip sg__chip--assigned">
-                      <strong>{company.assignedDeliveries}</strong> assigned
-                    </span>
-                    <span className={`sg__chip sg__chip--allocated${isFull ? ' sg__chip--full' : ''}`}>
-                      <strong>{allocated}</strong> allocated
-                    </span>
+              <tr
+                key={company.id}
+                className="sg__row"
+                style={{ '--row-color': accentColor } as CSSProperties}
+              >
+                <td className="sg__td sg__td--company">
+                  <div className="sg__company-inner">
+                    <span className="sg__row-accent" />
+                    <span className="sg__company-name">{company.name}</span>
                   </div>
+                </td>
+                <td className="sg__td sg__td--stat-1">
+                  <span className="sg__stat-num sg__stat-num--assigned">
+                    {company.assignedDeliveries}
+                  </span>
+                </td>
+                <td className="sg__td sg__td--stat-2">
+                  <span className={`sg__stat-num sg__stat-num--allocated${isFull ? ' sg__stat-num--full' : ''}`}>
+                    {allocated}
+                  </span>
                 </td>
                 {HOURS.map((hour) => {
                   const key = buildSlotKey(company.id, selectedDate, hour);
@@ -63,7 +98,7 @@ function ScheduleGrid({
                   const isDisabled = !isOccupied && isFull;
 
                   return (
-                    <td key={hour} className="sg__slot-cell">
+                    <td key={hour} className="sg__td sg__td--slot">
                       <button
                         type="button"
                         className={`sg__slot${isOccupied ? ' sg__slot--occupied' : ' sg__slot--available'}${isDisabled ? ' sg__slot--disabled' : ''}`}
@@ -77,12 +112,12 @@ function ScheduleGrid({
                           isDisabled
                             ? 'No remaining deliveries'
                             : isOccupied
-                            ? `${allocation.deliveryCount} deliveries · click to view`
-                            : 'Available · click to allocate'
+                            ? `${allocation.deliveryCount} deliveries — click to view`
+                            : 'Available — click to allocate'
                         }
                       >
                         {isOccupied && (
-                          <span className="sg__slot-badge">{allocation.deliveryCount}</span>
+                          <span className="sg__slot-count">{allocation.deliveryCount}</span>
                         )}
                       </button>
                     </td>
@@ -92,6 +127,15 @@ function ScheduleGrid({
             );
           })}
         </tbody>
+
+        {/* ── Footer ──────────────────────────────────────────── */}
+        <tfoot>
+          <tr>
+            <td colSpan={3 + HOURS.length} className="sg__footer">
+              Total Companies &nbsp;<strong>{companies.length}</strong>
+            </td>
+          </tr>
+        </tfoot>
       </table>
     </div>
   );

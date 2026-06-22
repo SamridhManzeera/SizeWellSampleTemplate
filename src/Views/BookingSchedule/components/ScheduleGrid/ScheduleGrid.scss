@@ -1,202 +1,304 @@
-$border: #dde2ec;
-$header-bg: #f4f6fb;
-$occupied-bg: #1a3a6b;
-$occupied-hover: #254f95;
+$border: #e8ecf4;
+$header-bg: #f8f9fc;
+$text-dark: #111827;
+$text-mid: #374151;
+$text-muted: #9ca3af;
+$navy: #1a3a6b;
+$navy-hover: #1e4a8a;
 $teal: #26a69a;
-$available-hover-bg: #eaf7f5;
-$text-primary: #1a2540;
-$text-muted: #8492b0;
-$full-color: #c0392b;
-$sticky-shadow: 4px 0 8px rgba(0, 0, 0, 0.05);
+$full-red: #ef4444;
+$sticky-shadow: 2px 0 8px rgba(0, 0, 0, 0.07);
+
+// Company col: 210px  |  each stat col: 90px  |  each hour col: 90px
+$col-company:   210px;
+$col-stat:       90px;
+$left-assigned: $col-company;                  // 210px
+$left-allocated: $col-company + $col-stat;     // 300px
 
 .sg-wrapper {
   overflow: auto;
-  max-height: calc(100vh - 200px);
+  max-height: calc(100vh - 190px);
   border: 1px solid $border;
-  border-radius: 10px;
+  border-radius: 12px;
   background: #fff;
-  box-shadow: 0 2px 12px rgba(26, 37, 64, 0.06);
+  box-shadow: 0 1px 8px rgba(17, 24, 39, 0.06);
 }
 
 .sg {
-  border-collapse: collapse;
+  // ── border-separate is essential for correct sticky z-index stacking ──
+  border-collapse: separate;
+  border-spacing: 0;
   min-width: 100%;
-  font-size: 12px;
   font-family: Inter, system-ui, sans-serif;
+  font-size: 13px;
 
+  // ── Column widths ───────────────────────────────────────────
+  &__col-company { width: $col-company; min-width: $col-company; }
+  &__col-stat    { width: $col-stat;    min-width: $col-stat; }
+  &__col-hour    { width: 90px;         min-width: 90px; }
+
+  // ── Header ─────────────────────────────────────────────────
   thead {
     position: sticky;
     top: 0;
-    z-index: 20;
+    z-index: 30;
   }
 
-  &__head-row {
+  &__th {
     background: $header-bg;
-  }
-
-  &__structure-col {
-    position: sticky;
-    left: 0;
-    z-index: 25;
-    background: $header-bg;
-    min-width: 220px;
-    width: 220px;
-    padding: 12px 18px;
-    text-align: left;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    color: $text-primary;
-    border-right: 2px solid $border;
-    border-bottom: 1px solid $border;
-    box-shadow: $sticky-shadow;
-  }
-
-  &__hour-col {
-    min-width: 90px;
-    width: 90px;
-    padding: 14px 4px;
-    text-align: center;
-    font-size: 11px;
-    font-weight: 700;
-    color: $text-primary;
-    border-right: 1px solid $border;
-    border-bottom: 1px solid $border;
-    white-space: nowrap;
-    background: $header-bg;
-  }
-
-  &__company-row {
-    background: #fff;
-    transition: background 0.12s;
-
-    &:nth-child(even) {
-      background: #fafbfd;
-    }
-
-    &:hover {
-      background: #f5f7ff;
-    }
-  }
-
-  &__company-cell {
-    position: sticky;
-    left: 0;
-    z-index: 10;
-    background: inherit;
-    min-width: 220px;
-    width: 220px;
-    padding: 10px 18px;
-    border-right: 2px solid $border;
-    border-bottom: 1px solid $border;
-    box-shadow: $sticky-shadow;
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    vertical-align: middle;
-  }
-
-  &__bay-name {
-    font-size: 13px;
+    border-bottom: 1.5px solid $border;
     font-weight: 600;
-    color: $text-primary;
+    padding: 12px 8px;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+    // Prevent body content from bleeding through header
+    border-top: none;
 
-  &__chips {
-    display: flex;
-    gap: 5px;
-    flex-wrap: wrap;
-    margin-top: 2px;
-  }
-
-  &__chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    padding: 2px 8px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 500;
-    white-space: nowrap;
-
-    strong {
+    &--company {
+      position: sticky;
+      left: 0;
+      z-index: 40;
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 12px;
       font-weight: 700;
+      color: $text-dark;
+      border-right: 1.5px solid $border;
+      box-shadow: $sticky-shadow;
+    }
+
+    &--stat {
+      text-align: center;
       font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      border-right: 1px solid $border;
     }
 
     &--assigned {
-      background: #eaecf5;
-      color: #3a4a6b;
+      color: #3b5bdb;
+      position: sticky;
+      left: $left-assigned;
+      z-index: 39;
+      background: $header-bg;
     }
 
     &--allocated {
-      background: rgba(38, 166, 154, 0.13);
-      color: darken(#26a69a, 12%);
+      color: $teal;
+      position: sticky;
+      left: $left-allocated;
+      z-index: 38;
+      background: $header-bg;
+      border-right: 2px solid darken($border, 8%);
+      box-shadow: $sticky-shadow;
+    }
+
+    &--hour {
+      text-align: center;
+      border-right: 1px solid $border;
+      padding: 8px 4px;
+      vertical-align: middle;
+    }
+  }
+
+  &__time {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: $text-dark;
+    line-height: 1.3;
+  }
+
+  &__period {
+    display: block;
+    font-size: 10px;
+    font-weight: 500;
+    color: $text-muted;
+    line-height: 1;
+  }
+
+  // ── Rows ───────────────────────────────────────────────────
+  &__row {
+    background: #fff;
+    transition: background 0.1s;
+
+    &:hover { background: #f9fafb; }
+
+    // Row separator (replicate collapsed border-bottom)
+    &:not(:last-child) td,
+    &:not(:last-child) th {
+      border-bottom: 1px solid $border;
+    }
+  }
+
+  // ── Cells ──────────────────────────────────────────────────
+  &__td {
+    vertical-align: middle;
+
+    // ── Company (sticky col 1) ─────────────────────────────
+    &--company {
+      position: sticky;
+      left: 0;
+      z-index: 20;
+      background: #fff;
+      padding: 0;
+      border-right: 1.5px solid $border;
+      box-shadow: $sticky-shadow;
+    }
+
+    // ── Assigned (sticky col 2) ────────────────────────────
+    &--stat-1 {
+      position: sticky;
+      left: $left-assigned;
+      z-index: 19;
+      background: #fff;
+      text-align: center;
+      padding: 10px 8px;
+      border-right: 1px solid $border;
+    }
+
+    // ── Allocated (sticky col 3) ───────────────────────────
+    &--stat-2 {
+      position: sticky;
+      left: $left-allocated;
+      z-index: 18;
+      background: #fff;
+      text-align: center;
+      padding: 10px 8px;
+      border-right: 2px solid darken($border, 8%);
+      box-shadow: $sticky-shadow;
+    }
+
+    // ── Time-slot cells (non-sticky) ───────────────────────
+    &--slot {
+      padding: 3px;
+      border-right: 1px solid $border;
+      text-align: center;
+      // Explicit z-index:0 keeps slot cells BELOW sticky columns
+      // even when buttons inside create GPU composite layers
+      position: relative;
+      z-index: 0;
+    }
+  }
+
+  // Sticky body cells: follow row hover colour
+  &__row:hover &__td--company,
+  &__row:hover &__td--stat-1,
+  &__row:hover &__td--stat-2 {
+    background: #f9fafb;
+  }
+
+  // ── Company cell interior ──────────────────────────────────
+  &__company-inner {
+    display: flex;
+    align-items: stretch;
+    min-height: 52px;
+  }
+
+  &__row-accent {
+    width: 3px;
+    flex-shrink: 0;
+    align-self: stretch;
+    background: var(--row-color, #6c5ce7);
+    border-radius: 0 2px 2px 0;
+  }
+
+  &__company-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-dark;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 14px 14px 14px 10px;
+    display: flex;
+    align-items: center;
+  }
+
+  // ── Stat number badges ─────────────────────────────────────
+  &__stat-num {
+    font-size: 16px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 28px;
+    border-radius: 6px;
+    padding: 0 8px;
+
+    &--assigned {
+      color: #3b5bdb;
+      background: #eef2ff;
+    }
+
+    &--allocated {
+      color: darken($teal, 5%);
+      background: #e6faf8;
     }
 
     &--full {
-      background: rgba(192, 57, 43, 0.1);
-      color: $full-color;
+      color: #fff;
+      background: $full-red;
     }
   }
 
-  &__slot-cell {
-    padding: 0;
-    height: 46px;
-    border-right: 1px solid $border;
-    border-bottom: 1px solid $border;
-    vertical-align: middle;
-    text-align: center;
-  }
-
+  // ── Slot button ────────────────────────────────────────────
   &__slot {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    height: 100%;
-    border-radius: 0;
+    height: 46px;
+    border-radius: 8px;
     border: none;
     cursor: pointer;
-    transition: background 0.15s, border-color 0.15s, transform 0.1s, box-shadow 0.15s;
+    // No transform — avoids creating a GPU composite layer that
+    // would paint above sticky cells regardless of z-index
+    transition: background 0.15s, box-shadow 0.15s;
     padding: 0;
     font-family: inherit;
 
     &--available {
       background: #fff;
-
-      &:hover {
-        background: $available-hover-bg;
-      }
+      &:hover { background: #edf9f7; }
     }
 
     &--occupied {
-      background: $occupied-bg;
-      border-color: $occupied-bg;
-
+      background: $navy;
       &:hover {
-        background: $occupied-hover;
-        border-color: $occupied-hover;
-        transform: scale(1.06);
-        box-shadow: 0 3px 10px rgba(26, 58, 107, 0.35);
+        background: $navy-hover;
+        box-shadow: 0 4px 14px rgba(26, 58, 107, 0.32);
       }
     }
 
     &--disabled {
-      background: #f2f4f7;
+      background: #f3f4f6;
       cursor: not-allowed;
       opacity: 0.5;
     }
   }
 
-  &__slot-badge {
+  &__slot-count {
     font-size: 16px;
     font-weight: 700;
     color: #fff;
-    line-height: 1;
     pointer-events: none;
+    line-height: 1;
+  }
+
+  // ── Footer ─────────────────────────────────────────────────
+  &__footer {
+    padding: 12px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: $text-muted;
+    background: $header-bg;
+    border-top: 1.5px solid $border;
+
+    strong {
+      color: #3b5bdb;
+      font-weight: 700;
+      font-size: 14px;
+    }
   }
 }

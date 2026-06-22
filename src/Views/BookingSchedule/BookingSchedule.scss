@@ -1,180 +1,222 @@
-$border: #dde2ec;
-$text-primary: #1a2540;
-$text-muted: #8492b0;
-$teal: #26a69a;
+$border: #e8ecf4;
+$bg-page: #f3f4f8;
+$text-dark: #111827;
+$text-mid: #374151;
+$text-muted: #9ca3af;
 $navy: #1a3a6b;
-$red-accent: #e74c3c;
+$teal: #26a69a;
+$blue: #3b5bdb;
 
 .bs {
   min-height: 100vh;
-  background: #f0f3f9;
+  background: $bg-page;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  color: $text-primary;
+  color: $text-dark;
   display: flex;
   flex-direction: column;
 
-  // ── Header ────────────────────────────────────────────────
+  // ── Page header ─────────────────────────────────────────────
   &__header {
     background: #fff;
     border-bottom: 1px solid $border;
-    padding: 16px 28px;
+    padding: 20px 28px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
+    gap: 24px;
     flex-wrap: wrap;
   }
 
-  &__title-block {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  &__accent {
-    width: 4px;
-    height: 42px;
-    background: $red-accent;
-    border-radius: 2px;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
+  &__title-block { display: flex; flex-direction: column; gap: 3px; }
 
   &__title {
     margin: 0;
-    font-size: 22px;
-    font-weight: 700;
-    color: $text-primary;
-    line-height: 1.25;
+    font-size: 26px;
+    font-weight: 800;
+    color: $text-dark;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
   }
 
   &__subtitle {
-    margin: 2px 0 0;
-    font-size: 12px;
+    margin: 0;
+    font-size: 13px;
     color: $text-muted;
+    font-weight: 400;
   }
 
-  &__header-stats {
+  // ── KPI cards ───────────────────────────────────────────────
+  &__kpi-row {
+    display: flex;
+    gap: 14px;
+  }
+
+  &__kpi-card {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 14px;
+    background: #fff;
+    border: 1.5px solid $border;
+    border-radius: 14px;
+    padding: 14px 22px;
+    min-width: 160px;
+    box-shadow: 0 1px 4px rgba(17, 24, 39, 0.05);
   }
 
-  &__stat {
+  &__kpi-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    &--blue {
+      background: #eef2ff;
+      color: $blue;
+    }
+
+    &--green {
+      background: #e6faf8;
+      color: $teal;
+    }
+  }
+
+  &__kpi-info {
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: 2px;
   }
 
-  &__stat-val {
-    font-size: 22px;
-    font-weight: 700;
-    color: $navy;
+  &__kpi-num {
+    font-size: 28px;
+    font-weight: 800;
     line-height: 1;
+    letter-spacing: -0.5px;
+
+    &--navy  { color: $navy; }
+    &--green { color: $teal; }
   }
 
-  &__stat-label {
-    font-size: 10px;
+  &__kpi-label {
+    font-size: 11px;
     font-weight: 600;
     color: $text-muted;
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
 
-  &__stat-sep {
-    width: 1px;
-    height: 32px;
-    background: $border;
-  }
-
-  // ── Controls ──────────────────────────────────────────────
-  &__controls {
+  // ── Toolbar ─────────────────────────────────────────────────
+  &__toolbar {
     background: #fff;
     border-bottom: 1px solid $border;
     padding: 10px 28px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  &__date-nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    position: relative;
   }
 
   &__date-pill {
-    position: relative;
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    background: #f4f6fb;
+    gap: 8px;
+    background: #f8f9fc;
     border: 1.5px solid $border;
-    border-radius: 8px;
-    padding: 8px 14px;
-    cursor: pointer;
+    border-radius: 9px;
+    padding: 7px 14px;
     font-size: 13px;
     font-weight: 600;
-    color: $text-primary;
-    user-select: none;
-    transition: border-color 0.15s, box-shadow 0.15s;
+    color: $text-dark;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s, border-color 0.15s;
 
     &:hover {
+      background: #eef0f6;
       border-color: darken($border, 8%);
-    }
-
-    &:focus-within {
-      border-color: $teal;
-      box-shadow: 0 0 0 3px rgba(38, 166, 154, 0.12);
     }
   }
 
-  &__date-icon { font-size: 14px; line-height: 1; }
-  &__date-text { white-space: nowrap; }
+  &__cal-icon  { font-size: 15px; line-height: 1; }
+  &__date-label { white-space: nowrap; }
+  &__chevron   { font-size: 11px; color: $text-muted; margin-left: 2px; }
 
-  &__chevron {
-    font-size: 11px;
-    color: $text-muted;
-    margin-left: 2px;
+  &__today-btn {
+    padding: 6px 16px;
+    border-radius: 8px;
+    border: 1.5px solid $border;
+    background: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-mid;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+    &:hover {
+      background: #f3f4f8;
+    }
+
+    &--active {
+      background: $navy;
+      color: #fff;
+      border-color: $navy;
+
+      &:hover { background: lighten($navy, 6%); }
+    }
   }
 
   &__date-hidden {
     position: absolute;
-    inset: 0;
-    width: 100%;
+    left: 0;
+    bottom: -2px;
     opacity: 0;
-    cursor: pointer;
+    width: 0;
+    height: 0;
+    pointer-events: none;
     border: none;
-    background: transparent;
-    padding: 0;
   }
 
-  // ── Legend ────────────────────────────────────────────────
+  // ── Legend ──────────────────────────────────────────────────
   &__legend {
-    background: #fff;
-    border-bottom: 1px solid $border;
-    padding: 8px 28px;
     display: flex;
     align-items: center;
-    gap: 20px;
-    justify-content: flex-end;
+    gap: 18px;
   }
 
   &__legend-item {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 11px;
+    gap: 7px;
+    font-size: 12px;
     font-weight: 500;
-    color: $text-muted;
+    color: $text-mid;
   }
 
   &__legend-dot {
-    display: inline-block;
-    width: 13px;
-    height: 13px;
-    border-radius: 3px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
     flex-shrink: 0;
+
+    &--occupied  { background: $navy; }
+    &--available { background: #d1fae5; border: 1.5px solid #6ee7b7; }
+    &--full      { background: #e5e7eb; border: 1.5px solid #d1d5db; }
   }
 
-  // ── Grid area ─────────────────────────────────────────────
+  // ── Grid area ────────────────────────────────────────────────
   &__grid-area {
     flex: 1;
-    padding: 20px 28px;
+    padding: 20px 28px 28px;
   }
 }
