@@ -1,12 +1,9 @@
 import { useState, useMemo, useRef } from 'react';
-import { Allocation, DrawerState, ModalState, RouteFilter, RouteType, SlotKey } from './types';
+import { Allocation, DrawerState, ModalState, RouteFilter, SlotKey, VehicleRow } from './types';
 
 interface ConfirmData {
-  deliveryCount: number;
+  vehicles: VehicleRow[];
   notes: string;
-  driverName: string;
-  vehicleNumber: string;
-  routeType: RouteType;
 }
 import { MOCK_ALLOCATIONS, MOCK_COMPANIES, buildSlotKey } from './mockData';
 import ScheduleGrid from './components/ScheduleGrid/ScheduleGrid';
@@ -85,7 +82,7 @@ export default function BookingSchedule() {
     const counts = new Map<string, number>();
     allocations.forEach((a) => {
       if (a.date === selectedDate)
-        counts.set(a.companyId, (counts.get(a.companyId) ?? 0) + a.deliveryCount);
+        counts.set(a.companyId, (counts.get(a.companyId) ?? 0) + a.vehicles.length);
     });
     return counts;
   }, [allocations, selectedDate]);
@@ -137,7 +134,11 @@ export default function BookingSchedule() {
 
     if (modalState.mode === 'edit' && modalState.existingAllocation) {
       setAllocations((prev) =>
-        new Map(prev).set(key, { ...modalState.existingAllocation!, ...data })
+        new Map(prev).set(key, {
+          ...modalState.existingAllocation!,
+          vehicles: data.vehicles,
+          notes: data.notes,
+        })
       );
     } else {
       setAllocations((prev) =>
@@ -147,7 +148,8 @@ export default function BookingSchedule() {
           companyName: company.name,
           date: selectedDate,
           hour: modalState.hour,
-          ...data,
+          vehicles: data.vehicles,
+          notes: data.notes,
           createdAt: new Date().toISOString(),
         })
       );

@@ -31,6 +31,9 @@ function formatDateTime(isoString: string): string {
 }
 
 function DetailDrawer({ open, allocation, onClose, onEdit }: DetailDrawerProps) {
+  const oneWayCount = allocation ? allocation.vehicles.filter(v => v.routeType === 'one-way').length : 0;
+  const twoWayCount = allocation ? allocation.vehicles.filter(v => v.routeType === 'two-way').length : 0;
+
   return (
     <>
       {open && <div className="dd-backdrop" onClick={onClose} role="presentation" />}
@@ -48,6 +51,7 @@ function DetailDrawer({ open, allocation, onClose, onEdit }: DetailDrawerProps) 
         {allocation ? (
           <>
             <div className="dd__body">
+              {/* ── Booking Info ──────────────────────────── */}
               <section className="dd__section">
                 <h3 className="dd__section-title">Booking Info</h3>
                 <dl className="dd__dl">
@@ -62,14 +66,23 @@ function DetailDrawer({ open, allocation, onClose, onEdit }: DetailDrawerProps) 
 
                   <dt>Deliveries</dt>
                   <dd>
-                    <span className="dd__count-badge">{allocation.deliveryCount}</span>
+                    <span className="dd__count-badge">{allocation.vehicles.length}</span>
                   </dd>
 
-                  <dt>Route Type</dt>
+                  <dt>Route Mix</dt>
                   <dd>
-                    <span className="dd__route-badge">
-                      {allocation.routeType === 'one-way' ? '→ One Way' : '↔ Two Way'}
-                    </span>
+                    <div className="dd__route-mix">
+                      {oneWayCount > 0 && (
+                        <span className="dd__route-badge dd__route-badge--one-way">
+                          → {oneWayCount} One Way
+                        </span>
+                      )}
+                      {twoWayCount > 0 && (
+                        <span className="dd__route-badge dd__route-badge--two-way">
+                          ↔ {twoWayCount} Two Way
+                        </span>
+                      )}
+                    </div>
                   </dd>
 
                   <dt>Created At</dt>
@@ -77,17 +90,23 @@ function DetailDrawer({ open, allocation, onClose, onEdit }: DetailDrawerProps) 
                 </dl>
               </section>
 
+              {/* ── Vehicles ──────────────────────────────── */}
               <section className="dd__section">
-                <h3 className="dd__section-title">Vehicle & Driver</h3>
-                <dl className="dd__dl">
-                  <dt>Vehicle No.</dt>
-                  <dd>
-                    <span className="dd__vehicle-plate">{allocation.vehicleNumber || '—'}</span>
-                  </dd>
-
-                  <dt>Driver</dt>
-                  <dd>{allocation.driverName || '—'}</dd>
-                </dl>
+                <h3 className="dd__section-title">Vehicles ({allocation.vehicles.length})</h3>
+                <div className="dd__vehicles">
+                  {allocation.vehicles.map((vr, i) => (
+                    <div key={vr.id} className="dd__vehicle-row">
+                      <span className="dd__vehicle-idx">{i + 1}</span>
+                      <span className={`dd__vehicle-type dd__vehicle-type--${vr.routeType}`}>
+                        {vr.routeType === 'one-way' ? '→' : '↔'}
+                      </span>
+                      <div className="dd__vehicle-info">
+                        <span className="dd__vehicle-plate">{vr.vehicleNumber || '—'}</span>
+                        <span className="dd__vehicle-driver">{vr.driverName || '—'}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </section>
 
               {allocation.notes && (

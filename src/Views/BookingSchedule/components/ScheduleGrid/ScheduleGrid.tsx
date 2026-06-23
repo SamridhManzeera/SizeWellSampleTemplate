@@ -27,20 +27,15 @@ function formatHour(hour: number): { time: string; period: string } {
 }
 
 function ScheduleGrid({
-  companies,
-  allocations,
-  allocatedCounts,
-  selectedDate,
-  routeFilter,
-  onAvailableSlotClick,
-  onOccupiedSlotClick,
+  companies, allocations, allocatedCounts, selectedDate, routeFilter,
+  onAvailableSlotClick, onOccupiedSlotClick,
 }: ScheduleGridProps) {
-  // Per-hour delivery totals across all companies
+
   const hourTotals = HOURS.map((hour) => {
     let total = 0;
     companies.forEach((company) => {
-      const allocation = allocations.get(buildSlotKey(company.id, selectedDate, hour));
-      if (allocation) total += allocation.deliveryCount;
+      const a = allocations.get(buildSlotKey(company.id, selectedDate, hour));
+      if (a) total += a.vehicles.length;
     });
     return total;
   });
@@ -51,7 +46,6 @@ function ScheduleGrid({
   return (
     <div className="sg-wrapper">
       <table className="sg">
-        {/* ── Column sizing ───────────────────────────────────── */}
         <colgroup>
           <col className="sg__col-company" />
           <col className="sg__col-stat" />
@@ -59,9 +53,7 @@ function ScheduleGrid({
           {HOURS.map((h) => <col key={h} className="sg__col-hour" />)}
         </colgroup>
 
-        {/* ── Header ──────────────────────────────────────────── */}
         <thead>
-          {/* ── Column delivery totals row — sits above time labels ── */}
           <tr className="sg__totals-row">
             <th className="sg__totals-label">Deliveries / Hour</th>
             <th className="sg__totals-stat sg__totals-stat--req">
@@ -76,7 +68,6 @@ function ScheduleGrid({
               </th>
             ))}
           </tr>
-          {/* ── Time slot column headers ─────────────────────────── */}
           <tr>
             <th className="sg__th sg__th--company">Company / Structure</th>
             <th className="sg__th sg__th--stat sg__th--assigned">Requested</th>
@@ -93,11 +84,10 @@ function ScheduleGrid({
           </tr>
         </thead>
 
-        {/* ── Body ────────────────────────────────────────────── */}
         <tbody>
           {companies.map((company, idx) => {
-            const allocated = allocatedCounts.get(company.id) ?? 0;
-            const isFull = allocated >= company.assignedDeliveries;
+            const allocated   = allocatedCounts.get(company.id) ?? 0;
+            const isFull      = allocated >= company.assignedDeliveries;
             const accentColor = ROW_COLORS[idx % ROW_COLORS.length];
 
             return (
@@ -122,12 +112,19 @@ function ScheduleGrid({
                     {allocated}
                   </span>
                 </td>
+
                 {HOURS.map((hour) => {
-                  const key = buildSlotKey(company.id, selectedDate, hour);
+                  const key        = buildSlotKey(company.id, selectedDate, hour);
                   const allocation = allocations.get(key);
-                  const matchesFilter = !allocation || routeFilter === 'all' || allocation.routeType === routeFilter;
+                  const matchesFilter = !allocation
+                    || routeFilter === 'all'
+                    || allocation.vehicles.some(v => v.routeType === routeFilter);
                   const isOccupied = !!allocation && matchesFilter;
                   const isDisabled = !isOccupied && isFull;
+
+                  const oneWay = isOccupied ? allocation!.vehicles.filter(v => v.routeType === 'one-way').length : 0;
+                  const twoWay = isOccupied ? allocation!.vehicles.filter(v => v.routeType === 'two-way').length : 0;
+                  const total  = isOccupied ? allocation!.vehicles.length : 0;
 
                   return (
                     <td key={hour} className="sg__td sg__td--slot">
@@ -144,17 +141,18 @@ function ScheduleGrid({
                           isDisabled
                             ? 'No remaining deliveries'
                             : isOccupied
-                              ? `${allocation!.deliveryCount} deliveries (${allocation!.routeType}) — click to view`
+                              ? `${total} deliveries — click to view`
                               : 'Available — click to allocate'
                         }
                       >
                         {isOccupied && (
-                          <>
-                            <span className="sg__slot-count">{allocation!.deliveryCount}</span>
-                            <span className="sg__slot-icon">
-                              {allocation!.routeType === 'one-way' ? '→' : '↔'}
+                          <div className="sg__slot-content">
+                            <span className="sg__slot-total">{total}</span>
+                            <span className="sg__slot-breakdown">
+                              {twoWay > 0 && <span>{twoWay}&nbsp;↔</span>}
+                              {oneWay > 0 && <span>{oneWay}&nbsp;→</span>}
                             </span>
-                          </>
+                          </div>
                         )}
                       </button>
                     </td>
@@ -165,7 +163,6 @@ function ScheduleGrid({
           })}
         </tbody>
 
-        {/* ── Footer / Routing Legend ─────────────────────────── */}
         <tfoot>
           <tr>
             <td colSpan={3 + HOURS.length} className="sg__footer">
@@ -180,12 +177,8 @@ function ScheduleGrid({
                   </span>
                 </div>
                 <div className="sg__footer-right">
-                  <span className="sg__footer-desc">
-                    <strong>One Way:</strong> Delivery in one direction only
-                  </span>
-                  <span className="sg__footer-desc">
-                    <strong>Two Way:</strong> Delivery with return journey
-                  </span>
+                  <span className="sg__footer-desc"><strong>One Way:</strong> Delivery in one direction only</span>
+                  <span className="sg__footer-desc"><strong>Two Way:</strong> Delivery with return journey</span>
                 </div>
               </div>
             </td>

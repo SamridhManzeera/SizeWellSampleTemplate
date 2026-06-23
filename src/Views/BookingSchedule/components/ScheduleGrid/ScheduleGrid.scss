@@ -309,18 +309,18 @@ $left-allocated: $col-company + $col-stat;     // 300px
   // ── Slot button ────────────────────────────────────────────
   &__slot {
     display: inline-flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     width: 100%;
-    height: 46px;
+    height: 52px;
     border-radius: 8px;
     border: none;
     cursor: pointer;
-    // No transform — avoids creating a GPU composite layer that
-    // would paint above sticky cells regardless of z-index
     transition: background 0.15s, box-shadow 0.15s;
-    padding: 0;
+    padding: 4px 2px;
     font-family: inherit;
+    gap: 2px;
 
     &--available {
       background: #e0f2fe;
@@ -343,22 +343,29 @@ $left-allocated: $col-company + $col-stat;     // 300px
     }
   }
 
-  &__slot-count {
-    font-size: 14px;
-    font-weight: 700;
-    color: #fff;
+  &__slot-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
     pointer-events: none;
+  }
+
+  &__slot-total {
+    font-size: 17px;
+    font-weight: 800;
+    color: #fff;
     line-height: 1;
   }
 
-  &__slot-icon {
-    font-size: 18px;
+  &__slot-breakdown {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
     font-weight: 700;
-    color: rgba(255, 255, 255, 0.85);
-    pointer-events: none;
-    margin-left: 5px;
+    color: rgba(255, 255, 255, 0.8);
     line-height: 1;
-    letter-spacing: -1px;
   }
 
   // ── Footer / Routing Legend ────────────────────────────────

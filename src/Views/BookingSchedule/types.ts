@@ -13,17 +13,21 @@ export interface Company {
 export type RouteType = 'one-way' | 'two-way';
 export type RouteFilter = 'all' | 'one-way' | 'two-way';
 
+export interface VehicleRow {
+  id: string;
+  routeType: RouteType;
+  vehicleNumber: string;
+  driverName: string;
+}
+
 export interface Allocation {
   id: string;
   companyId: string;
   companyName: string;
   date: string;
   hour: number;
-  deliveryCount: number;
+  vehicles: VehicleRow[];
   notes: string;
-  driverName: string;
-  vehicleNumber: string;
-  routeType: RouteType;
   createdAt: string;
 }
 

@@ -146,17 +146,80 @@ $drawer-width: 380px;
     min-width: 30px;
   }
 
+  &__route-mix {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
   &__route-badge {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    background: #eef2ff;
-    color: $navy;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     border-radius: 6px;
     padding: 3px 10px;
-    border: 1px solid #c7d2fe;
+
+    &--one-way {
+      background: rgba(#f97316, 0.1);
+      color: darken(#f97316, 12%);
+      border: 1px solid rgba(#f97316, 0.25);
+    }
+
+    &--two-way {
+      background: rgba($teal, 0.1);
+      color: darken($teal, 10%);
+      border: 1px solid rgba($teal, 0.25);
+    }
+  }
+
+  // ── Vehicles list ──────────────────────────────────────
+  &__vehicles {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__vehicle-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid $border;
+    border-radius: 8px;
+    background: $bg-section;
+  }
+
+  &__vehicle-idx {
+    font-size: 11px;
+    font-weight: 700;
+    color: $text-muted;
+    min-width: 18px;
+    text-align: center;
+  }
+
+  &__vehicle-type {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 22px;
+    border-radius: 5px;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+
+    &--one-way { background: rgba(#f97316, 0.12); color: darken(#f97316, 10%); }
+    &--two-way { background: rgba($teal,   0.12); color: darken($teal,   10%); }
+  }
+
+  &__vehicle-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
   }
 
   &__vehicle-plate {
@@ -165,12 +228,19 @@ $drawer-width: 380px;
     background: #fefce8;
     border: 1.5px solid #fde047;
     border-radius: 5px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     color: #3a3000;
-    padding: 2px 10px;
-    letter-spacing: 0.08em;
+    padding: 1px 8px;
+    letter-spacing: 0.06em;
     font-family: 'Courier New', Courier, monospace;
+    width: fit-content;
+  }
+
+  &__vehicle-driver {
+    font-size: 11px;
+    color: $text-muted;
+    font-weight: 500;
   }
 
   &__notes {
