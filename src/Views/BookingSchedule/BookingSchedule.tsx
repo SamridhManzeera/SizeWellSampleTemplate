@@ -34,7 +34,9 @@ function buildInitialAllocations(): Map<SlotKey, Allocation> {
   return map;
 }
 
-const TOTAL_SLOT_CAPACITY = 250;
+const TOTAL_SLOT_CAPACITY   = 250;
+const INBOUND_SLOT_CAPACITY  = 130;
+const OUTBOUND_SLOT_CAPACITY = 120;
 
 let idCounter = MOCK_ALLOCATIONS.length + 1;
 
@@ -112,7 +114,9 @@ export default function BookingSchedule() {
   const totalInboundRequested  = MOCK_COMPANIES.reduce((s, c) => s + c.inboundDeliveries,   0);
   const totalOutboundRequested = MOCK_COMPANIES.reduce((s, c) => s + c.outboundDeliveries,  0);
 
-  const availableSlots = TOTAL_SLOT_CAPACITY - totalAllocatedToday;
+  const availableSlots         = TOTAL_SLOT_CAPACITY   - totalAllocatedToday;
+  const availableInboundSlots  = INBOUND_SLOT_CAPACITY  - totalInboundToday;
+  const availableOutboundSlots = OUTBOUND_SLOT_CAPACITY - totalOutboundToday;
 
   const isToday = selectedDate === getTodayString();
 
@@ -200,6 +204,10 @@ export default function BookingSchedule() {
             </div>
             <div className="bs__kpi-info">
               <span className="bs__kpi-num bs__kpi-num--purple">{TOTAL_SLOT_CAPACITY}</span>
+              <div className="bs__kpi-sub">
+                <span className="bs__kpi-sub-item bs__kpi-sub-item--in">↑ {INBOUND_SLOT_CAPACITY}</span>
+                <span className="bs__kpi-sub-item bs__kpi-sub-item--out">↓ {OUTBOUND_SLOT_CAPACITY}</span>
+              </div>
               <span className="bs__kpi-label">Total Slot</span>
             </div>
           </div>
@@ -238,6 +246,10 @@ export default function BookingSchedule() {
             </div>
             <div className="bs__kpi-info">
               <span className="bs__kpi-num bs__kpi-num--orange">{availableSlots}</span>
+              <div className="bs__kpi-sub">
+                <span className="bs__kpi-sub-item bs__kpi-sub-item--in">↑ {availableInboundSlots}</span>
+                <span className="bs__kpi-sub-item bs__kpi-sub-item--out">↓ {availableOutboundSlots}</span>
+              </div>
               <span className="bs__kpi-label">Available</span>
             </div>
           </div>
