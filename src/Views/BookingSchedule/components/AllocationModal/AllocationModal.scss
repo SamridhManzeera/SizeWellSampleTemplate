@@ -11,6 +11,10 @@ $error:     #ef4444;
 $warn:      #f59e0b;
 $radius:    16px;
 
+// Inbound = teal/green family, Outbound = orange family
+$in-color:  #16a34a;
+$out-color: $orange;
+
 .am-backdrop {
   position: fixed;
   inset: 0;
@@ -21,13 +25,12 @@ $radius:    16px;
   z-index: 1000;
   animation: amFadeIn 0.15s ease;
   padding: 16px;
-  overflow-y: auto;
 }
 
 .am {
   background: #fff;
   border-radius: $radius;
-  width: 700px;
+  width: 540px;
   max-width: calc(100vw - 32px);
   max-height: 92vh;
   overflow-y: auto;
@@ -35,23 +38,18 @@ $radius:    16px;
   animation: amSlideUp 0.2s ease;
   display: flex;
   flex-direction: column;
-  flex-shrink: 0;
 
   &::-webkit-scrollbar       { width: 5px; }
   &::-webkit-scrollbar-track { background: transparent; }
   &::-webkit-scrollbar-thumb { background: $border; border-radius: 3px; }
 
-  // ── Header ──────────────────────────────────────────────
+  // ── Header ────────────────────────────────────────────
   &__header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     padding: 20px 24px 16px;
     border-bottom: 1px solid $border;
-    position: sticky;
-    top: 0;
-    background: #fff;
-    z-index: 10;
     gap: 12px;
   }
 
@@ -112,7 +110,7 @@ $radius:    16px;
     &:hover { background: $border; color: $text-dark; }
   }
 
-  // ── Meta ────────────────────────────────────────────────
+  // ── Meta ──────────────────────────────────────────────
   &__meta {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -167,87 +165,116 @@ $radius:    16px;
     margin-top: 2px;
   }
 
-  // ── Form ────────────────────────────────────────────────
+  // ── Form ──────────────────────────────────────────────
   &__form {
     padding: 20px 24px 24px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
   }
 
-  &__section-title {
-    font-size: 14px;
-    font-weight: 700;
-    color: $text-dark;
-    margin: 0 0 12px;
-
-    &--sm { margin: 0; font-size: 13px; }
-  }
-
-  // ── Allocation cards ─────────────────────────────────────
-  &__alloc-cards {
+  // ── Counter cards ──────────────────────────────────────
+  &__cards {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 12px;
+    gap: 14px;
   }
 
-  &__alloc-card {
+  &__card {
     border: 1.5px solid $border;
-    border-radius: 12px;
-    padding: 16px;
+    border-radius: 14px;
+    padding: 18px 16px 14px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
 
-    &--one-way { border-color: rgba($orange, 0.35); background: rgba($orange, 0.02); }
-    &--two-way { border-color: rgba($teal,   0.35); background: rgba($teal,   0.02); }
+    &--inbound  { border-color: rgba($in-color,  0.3); background: rgba($in-color,  0.02); }
+    &--outbound { border-color: rgba($out-color, 0.3); background: rgba($out-color, 0.02); }
   }
 
-  &__alloc-card-header {
+  &__card-header {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 4px;
+    gap: 10px;
   }
 
-  &__alloc-icon {
+  &__card-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    font-size: 17px;
-    font-weight: 700;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    font-size: 20px;
+    font-weight: 900;
     line-height: 1;
 
-    &--one-way { background: rgba($orange, 0.12); color: $orange; }
-    &--two-way { background: rgba($teal,   0.12); color: $teal; }
+    &--inbound  { background: rgba($in-color,  0.12); color: $in-color; }
+    &--outbound { background: rgba($out-color, 0.12); color: $out-color; }
   }
 
-  &__alloc-card-name {
-    font-size: 15px;
+  &__card-name {
+    font-size: 16px;
     font-weight: 700;
     color: $text-dark;
   }
 
-  &__alloc-card-label {
+  &__card-label {
     font-size: 11px;
     color: $text-muted;
     font-weight: 500;
   }
 
-  &__alloc-card-count {
-    font-size: 36px;
-    font-weight: 800;
-    line-height: 1;
-
-    &--one-way { color: $orange; }
-    &--two-way { color: $teal; }
+  // ── +/- Counter ────────────────────────────────────────
+  &__counter {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border: 1.5px solid $border;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
   }
 
-  &__alloc-card-footer {
+  &__counter-btn {
+    width: 40px;
+    height: 44px;
+    border: none;
+    background: $bg-page;
+    font-size: 20px;
+    font-weight: 600;
+    color: $text-mid;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    flex-shrink: 0;
+
+    &:hover:not(:disabled) {
+      background: darken($bg-page, 4%);
+      color: $text-dark;
+    }
+
+    &:disabled { opacity: 0.35; cursor: not-allowed; }
+  }
+
+  &__counter-val {
+    flex: 1;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1;
+    border-left: 1px solid $border;
+    border-right: 1px solid $border;
+    padding: 8px 4px;
+
+    &--inbound  { color: $in-color; }
+    &--outbound { color: $out-color; }
+  }
+
+  &__card-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -255,21 +282,22 @@ $radius:    16px;
     border-top: 1px solid $border;
   }
 
-  &__alloc-total-label {
+  &__card-total-label {
     font-size: 11px;
     font-weight: 600;
     color: $text-muted;
   }
 
-  &__alloc-total-num {
+  &__card-total-val {
     font-size: 15px;
     font-weight: 800;
 
-    &--one-way { color: $orange; }
-    &--two-way { color: $teal; }
+    &--inbound  { color: $in-color; }
+    &--outbound { color: $out-color; }
   }
 
-  &__alloc-info {
+  // ── Total bar ─────────────────────────────────────────
+  &__total-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -278,200 +306,21 @@ $radius:    16px;
     border-radius: 8px;
     padding: 10px 14px;
     gap: 12px;
-    flex-wrap: wrap;
   }
 
-  &__alloc-info-text {
+  &__total-bar-text {
     font-size: 12px;
     color: $text-mid;
-    flex: 1;
-    min-width: 180px;
   }
 
-  &__alloc-total-deliveries {
+  &__total-bar-num {
     font-size: 13px;
     font-weight: 700;
     color: $navy;
     white-space: nowrap;
   }
 
-  // ── Vehicles section ─────────────────────────────────────
-  &__vehicles-section {
-    border: 1.5px solid $border;
-    border-radius: 12px;
-    overflow: hidden;
-  }
-
-  &__vehicles-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 13px 16px;
-    border-bottom: 1px solid $border;
-    background: $bg-page;
-  }
-
-  &__autofill-btn {
-    padding: 6px 13px;
-    border-radius: 7px;
-    border: 1.5px solid $border;
-    background: #fff;
-    font-size: 12px;
-    font-weight: 600;
-    color: $text-mid;
-    cursor: pointer;
-    font-family: inherit;
-    transition: background 0.15s;
-
-    &:hover { background: #eef0f6; }
-  }
-
-  &__vehicles-table {
-    padding: 0 8px;
-  }
-
-  &__vehicles-thead {
-    display: grid;
-    grid-template-columns: 30px 115px 1fr 1fr 34px;
-    gap: 8px;
-    padding: 9px 8px 6px;
-    border-bottom: 1px solid $border;
-
-    span {
-      font-size: 10px;
-      font-weight: 700;
-      color: $text-muted;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-  }
-
-  &__vehicles-row {
-    display: grid;
-    grid-template-columns: 30px 115px 1fr 1fr 34px;
-    gap: 8px;
-    align-items: center;
-    padding: 7px 8px;
-    border-bottom: 1px solid $border;
-    transition: background 0.1s;
-
-    &:last-child { border-bottom: none; }
-    &:hover      { background: #f9fafb; }
-  }
-
-  &__vrow-num {
-    font-size: 12px;
-    font-weight: 600;
-    color: $text-muted;
-    text-align: center;
-  }
-
-  &__vrow-type {
-    padding: 5px 0;
-    border-radius: 6px;
-    border: none;
-    font-size: 11px;
-    font-weight: 700;
-    cursor: pointer;
-    font-family: inherit;
-    transition: opacity 0.15s;
-    white-space: nowrap;
-    text-align: center;
-
-    &:hover { opacity: 0.78; }
-
-    &--one-way { background: rgba($orange, 0.13); color: darken($orange, 10%); }
-    &--two-way { background: rgba($teal,   0.13); color: darken($teal,   10%); }
-  }
-
-  &__vrow-input-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-
-  &__vrow-input {
-    width: 100%;
-    border: 1.5px solid $border;
-    border-radius: 7px;
-    padding: 7px 30px 7px 9px;
-    font-size: 12px;
-    color: $text-dark;
-    font-family: inherit;
-    outline: none;
-    background: #fff;
-    transition: border-color 0.15s;
-
-    &:focus { border-color: $teal; box-shadow: 0 0 0 2px rgba($teal, 0.1); }
-    &::placeholder { color: #cbd5e1; font-size: 11px; }
-
-    &--upper {
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      font-weight: 600;
-    }
-  }
-
-  &__vrow-icon {
-    position: absolute;
-    right: 8px;
-    font-size: 12px;
-    pointer-events: none;
-    opacity: 0.45;
-  }
-
-  &__vrow-delete {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-    opacity: 0.35;
-    padding: 4px 6px;
-    border-radius: 5px;
-    transition: opacity 0.15s, background 0.15s;
-    text-align: center;
-    line-height: 1;
-
-    &:hover { opacity: 1; background: rgba($error, 0.08); }
-  }
-
-  &__vehicles-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 11px 16px;
-    border-top: 1px solid $border;
-    background: $bg-page;
-  }
-
-  &__add-row-btn {
-    padding: 7px 14px;
-    border-radius: 8px;
-    border: 1.5px dashed darken($border, 6%);
-    background: #fff;
-    font-size: 12px;
-    font-weight: 600;
-    color: $text-mid;
-    cursor: pointer;
-    font-family: inherit;
-    transition: background 0.15s, border-color 0.15s, color 0.15s;
-
-    &:hover:not(:disabled) {
-      background: #f0f4ff;
-      border-color: #a5b4fc;
-      color: $navy;
-    }
-
-    &:disabled { opacity: 0.4; cursor: not-allowed; }
-  }
-
-  &__total-vehicles {
-    font-size: 12px;
-    font-weight: 700;
-    color: $navy;
-  }
-
-  // ── Notes ───────────────────────────────────────────────
+  // ── Notes ─────────────────────────────────────────────
   &__field {
     display: flex;
     flex-direction: column;
@@ -483,8 +332,6 @@ $radius:    16px;
     font-weight: 600;
     color: $text-dark;
   }
-
-  &__req { color: $error; }
 
   &__textarea {
     border: 1.5px solid $border;
@@ -502,7 +349,7 @@ $radius:    16px;
     &::placeholder { color: #cbd5e1; }
   }
 
-  // ── Error ───────────────────────────────────────────────
+  // ── Error ─────────────────────────────────────────────
   &__error {
     margin: 0;
     font-size: 12px;
@@ -513,7 +360,7 @@ $radius:    16px;
     padding: 8px 12px;
   }
 
-  // ── Actions ─────────────────────────────────────────────
+  // ── Actions ───────────────────────────────────────────
   &__actions {
     display: flex;
     gap: 10px;
@@ -521,7 +368,7 @@ $radius:    16px;
   }
 
   &__btn {
-    padding: 10px 22px;
+    padding: 10px 24px;
     border-radius: 8px;
     font-size: 13px;
     font-weight: 600;

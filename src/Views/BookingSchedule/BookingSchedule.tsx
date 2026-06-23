@@ -1,8 +1,9 @@
 import { useState, useMemo, useRef } from 'react';
-import { Allocation, DrawerState, ModalState, RouteFilter, SlotKey, VehicleRow } from './types';
+import { Allocation, DrawerState, ModalState, RouteFilter, SlotKey } from './types';
 
 interface ConfirmData {
-  vehicles: VehicleRow[];
+  inboundCount: number;
+  outboundCount: number;
   notes: string;
 }
 import { MOCK_ALLOCATIONS, MOCK_COMPANIES, buildSlotKey } from './mockData';
@@ -82,7 +83,7 @@ export default function BookingSchedule() {
     const counts = new Map<string, number>();
     allocations.forEach((a) => {
       if (a.date === selectedDate)
-        counts.set(a.companyId, (counts.get(a.companyId) ?? 0) + a.vehicles.length);
+        counts.set(a.companyId, (counts.get(a.companyId) ?? 0) + a.inboundCount + a.outboundCount);
     });
     return counts;
   }, [allocations, selectedDate]);
@@ -92,6 +93,14 @@ export default function BookingSchedule() {
     allocatedCountsByCompany.forEach((v) => { sum += v; });
     return sum;
   }, [allocatedCountsByCompany]);
+
+  const { totalInboundToday, totalOutboundToday } = useMemo(() => {
+    let inbound = 0; let outbound = 0;
+    allocations.forEach((a) => {
+      if (a.date === selectedDate) { inbound += a.inboundCount; outbound += a.outboundCount; }
+    });
+    return { totalInboundToday: inbound, totalOutboundToday: outbound };
+  }, [allocations, selectedDate]);
 
   const totalAssigned = MOCK_COMPANIES.reduce((s, c) => s + c.assignedDeliveries, 0);
 
@@ -136,21 +145,23 @@ export default function BookingSchedule() {
       setAllocations((prev) =>
         new Map(prev).set(key, {
           ...modalState.existingAllocation!,
-          vehicles: data.vehicles,
-          notes: data.notes,
+          inboundCount:  data.inboundCount,
+          outboundCount: data.outboundCount,
+          notes:         data.notes,
         })
       );
     } else {
       setAllocations((prev) =>
         new Map(prev).set(key, {
-          id: `a${idCounter++}`,
-          companyId: modalState.companyId,
-          companyName: company.name,
-          date: selectedDate,
-          hour: modalState.hour,
-          vehicles: data.vehicles,
-          notes: data.notes,
-          createdAt: new Date().toISOString(),
+          id:            `a${idCounter++}`,
+          companyId:     modalState.companyId,
+          companyName:   company.name,
+          date:          selectedDate,
+          hour:          modalState.hour,
+          inboundCount:  data.inboundCount,
+          outboundCount: data.outboundCount,
+          notes:         data.notes,
+          createdAt:     new Date().toISOString(),
         })
       );
     }
@@ -187,6 +198,10 @@ export default function BookingSchedule() {
             </div>
             <div className="bs__kpi-info">
               <span className="bs__kpi-num bs__kpi-num--navy">{totalAllocatedToday}</span>
+              <div className="bs__kpi-sub">
+                <span className="bs__kpi-sub-item bs__kpi-sub-item--in">↑ {totalInboundToday}</span>
+                <span className="bs__kpi-sub-item bs__kpi-sub-item--out">↓ {totalOutboundToday}</span>
+              </div>
               <span className="bs__kpi-label">Allocated</span>
             </div>
           </div>
@@ -260,14 +275,14 @@ export default function BookingSchedule() {
 
           <div className="bs__route-filter">
             <span className="bs__route-filter-label">Route Type:</span>
-            {(['all', 'one-way', 'two-way'] as RouteFilter[]).map((f) => (
+            {(['all', 'inbound', 'outbound'] as RouteFilter[]).map((f) => (
               <button
                 key={f}
                 type="button"
                 className={`bs__route-btn${routeFilter === f ? ' bs__route-btn--active' : ''}`}
                 onClick={() => setRouteFilter(f)}
               >
-                {f === 'all' ? 'All' : f === 'one-way' ? '→ One Way' : '↔ Two Way'}
+                {f === 'all' ? 'All' : f === 'inbound' ? '↑ Inbound' : '↓ Outbound'}
               </button>
             ))}
           </div>

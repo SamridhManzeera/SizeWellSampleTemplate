@@ -361,11 +361,24 @@ $left-allocated: $col-company + $col-stat;     // 300px
   &__slot-breakdown {
     display: flex;
     align-items: center;
-    gap: 5px;
-    font-size: 11px;
-    font-weight: 700;
-    color: rgba(255, 255, 255, 0.8);
+    gap: 4px;
     line-height: 1;
+
+    span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 28px;
+      height: 20px;
+      padding: 0 5px;
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+    }
   }
 
   // ── Footer / Routing Legend ────────────────────────────────

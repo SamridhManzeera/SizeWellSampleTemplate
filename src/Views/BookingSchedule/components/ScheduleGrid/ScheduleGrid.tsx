@@ -35,7 +35,7 @@ function ScheduleGrid({
     let total = 0;
     companies.forEach((company) => {
       const a = allocations.get(buildSlotKey(company.id, selectedDate, hour));
-      if (a) total += a.vehicles.length;
+      if (a) total += a.inboundCount + a.outboundCount;
     });
     return total;
   });
@@ -116,15 +116,18 @@ function ScheduleGrid({
                 {HOURS.map((hour) => {
                   const key        = buildSlotKey(company.id, selectedDate, hour);
                   const allocation = allocations.get(key);
+
                   const matchesFilter = !allocation
                     || routeFilter === 'all'
-                    || allocation.vehicles.some(v => v.routeType === routeFilter);
+                    || (routeFilter === 'inbound'  && allocation.inboundCount  > 0)
+                    || (routeFilter === 'outbound' && allocation.outboundCount > 0);
+
                   const isOccupied = !!allocation && matchesFilter;
                   const isDisabled = !isOccupied && isFull;
 
-                  const oneWay = isOccupied ? allocation!.vehicles.filter(v => v.routeType === 'one-way').length : 0;
-                  const twoWay = isOccupied ? allocation!.vehicles.filter(v => v.routeType === 'two-way').length : 0;
-                  const total  = isOccupied ? allocation!.vehicles.length : 0;
+                  const inbound  = isOccupied ? allocation!.inboundCount  : 0;
+                  const outbound = isOccupied ? allocation!.outboundCount : 0;
+                  const total    = inbound + outbound;
 
                   return (
                     <td key={hour} className="sg__td sg__td--slot">
@@ -149,8 +152,8 @@ function ScheduleGrid({
                           <div className="sg__slot-content">
                             <span className="sg__slot-total">{total}</span>
                             <span className="sg__slot-breakdown">
-                              {twoWay > 0 && <span>{twoWay}&nbsp;↔</span>}
-                              {oneWay > 0 && <span>{oneWay}&nbsp;→</span>}
+                              {inbound  > 0 && <span>{inbound}&nbsp;↑</span>}
+                              {outbound > 0 && <span>{outbound}&nbsp;↓</span>}
                             </span>
                           </div>
                         )}
@@ -170,15 +173,15 @@ function ScheduleGrid({
                 <div className="sg__footer-left">
                   <span className="sg__footer-title">Routing Legend</span>
                   <span className="sg__footer-item">
-                    <span className="sg__footer-arrow">→</span> One Way (Single Direction)
+                    <span className="sg__footer-arrow">↑</span> Inbound
                   </span>
                   <span className="sg__footer-item">
-                    <span className="sg__footer-arrow">↔</span> Two Way (Round Trip)
+                    <span className="sg__footer-arrow">↓</span> Outbound
                   </span>
                 </div>
                 <div className="sg__footer-right">
-                  <span className="sg__footer-desc"><strong>One Way:</strong> Delivery in one direction only</span>
-                  <span className="sg__footer-desc"><strong>Two Way:</strong> Delivery with return journey</span>
+                  <span className="sg__footer-desc"><strong>Inbound:</strong> Deliveries arriving at the facility</span>
+                  <span className="sg__footer-desc"><strong>Outbound:</strong> Deliveries leaving the facility</span>
                 </div>
               </div>
             </td>

@@ -18,12 +18,12 @@ function formatDate(dateStr: string): string {
 
 function formatDateTime(isoString: string): string {
   try {
-    const d = new Date(isoString);
-    const dd = String(d.getDate()).padStart(2, '0');
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const d    = new Date(isoString);
+    const dd   = String(d.getDate()).padStart(2, '0');
+    const mm   = String(d.getMonth() + 1).padStart(2, '0');
     const yyyy = d.getFullYear();
-    const hh = String(d.getHours()).padStart(2, '0');
-    const min = String(d.getMinutes()).padStart(2, '0');
+    const hh   = String(d.getHours()).padStart(2, '0');
+    const min  = String(d.getMinutes()).padStart(2, '0');
     return `${dd}/${mm}/${yyyy}, ${hh}:${min}`;
   } catch {
     return isoString;
@@ -31,8 +31,7 @@ function formatDateTime(isoString: string): string {
 }
 
 function DetailDrawer({ open, allocation, onClose, onEdit }: DetailDrawerProps) {
-  const oneWayCount = allocation ? allocation.vehicles.filter(v => v.routeType === 'one-way').length : 0;
-  const twoWayCount = allocation ? allocation.vehicles.filter(v => v.routeType === 'two-way').length : 0;
+  const total = allocation ? allocation.inboundCount + allocation.outboundCount : 0;
 
   return (
     <>
@@ -64,48 +63,32 @@ function DetailDrawer({ open, allocation, onClose, onEdit }: DetailDrawerProps) 
                   <dt>Time Slot</dt>
                   <dd>{formatHour(allocation.hour)}</dd>
 
-                  <dt>Deliveries</dt>
-                  <dd>
-                    <span className="dd__count-badge">{allocation.vehicles.length}</span>
-                  </dd>
-
-                  <dt>Route Mix</dt>
-                  <dd>
-                    <div className="dd__route-mix">
-                      {oneWayCount > 0 && (
-                        <span className="dd__route-badge dd__route-badge--one-way">
-                          → {oneWayCount} One Way
-                        </span>
-                      )}
-                      {twoWayCount > 0 && (
-                        <span className="dd__route-badge dd__route-badge--two-way">
-                          ↔ {twoWayCount} Two Way
-                        </span>
-                      )}
-                    </div>
-                  </dd>
+                  <dt>Total</dt>
+                  <dd><span className="dd__count-badge">{total}</span></dd>
 
                   <dt>Created At</dt>
                   <dd className="dd__muted">{formatDateTime(allocation.createdAt)}</dd>
                 </dl>
               </section>
 
-              {/* ── Vehicles ──────────────────────────────── */}
+              {/* ── Delivery Breakdown ────────────────────── */}
               <section className="dd__section">
-                <h3 className="dd__section-title">Vehicles ({allocation.vehicles.length})</h3>
-                <div className="dd__vehicles">
-                  {allocation.vehicles.map((vr, i) => (
-                    <div key={vr.id} className="dd__vehicle-row">
-                      <span className="dd__vehicle-idx">{i + 1}</span>
-                      <span className={`dd__vehicle-type dd__vehicle-type--${vr.routeType}`}>
-                        {vr.routeType === 'one-way' ? '→' : '↔'}
-                      </span>
-                      <div className="dd__vehicle-info">
-                        <span className="dd__vehicle-plate">{vr.vehicleNumber || '—'}</span>
-                        <span className="dd__vehicle-driver">{vr.driverName || '—'}</span>
-                      </div>
+                <h3 className="dd__section-title">Delivery Breakdown</h3>
+                <div className="dd__breakdown">
+                  <div className="dd__breakdown-card dd__breakdown-card--inbound">
+                    <span className="dd__breakdown-icon">↑</span>
+                    <div className="dd__breakdown-info">
+                      <span className="dd__breakdown-label">Inbound</span>
+                      <span className="dd__breakdown-count">{allocation.inboundCount}</span>
                     </div>
-                  ))}
+                  </div>
+                  <div className="dd__breakdown-card dd__breakdown-card--outbound">
+                    <span className="dd__breakdown-icon">↓</span>
+                    <div className="dd__breakdown-info">
+                      <span className="dd__breakdown-label">Outbound</span>
+                      <span className="dd__breakdown-count">{allocation.outboundCount}</span>
+                    </div>
+                  </div>
                 </div>
               </section>
 

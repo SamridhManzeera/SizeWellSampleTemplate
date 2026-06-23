@@ -111,6 +111,25 @@ $blue: #3b5bdb;
     &--purple { color: #7048e8; }
   }
 
+  &__kpi-sub {
+    display: flex;
+    gap: 5px;
+    margin: 2px 0;
+  }
+
+  &__kpi-sub-item {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.4;
+
+    &--in  { background: rgba(#16a34a, 0.1); color: #16a34a; }
+    &--out { background: rgba(#f97316, 0.1); color: darken(#f97316, 8%); }
+  }
+
   &__kpi-label {
     font-size: 11px;
     font-weight: 600;

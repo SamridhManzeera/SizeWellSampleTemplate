@@ -10,15 +10,8 @@ export interface Company {
   assignedDeliveries: number;
 }
 
-export type RouteType = 'one-way' | 'two-way';
-export type RouteFilter = 'all' | 'one-way' | 'two-way';
-
-export interface VehicleRow {
-  id: string;
-  routeType: RouteType;
-  vehicleNumber: string;
-  driverName: string;
-}
+export type RouteType   = 'inbound' | 'outbound';
+export type RouteFilter = 'all' | 'inbound' | 'outbound';
 
 export interface Allocation {
   id: string;
@@ -26,7 +19,8 @@ export interface Allocation {
   companyName: string;
   date: string;
   hour: number;
-  vehicles: VehicleRow[];
+  inboundCount: number;
+  outboundCount: number;
   notes: string;
   createdAt: string;
 }
