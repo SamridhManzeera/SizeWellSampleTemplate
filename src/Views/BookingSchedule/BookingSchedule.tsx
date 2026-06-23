@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef } from 'react';
 import { Allocation, DrawerState, ModalState, RouteFilter, SlotKey } from './types';
+import sizewellLogo from '../../assets/SizewellIcon/SZC-nostrap-transparent.png';
 
 interface ConfirmData {
   inboundCount: number;
@@ -176,8 +177,12 @@ export default function BookingSchedule() {
       {/* ── Page header ───────────────────────────────────────── */}
       <div className="bs__header">
         <div className="bs__title-block">
-          <h1 className="bs__title">Full Schedule</h1>
-          <p className="bs__subtitle">All time slots overview</p>
+          <img src={sizewellLogo} alt="Sizewell C" className="bs__logo" />
+          <span className="bs__logo-divider" aria-hidden="true" />
+          <div className="bs__title-text">
+            <h1 className="bs__title">Full Schedule</h1>
+            <p className="bs__subtitle">All time slots overview</p>
+          </div>
         </div>
 
         <div className="bs__kpi-row">

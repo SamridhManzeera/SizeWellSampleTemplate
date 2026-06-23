@@ -363,21 +363,65 @@ $left-allocated: $col-company + $col-stat;     // 300px
     align-items: center;
     gap: 4px;
     line-height: 1;
+  }
 
-    span {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 28px;
-      height: 20px;
-      padding: 0 5px;
-      background: rgba(255, 255, 255, 0.18);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      border-radius: 5px;
-      font-size: 11px;
-      font-weight: 700;
-      color: #fff;
-      white-space: nowrap;
+  // shared base for inbound / outbound badges on navy
+  %slot-bd-base {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    letter-spacing: 0.01em;
+  }
+
+  &__slot-bd-in {
+    @extend %slot-bd-base;
+    background: rgba(74, 222, 128, 0.15);
+    border: 1px solid rgba(74, 222, 128, 0.35);
+    color: #86efac;
+  }
+
+  &__slot-bd-out {
+    @extend %slot-bd-base;
+    background: rgba(251, 146, 60, 0.15);
+    border: 1px solid rgba(251, 146, 60, 0.35);
+    color: #fdba74;
+  }
+
+  // ── Totals row chips ────────────────────────────────────
+  &__totals-chips {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    flex-wrap: nowrap;
+  }
+
+  &__totals-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+
+    &--in {
+      background: rgba(74, 222, 128, 0.15);
+      border: 1px solid rgba(74, 222, 128, 0.35);
+      color: #86efac;
+    }
+
+    &--out {
+      background: rgba(251, 146, 60, 0.15);
+      border: 1px solid rgba(251, 146, 60, 0.35);
+      color: #fdba74;
     }
   }
 

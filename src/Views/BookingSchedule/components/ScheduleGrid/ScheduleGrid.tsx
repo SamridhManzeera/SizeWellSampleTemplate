@@ -32,12 +32,12 @@ function ScheduleGrid({
 }: ScheduleGridProps) {
 
   const hourTotals = HOURS.map((hour) => {
-    let total = 0;
+    let inbound = 0; let outbound = 0;
     companies.forEach((company) => {
       const a = allocations.get(buildSlotKey(company.id, selectedDate, hour));
-      if (a) total += a.inboundCount + a.outboundCount;
+      if (a) { inbound += a.inboundCount; outbound += a.outboundCount; }
     });
-    return total;
+    return { inbound, outbound };
   });
 
   const totalRequested = companies.reduce((s, c) => s + c.assignedDeliveries, 0);
@@ -62,9 +62,12 @@ function ScheduleGrid({
             <th className="sg__totals-stat sg__totals-stat--alloc">
               <span className="sg__col-total">{totalAllocated}</span>
             </th>
-            {hourTotals.map((total, hour) => (
+            {hourTotals.map(({ inbound, outbound }, hour) => (
               <th key={hour} className="sg__totals-cell">
-                <span className="sg__col-total">{total}</span>
+                <div className="sg__totals-chips">
+                  <span className="sg__totals-chip sg__totals-chip--in">↑ {inbound}</span>
+                  <span className="sg__totals-chip sg__totals-chip--out">↓ {outbound}</span>
+                </div>
               </th>
             ))}
           </tr>
@@ -152,8 +155,8 @@ function ScheduleGrid({
                           <div className="sg__slot-content">
                             <span className="sg__slot-total">{total}</span>
                             <span className="sg__slot-breakdown">
-                              {inbound  > 0 && <span>{inbound}&nbsp;↑</span>}
-                              {outbound > 0 && <span>{outbound}&nbsp;↓</span>}
+                              {inbound  > 0 && <span className="sg__slot-bd-in">{inbound}&nbsp;↑</span>}
+                              {outbound > 0 && <span className="sg__slot-bd-out">{outbound}&nbsp;↓</span>}
                             </span>
                           </div>
                         )}
