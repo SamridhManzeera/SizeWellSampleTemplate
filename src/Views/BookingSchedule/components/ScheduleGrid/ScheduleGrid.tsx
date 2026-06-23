@@ -48,7 +48,7 @@ function ScheduleGrid({
         <thead>
           <tr>
             <th className="sg__th sg__th--company">Company / Structure</th>
-            <th className="sg__th sg__th--stat sg__th--assigned">Assigned</th>
+            <th className="sg__th sg__th--stat sg__th--assigned">Requested</th>
             <th className="sg__th sg__th--stat sg__th--allocated">Allocated</th>
             {HOURS.map((hour) => {
               const { time, period } = formatHour(hour);
@@ -112,8 +112,8 @@ function ScheduleGrid({
                           isDisabled
                             ? 'No remaining deliveries'
                             : isOccupied
-                            ? `${allocation.deliveryCount} deliveries — click to view`
-                            : 'Available — click to allocate'
+                              ? `${allocation.deliveryCount} deliveries — click to view`
+                              : 'Available — click to allocate'
                         }
                       >
                         {isOccupied && (

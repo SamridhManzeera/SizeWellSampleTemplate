@@ -75,7 +75,7 @@ $left-allocated: $col-company + $col-stat;     // 300px
     }
 
     &--assigned {
-      color: #3b5bdb;
+      color: $text-dark;
       position: sticky;
       left: $left-assigned;
       z-index: 39;
@@ -83,7 +83,7 @@ $left-allocated: $col-company + $col-stat;     // 300px
     }
 
     &--allocated {
-      color: $teal;
+      color: $text-dark;
       position: sticky;
       left: $left-allocated;
       z-index: 38;
@@ -227,18 +227,18 @@ $left-allocated: $col-company + $col-stat;     // 300px
     padding: 0 8px;
 
     &--assigned {
-      color: #3b5bdb;
-      background: #eef2ff;
+      color: $text-dark;
+      background: transparent;
     }
 
     &--allocated {
-      color: darken($teal, 5%);
-      background: #e6faf8;
+      color: $text-dark;
+      background: transparent;
     }
 
     &--full {
-      color: #fff;
-      background: $full-red;
+      color: $full-red;
+      background: transparent;
     }
   }
 
@@ -259,8 +259,9 @@ $left-allocated: $col-company + $col-stat;     // 300px
     font-family: inherit;
 
     &--available {
-      background: #fff;
-      &:hover { background: #edf9f7; }
+      background: #e0f2fe;
+      border: 1.5px solid #7dd3fc;
+      &:hover { background: #bae6fd; }
     }
 
     &--occupied {

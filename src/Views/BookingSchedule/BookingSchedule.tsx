@@ -37,6 +37,14 @@ function PeopleIcon() {
   );
 }
 
+function GridIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M3 3h7v7H3V3zm0 11h7v7H3v-7zm11-11h7v7h-7V3zm0 11h7v7h-7v-7z" />
+    </svg>
+  );
+}
+
 export default function BookingSchedule() {
   const [selectedDate, setSelectedDate] = useState(getTodayString());
   const [allocations, setAllocations] = useState<Map<SlotKey, Allocation>>(buildInitialAllocations);
@@ -70,6 +78,9 @@ export default function BookingSchedule() {
   }, [allocatedCountsByCompany]);
 
   const totalAssigned = MOCK_COMPANIES.reduce((s, c) => s + c.assignedDeliveries, 0);
+
+  const availableSlots = totalAssigned - totalAllocatedToday;
+
   const isToday = selectedDate === getTodayString();
 
   // ── Handlers ──────────────────────────────────────────────
@@ -160,7 +171,17 @@ export default function BookingSchedule() {
             </div>
             <div className="bs__kpi-info">
               <span className="bs__kpi-num bs__kpi-num--green">{totalAssigned}</span>
-              <span className="bs__kpi-label">Total Assigned</span>
+              <span className="bs__kpi-label">Total Requested</span>
+            </div>
+          </div>
+          {/* Available Slots card */}
+          <div className="bs__kpi-card">
+            <div className="bs__kpi-icon bs__kpi-icon--orange">
+              <GridIcon />
+            </div>
+            <div className="bs__kpi-info">
+              <span className="bs__kpi-num bs__kpi-num--orange">{availableSlots}</span>
+              <span className="bs__kpi-label">Available</span>
             </div>
           </div>
         </div>
