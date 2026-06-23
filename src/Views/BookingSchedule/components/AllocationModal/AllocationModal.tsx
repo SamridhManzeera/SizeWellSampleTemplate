@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent } from 'react';
-import { Allocation, Company, ModalMode } from '../../types';
+import { Allocation, Company, ModalMode, RouteType } from '../../types';
 import './AllocationModal.scss';
 
 interface AllocationModalProps {
@@ -15,6 +15,7 @@ interface AllocationModalProps {
     notes: string;
     driverName: string;
     vehicleNumber: string;
+    routeType: RouteType;
   }) => void;
   onClose: () => void;
 }
@@ -38,6 +39,7 @@ function AllocationModal({
   const [notes, setNotes] = useState('');
   const [driverName, setDriverName] = useState('');
   const [vehicleNumber, setVehicleNumber] = useState('');
+  const [routeType, setRouteType] = useState<RouteType>('one-way');
   const [error, setError] = useState('');
 
   const isEdit = mode === 'edit';
@@ -55,11 +57,13 @@ function AllocationModal({
         setNotes(existingAllocation.notes);
         setDriverName(existingAllocation.driverName);
         setVehicleNumber(existingAllocation.vehicleNumber);
+        setRouteType(existingAllocation.routeType ?? 'one-way');
       } else {
         setDeliveryCount('1');
         setNotes('');
         setDriverName('');
         setVehicleNumber('');
+        setRouteType('one-way');
       }
     }
   }, [open, isEdit, existingAllocation]);
@@ -81,7 +85,7 @@ function AllocationModal({
       setError('Vehicle number is required.');
       return;
     }
-    onConfirm({ deliveryCount: count, notes, driverName, vehicleNumber: vehicleNumber.trim().toUpperCase() });
+    onConfirm({ deliveryCount: count, notes, driverName, vehicleNumber: vehicleNumber.trim().toUpperCase(), routeType });
   }
 
   return (
@@ -150,6 +154,26 @@ function AllocationModal({
                 placeholder="e.g. WK21PPF"
                 required
               />
+            </div>
+          </div>
+
+          <div className="am__field">
+            <span className="am__label">Route Type <span className="am__req">*</span></span>
+            <div className="am__route-toggle">
+              <button
+                type="button"
+                className={`am__route-btn${routeType === 'one-way' ? ' am__route-btn--active' : ''}`}
+                onClick={() => setRouteType('one-way')}
+              >
+                <span className="am__route-arrow">→</span> One Way
+              </button>
+              <button
+                type="button"
+                className={`am__route-btn${routeType === 'two-way' ? ' am__route-btn--active' : ''}`}
+                onClick={() => setRouteType('two-way')}
+              >
+                <span className="am__route-arrow">↔</span> Two Way
+              </button>
             </div>
           </div>
 

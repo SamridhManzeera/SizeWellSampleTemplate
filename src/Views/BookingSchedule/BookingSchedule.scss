@@ -199,6 +199,51 @@ $blue: #3b5bdb;
     border: none;
   }
 
+  &__toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  // ── Route filter ────────────────────────────────────────────
+  &__route-filter {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  &__route-filter-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: $text-muted;
+    white-space: nowrap;
+  }
+
+  &__route-btn {
+    padding: 5px 12px;
+    border-radius: 7px;
+    border: 1.5px solid $border;
+    background: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    color: $text-mid;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+
+    &:hover { background: #f3f4f8; color: $text-mid; }
+
+    &--active {
+      background: $navy;
+      color: #fff;
+      border-color: $navy;
+
+      &:hover { background: lighten($navy, 8%); color: #fff; }
+    }
+  }
+
   // ── Legend ──────────────────────────────────────────────────
   &__legend {
     display: flex;

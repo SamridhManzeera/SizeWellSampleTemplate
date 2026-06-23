@@ -175,6 +175,43 @@ $radius: 16px;
     font-weight: 600;
   }
 
+  &__route-toggle {
+    display: flex;
+    gap: 10px;
+  }
+
+  &__route-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1.5px solid $border;
+    background: #f8f9fc;
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-mid;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+
+    &:hover { background: #eef0f6; }
+
+    &--active {
+      background: $navy;
+      border-color: $navy;
+      color: #fff;
+    }
+  }
+
+  &__route-arrow {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
   &__error {
     margin: 0;
     font-size: 12px;

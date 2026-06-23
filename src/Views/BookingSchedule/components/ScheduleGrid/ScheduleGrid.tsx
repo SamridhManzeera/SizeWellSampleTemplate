@@ -1,5 +1,5 @@
 import { CSSProperties } from 'react';
-import { Company, Allocation, SlotKey } from '../../types';
+import { Company, Allocation, SlotKey, RouteFilter } from '../../types';
 import { buildSlotKey } from '../../mockData';
 import './ScheduleGrid.scss';
 
@@ -8,6 +8,7 @@ interface ScheduleGridProps {
   allocations: Map<SlotKey, Allocation>;
   allocatedCounts: Map<string, number>;
   selectedDate: string;
+  routeFilter: RouteFilter;
   onAvailableSlotClick: (companyId: string, hour: number) => void;
   onOccupiedSlotClick: (allocation: Allocation) => void;
 }
@@ -30,6 +31,7 @@ function ScheduleGrid({
   allocations,
   allocatedCounts,
   selectedDate,
+  routeFilter,
   onAvailableSlotClick,
   onOccupiedSlotClick,
 }: ScheduleGridProps) {
@@ -123,7 +125,8 @@ function ScheduleGrid({
                 {HOURS.map((hour) => {
                   const key = buildSlotKey(company.id, selectedDate, hour);
                   const allocation = allocations.get(key);
-                  const isOccupied = !!allocation;
+                  const matchesFilter = !allocation || routeFilter === 'all' || allocation.routeType === routeFilter;
+                  const isOccupied = !!allocation && matchesFilter;
                   const isDisabled = !isOccupied && isFull;
 
                   return (
@@ -133,7 +136,7 @@ function ScheduleGrid({
                         className={`sg__slot${isOccupied ? ' sg__slot--occupied' : ' sg__slot--available'}${isDisabled ? ' sg__slot--disabled' : ''}`}
                         onClick={() =>
                           isOccupied
-                            ? onOccupiedSlotClick(allocation)
+                            ? onOccupiedSlotClick(allocation!)
                             : onAvailableSlotClick(company.id, hour)
                         }
                         disabled={isDisabled}
@@ -141,12 +144,17 @@ function ScheduleGrid({
                           isDisabled
                             ? 'No remaining deliveries'
                             : isOccupied
-                              ? `${allocation.deliveryCount} deliveries — click to view`
+                              ? `${allocation!.deliveryCount} deliveries (${allocation!.routeType}) — click to view`
                               : 'Available — click to allocate'
                         }
                       >
                         {isOccupied && (
-                          <span className="sg__slot-count">{allocation.deliveryCount}</span>
+                          <>
+                            <span className="sg__slot-count">{allocation!.deliveryCount}</span>
+                            <span className="sg__slot-icon">
+                              {allocation!.routeType === 'one-way' ? '→' : '↔'}
+                            </span>
+                          </>
                         )}
                       </button>
                     </td>
@@ -157,11 +165,29 @@ function ScheduleGrid({
           })}
         </tbody>
 
-        {/* ── Footer ──────────────────────────────────────────── */}
+        {/* ── Footer / Routing Legend ─────────────────────────── */}
         <tfoot>
           <tr>
             <td colSpan={3 + HOURS.length} className="sg__footer">
-              Total Companies &nbsp;<strong>{companies.length}</strong>
+              <div className="sg__footer-inner">
+                <div className="sg__footer-left">
+                  <span className="sg__footer-title">Routing Legend</span>
+                  <span className="sg__footer-item">
+                    <span className="sg__footer-arrow">→</span> One Way (Single Direction)
+                  </span>
+                  <span className="sg__footer-item">
+                    <span className="sg__footer-arrow">↔</span> Two Way (Round Trip)
+                  </span>
+                </div>
+                <div className="sg__footer-right">
+                  <span className="sg__footer-desc">
+                    <strong>One Way:</strong> Delivery in one direction only
+                  </span>
+                  <span className="sg__footer-desc">
+                    <strong>Two Way:</strong> Delivery with return journey
+                  </span>
+                </div>
+              </div>
             </td>
           </tr>
         </tfoot>

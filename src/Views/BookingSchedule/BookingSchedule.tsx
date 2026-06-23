@@ -1,5 +1,13 @@
 import { useState, useMemo, useRef } from 'react';
-import { Allocation, DrawerState, ModalState, SlotKey } from './types';
+import { Allocation, DrawerState, ModalState, RouteFilter, RouteType, SlotKey } from './types';
+
+interface ConfirmData {
+  deliveryCount: number;
+  notes: string;
+  driverName: string;
+  vehicleNumber: string;
+  routeType: RouteType;
+}
 import { MOCK_ALLOCATIONS, MOCK_COMPANIES, buildSlotKey } from './mockData';
 import ScheduleGrid from './components/ScheduleGrid/ScheduleGrid';
 import AllocationModal from './components/AllocationModal/AllocationModal';
@@ -68,6 +76,7 @@ export default function BookingSchedule() {
     open: false,
     allocation: null,
   });
+  const [routeFilter, setRouteFilter] = useState<RouteFilter>('all');
 
   const dateInputRef = useRef<HTMLInputElement>(null);
 
@@ -121,12 +130,7 @@ export default function BookingSchedule() {
     setDrawerState({ open: false, allocation: null });
   }
 
-  function handleAllocationConfirm(data: {
-    deliveryCount: number;
-    notes: string;
-    driverName: string;
-    vehicleNumber: string;
-  }) {
+  function handleAllocationConfirm(data: ConfirmData) {
     const company = MOCK_COMPANIES.find((c) => c.id === modalState.companyId);
     if (!company) return;
     const key = buildSlotKey(modalState.companyId, selectedDate, modalState.hour);
@@ -239,20 +243,32 @@ export default function BookingSchedule() {
           />
         </div>
 
-        {/* Legend */}
-        <div className="bs__legend">
-          <span className="bs__legend-item">
-            <span className="bs__legend-dot bs__legend-dot--occupied" />
-            Allocated
-          </span>
-          <span className="bs__legend-item">
-            <span className="bs__legend-dot bs__legend-dot--available" />
-            Available
-          </span>
-          {/* <span className="bs__legend-item">
-            <span className="bs__legend-dot bs__legend-dot--full" />
-            Full
-          </span> */}
+        {/* Legend + Route filter */}
+        <div className="bs__toolbar-right">
+          <div className="bs__legend">
+            <span className="bs__legend-item">
+              <span className="bs__legend-dot bs__legend-dot--occupied" />
+              Allocated
+            </span>
+            <span className="bs__legend-item">
+              <span className="bs__legend-dot bs__legend-dot--available" />
+              Available
+            </span>
+          </div>
+
+          <div className="bs__route-filter">
+            <span className="bs__route-filter-label">Route Type:</span>
+            {(['all', 'one-way', 'two-way'] as RouteFilter[]).map((f) => (
+              <button
+                key={f}
+                type="button"
+                className={`bs__route-btn${routeFilter === f ? ' bs__route-btn--active' : ''}`}
+                onClick={() => setRouteFilter(f)}
+              >
+                {f === 'all' ? 'All' : f === 'one-way' ? '→ One Way' : '↔ Two Way'}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -263,6 +279,7 @@ export default function BookingSchedule() {
           allocations={allocations}
           allocatedCounts={allocatedCountsByCompany}
           selectedDate={selectedDate}
+          routeFilter={routeFilter}
           onAvailableSlotClick={handleAvailableSlotClick}
           onOccupiedSlotClick={handleOccupiedSlotClick}
         />

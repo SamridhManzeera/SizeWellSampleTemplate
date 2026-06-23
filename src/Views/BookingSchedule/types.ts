@@ -10,6 +10,9 @@ export interface Company {
   assignedDeliveries: number;
 }
 
+export type RouteType = 'one-way' | 'two-way';
+export type RouteFilter = 'all' | 'one-way' | 'two-way';
+
 export interface Allocation {
   id: string;
   companyId: string;
@@ -20,6 +23,7 @@ export interface Allocation {
   notes: string;
   driverName: string;
   vehicleNumber: string;
+  routeType: RouteType;
   createdAt: string;
 }
 

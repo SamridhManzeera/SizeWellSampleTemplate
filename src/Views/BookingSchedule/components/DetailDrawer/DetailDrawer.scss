@@ -146,6 +146,19 @@ $drawer-width: 380px;
     min-width: 30px;
   }
 
+  &__route-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #eef2ff;
+    color: $navy;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 6px;
+    padding: 3px 10px;
+    border: 1px solid #c7d2fe;
+  }
+
   &__vehicle-plate {
     display: inline-flex;
     align-items: center;

@@ -65,6 +65,13 @@ function DetailDrawer({ open, allocation, onClose, onEdit }: DetailDrawerProps) 
                     <span className="dd__count-badge">{allocation.deliveryCount}</span>
                   </dd>
 
+                  <dt>Route Type</dt>
+                  <dd>
+                    <span className="dd__route-badge">
+                      {allocation.routeType === 'one-way' ? '→ One Way' : '↔ Two Way'}
+                    </span>
+                  </dd>
+
                   <dt>Created At</dt>
                   <dd className="dd__muted">{formatDateTime(allocation.createdAt)}</dd>
                 </dl>
