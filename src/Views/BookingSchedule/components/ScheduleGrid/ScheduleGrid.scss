@@ -9,11 +9,11 @@ $teal: #26a69a;
 $full-red: #ef4444;
 $sticky-shadow: 2px 0 8px rgba(0, 0, 0, 0.07);
 
-// Company col: 210px  |  each stat col: 90px  |  each hour col: 90px
-$col-company:   210px;
-$col-stat:       90px;
-$left-assigned: $col-company;                  // 210px
-$left-allocated: $col-company + $col-stat;     // 300px
+// Company col: 210px  |  each stat col: 115px  |  each hour col: 110px
+$col-company:    210px;
+$col-stat:       115px;
+$left-assigned:  $col-company;                 // 210px
+$left-allocated: $col-company + $col-stat;     // 325px
 
 .sg-wrapper {
   overflow: auto;
@@ -123,7 +123,7 @@ $left-allocated: $col-company + $col-stat;     // 300px
 
   &__totals-stat {
     background: $navy;
-    padding: 5px 8px;
+    padding: 5px 6px 7px;
     text-align: center;
     vertical-align: middle;
 
@@ -216,8 +216,9 @@ $left-allocated: $col-company + $col-stat;     // 300px
       z-index: 19;
       background: #fff;
       text-align: center;
-      padding: 10px 8px;
+      padding: 8px 8px;
       border-right: 1px solid $border;
+      vertical-align: middle;
     }
 
     // ── Allocated (sticky col 3) ───────────────────────────
@@ -227,9 +228,10 @@ $left-allocated: $col-company + $col-stat;     // 300px
       z-index: 18;
       background: #fff;
       text-align: center;
-      padding: 10px 8px;
+      padding: 8px 8px;
       border-right: 2px solid darken($border, 8%);
       box-shadow: $sticky-shadow;
+      vertical-align: middle;
     }
 
     // ── Time-slot cells (non-sticky) ───────────────────────
@@ -280,15 +282,16 @@ $left-allocated: $col-company + $col-stat;     // 300px
 
   // ── Stat number badges ─────────────────────────────────────
   &__stat-num {
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 800;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     min-width: 36px;
-    height: 28px;
+    height: 30px;
     border-radius: 6px;
     padding: 0 8px;
+    letter-spacing: -0.3px;
 
     &--assigned {
       color: $text-dark;
@@ -306,6 +309,40 @@ $left-allocated: $col-company + $col-stat;     // 300px
     }
   }
 
+  // ── Stat cell inbound/outbound breakdown ───────────────────
+  &__stat-breakdown {
+    display: flex;
+    gap: 3px;
+    margin-top: 4px;
+    justify-content: center;
+  }
+
+  &__stat-bd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-width: 32px;
+    height: 22px;
+    padding: 0 7px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    letter-spacing: 0.01em;
+
+    &--in  {
+      background: rgba(#16a34a, 0.1);
+      color: #16a34a;
+      border: 1px solid rgba(#16a34a, 0.3);
+    }
+    &--out {
+      background: rgba(#f97316, 0.1);
+      color: #ea6c00;
+      border: 1px solid rgba(#f97316, 0.3);
+    }
+  }
+
   // ── Slot button ────────────────────────────────────────────
   &__slot {
     display: inline-flex;
@@ -313,14 +350,14 @@ $left-allocated: $col-company + $col-stat;     // 300px
     align-items: center;
     justify-content: center;
     width: 100%;
-    height: 52px;
-    border-radius: 8px;
+    height: 64px;
+    border-radius: 10px;
     border: none;
     cursor: pointer;
     transition: background 0.15s, box-shadow 0.15s;
-    padding: 4px 2px;
+    padding: 6px 4px;
     font-family: inherit;
-    gap: 2px;
+    gap: 3px;
 
     &--available {
       background: #e0f2fe;
@@ -352,16 +389,17 @@ $left-allocated: $col-company + $col-stat;     // 300px
   }
 
   &__slot-total {
-    font-size: 17px;
+    font-size: 20px;
     font-weight: 800;
     color: #fff;
     line-height: 1;
+    letter-spacing: -0.3px;
   }
 
   &__slot-breakdown {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
     line-height: 1;
   }
 
@@ -370,11 +408,12 @@ $left-allocated: $col-company + $col-stat;     // 300px
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 28px;
-    height: 20px;
-    padding: 0 6px;
+    gap: 3px;
+    min-width: 32px;
+    height: 22px;
+    padding: 0 7px;
     border-radius: 6px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     white-space: nowrap;
     letter-spacing: 0.01em;
@@ -382,16 +421,16 @@ $left-allocated: $col-company + $col-stat;     // 300px
 
   &__slot-bd-in {
     @extend %slot-bd-base;
-    background: rgba(74, 222, 128, 0.15);
-    border: 1px solid rgba(74, 222, 128, 0.35);
-    color: #86efac;
+    background: rgba(74, 222, 128, 0.22);
+    border: 1px solid rgba(74, 222, 128, 0.55);
+    color: #4ade80;
   }
 
   &__slot-bd-out {
     @extend %slot-bd-base;
-    background: rgba(251, 146, 60, 0.15);
-    border: 1px solid rgba(251, 146, 60, 0.35);
-    color: #fdba74;
+    background: rgba(251, 146, 60, 0.22);
+    border: 1px solid rgba(251, 146, 60, 0.55);
+    color: #fb923c;
   }
 
   // ── Totals row chips ────────────────────────────────────
@@ -401,6 +440,11 @@ $left-allocated: $col-company + $col-stat;     // 300px
     justify-content: center;
     gap: 3px;
     flex-wrap: nowrap;
+
+    &--sm {
+      margin-top: 5px;
+      gap: 4px;
+    }
   }
 
   &__totals-chip {

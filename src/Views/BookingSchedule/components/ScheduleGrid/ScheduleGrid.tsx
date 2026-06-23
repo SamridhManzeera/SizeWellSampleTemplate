@@ -7,6 +7,8 @@ interface ScheduleGridProps {
   companies: Company[];
   allocations: Map<SlotKey, Allocation>;
   allocatedCounts: Map<string, number>;
+  allocatedInboundCounts: Map<string, number>;
+  allocatedOutboundCounts: Map<string, number>;
   selectedDate: string;
   routeFilter: RouteFilter;
   onAvailableSlotClick: (companyId: string, hour: number) => void;
@@ -27,8 +29,8 @@ function formatHour(hour: number): { time: string; period: string } {
 }
 
 function ScheduleGrid({
-  companies, allocations, allocatedCounts, selectedDate, routeFilter,
-  onAvailableSlotClick, onOccupiedSlotClick,
+  companies, allocations, allocatedCounts, allocatedInboundCounts, allocatedOutboundCounts,
+  selectedDate, routeFilter, onAvailableSlotClick, onOccupiedSlotClick,
 }: ScheduleGridProps) {
 
   const hourTotals = HOURS.map((hour) => {
@@ -40,8 +42,11 @@ function ScheduleGrid({
     return { inbound, outbound };
   });
 
-  const totalRequested = companies.reduce((s, c) => s + c.assignedDeliveries, 0);
-  const totalAllocated = companies.reduce((s, c) => s + (allocatedCounts.get(c.id) ?? 0), 0);
+  const totalRequestedInbound  = companies.reduce((s, c) => s + c.inboundDeliveries, 0);
+  const totalRequestedOutbound = companies.reduce((s, c) => s + c.outboundDeliveries, 0);
+
+  const totalAllocatedInbound  = companies.reduce((s, c) => s + (allocatedInboundCounts.get(c.id) ?? 0), 0);
+  const totalAllocatedOutbound = companies.reduce((s, c) => s + (allocatedOutboundCounts.get(c.id) ?? 0), 0);
 
   return (
     <div className="sg-wrapper">
@@ -57,10 +62,16 @@ function ScheduleGrid({
           <tr className="sg__totals-row">
             <th className="sg__totals-label">Deliveries / Hour</th>
             <th className="sg__totals-stat sg__totals-stat--req">
-              <span className="sg__col-total">{totalRequested}</span>
+              <div className="sg__totals-chips sg__totals-chips--sm">
+                <span className="sg__totals-chip sg__totals-chip--in">↑ {totalRequestedInbound}</span>
+                <span className="sg__totals-chip sg__totals-chip--out">↓ {totalRequestedOutbound}</span>
+              </div>
             </th>
             <th className="sg__totals-stat sg__totals-stat--alloc">
-              <span className="sg__col-total">{totalAllocated}</span>
+              <div className="sg__totals-chips sg__totals-chips--sm">
+                <span className="sg__totals-chip sg__totals-chip--in">↑ {totalAllocatedInbound}</span>
+                <span className="sg__totals-chip sg__totals-chip--out">↓ {totalAllocatedOutbound}</span>
+              </div>
             </th>
             {hourTotals.map(({ inbound, outbound }, hour) => (
               <th key={hour} className="sg__totals-cell">
@@ -109,11 +120,19 @@ function ScheduleGrid({
                   <span className="sg__stat-num sg__stat-num--assigned">
                     {company.assignedDeliveries}
                   </span>
+                  <div className="sg__stat-breakdown">
+                    <span className="sg__stat-bd sg__stat-bd--in">↑&nbsp;{company.inboundDeliveries}</span>
+                    <span className="sg__stat-bd sg__stat-bd--out">↓&nbsp;{company.outboundDeliveries}</span>
+                  </div>
                 </td>
                 <td className="sg__td sg__td--stat-2">
                   <span className={`sg__stat-num sg__stat-num--allocated${isFull ? ' sg__stat-num--full' : ''}`}>
                     {allocated}
                   </span>
+                  <div className="sg__stat-breakdown">
+                    <span className="sg__stat-bd sg__stat-bd--in">↑&nbsp;{allocatedInboundCounts.get(company.id) ?? 0}</span>
+                    <span className="sg__stat-bd sg__stat-bd--out">↓&nbsp;{allocatedOutboundCounts.get(company.id) ?? 0}</span>
+                  </div>
                 </td>
 
                 {HOURS.map((hour) => {
@@ -155,8 +174,8 @@ function ScheduleGrid({
                           <div className="sg__slot-content">
                             <span className="sg__slot-total">{total}</span>
                             <span className="sg__slot-breakdown">
-                              {inbound  > 0 && <span className="sg__slot-bd-in">{inbound}&nbsp;↑</span>}
-                              {outbound > 0 && <span className="sg__slot-bd-out">{outbound}&nbsp;↓</span>}
+                                {inbound  > 0 && <span className="sg__slot-bd-in">↑&nbsp;{inbound}</span>}
+                              {outbound > 0 && <span className="sg__slot-bd-out">↓&nbsp;{outbound}</span>}
                             </span>
                           </div>
                         )}

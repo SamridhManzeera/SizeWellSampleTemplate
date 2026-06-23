@@ -9,15 +9,15 @@ export const MOCK_GROUPS: CompanyGroup[] = [
 ];
 
 export const MOCK_COMPANIES: Company[] = [
-  { id: 'c1', name: 'Apex Haulage Ltd',     groupId: 'g201', assignedDeliveries: 8 },
-  { id: 'c2', name: 'Meridian Freight',      groupId: 'g201', assignedDeliveries: 6 },
-  { id: 'c3', name: 'Summit Logistics',      groupId: 'g203', assignedDeliveries: 12 },
-  { id: 'c4', name: 'Delta Transport Co.',   groupId: 'g203', assignedDeliveries: 10 },
-  { id: 'c5', name: 'Orion Deliveries',      groupId: 'g203', assignedDeliveries: 8 },
-  { id: 'c6', name: 'Vantage Haulage',       groupId: 'g203', assignedDeliveries: 6 },
-  { id: 'c7', name: 'Nexus Freight Ltd',     groupId: 'g204', assignedDeliveries: 9 },
-  { id: 'c8', name: 'Pioneer Supply Co.',    groupId: 'g206', assignedDeliveries: 5 },
-  { id: 'c9', name: 'Sterling Logistics',    groupId: 'g208', assignedDeliveries: 7 },
+  { id: 'c1', name: 'Apex Haulage Ltd',     groupId: 'g201', assignedDeliveries: 8,  inboundDeliveries: 5, outboundDeliveries: 3 },
+  { id: 'c2', name: 'Meridian Freight',      groupId: 'g201', assignedDeliveries: 6,  inboundDeliveries: 4, outboundDeliveries: 2 },
+  { id: 'c3', name: 'Summit Logistics',      groupId: 'g203', assignedDeliveries: 12, inboundDeliveries: 7, outboundDeliveries: 5 },
+  { id: 'c4', name: 'Delta Transport Co.',   groupId: 'g203', assignedDeliveries: 10, inboundDeliveries: 6, outboundDeliveries: 4 },
+  { id: 'c5', name: 'Orion Deliveries',      groupId: 'g203', assignedDeliveries: 8,  inboundDeliveries: 5, outboundDeliveries: 3 },
+  { id: 'c6', name: 'Vantage Haulage',       groupId: 'g203', assignedDeliveries: 6,  inboundDeliveries: 3, outboundDeliveries: 3 },
+  { id: 'c7', name: 'Nexus Freight Ltd',     groupId: 'g204', assignedDeliveries: 9,  inboundDeliveries: 5, outboundDeliveries: 4 },
+  { id: 'c8', name: 'Pioneer Supply Co.',    groupId: 'g206', assignedDeliveries: 5,  inboundDeliveries: 3, outboundDeliveries: 2 },
+  { id: 'c9', name: 'Sterling Logistics',    groupId: 'g208', assignedDeliveries: 7,  inboundDeliveries: 4, outboundDeliveries: 3 },
 ];
 
 function dateOffset(days: number): string {

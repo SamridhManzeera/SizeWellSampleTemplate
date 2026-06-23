@@ -81,17 +81,22 @@ export default function BookingSchedule() {
 
   // ── Derived ────────────────────────────────────────────────
   const allocatedCountsByCompany = useMemo(() => {
-    const counts = new Map<string, number>();
+    const counts    = new Map<string, number>();
+    const inCounts  = new Map<string, number>();
+    const outCounts = new Map<string, number>();
     allocations.forEach((a) => {
-      if (a.date === selectedDate)
-        counts.set(a.companyId, (counts.get(a.companyId) ?? 0) + a.inboundCount + a.outboundCount);
+      if (a.date === selectedDate) {
+        counts.set(a.companyId,    (counts.get(a.companyId)    ?? 0) + a.inboundCount + a.outboundCount);
+        inCounts.set(a.companyId,  (inCounts.get(a.companyId)  ?? 0) + a.inboundCount);
+        outCounts.set(a.companyId, (outCounts.get(a.companyId) ?? 0) + a.outboundCount);
+      }
     });
-    return counts;
+    return { counts, inCounts, outCounts };
   }, [allocations, selectedDate]);
 
   const totalAllocatedToday = useMemo(() => {
     let sum = 0;
-    allocatedCountsByCompany.forEach((v) => { sum += v; });
+    allocatedCountsByCompany.counts.forEach((v) => { sum += v; });
     return sum;
   }, [allocatedCountsByCompany]);
 
@@ -103,7 +108,9 @@ export default function BookingSchedule() {
     return { totalInboundToday: inbound, totalOutboundToday: outbound };
   }, [allocations, selectedDate]);
 
-  const totalAssigned = MOCK_COMPANIES.reduce((s, c) => s + c.assignedDeliveries, 0);
+  const totalAssigned          = MOCK_COMPANIES.reduce((s, c) => s + c.assignedDeliveries,  0);
+  const totalInboundRequested  = MOCK_COMPANIES.reduce((s, c) => s + c.inboundDeliveries,   0);
+  const totalOutboundRequested = MOCK_COMPANIES.reduce((s, c) => s + c.outboundDeliveries,  0);
 
   const availableSlots = TOTAL_SLOT_CAPACITY - totalAllocatedToday;
 
@@ -170,7 +177,7 @@ export default function BookingSchedule() {
   }
 
   const modalCompany = MOCK_COMPANIES.find((c) => c.id === modalState.companyId) ?? null;
-  const modalCurrentAllocated = allocatedCountsByCompany.get(modalState.companyId) ?? 0;
+  const modalCurrentAllocated = allocatedCountsByCompany.counts.get(modalState.companyId) ?? 0;
 
   return (
     <div className="bs">
@@ -217,6 +224,10 @@ export default function BookingSchedule() {
             </div>
             <div className="bs__kpi-info">
               <span className="bs__kpi-num bs__kpi-num--green">{totalAssigned}</span>
+              <div className="bs__kpi-sub">
+                <span className="bs__kpi-sub-item bs__kpi-sub-item--in">↑ {totalInboundRequested}</span>
+                <span className="bs__kpi-sub-item bs__kpi-sub-item--out">↓ {totalOutboundRequested}</span>
+              </div>
               <span className="bs__kpi-label">Requested</span>
             </div>
           </div>
@@ -299,7 +310,9 @@ export default function BookingSchedule() {
         <ScheduleGrid
           companies={MOCK_COMPANIES}
           allocations={allocations}
-          allocatedCounts={allocatedCountsByCompany}
+          allocatedCounts={allocatedCountsByCompany.counts}
+          allocatedInboundCounts={allocatedCountsByCompany.inCounts}
+          allocatedOutboundCounts={allocatedCountsByCompany.outCounts}
           selectedDate={selectedDate}
           routeFilter={routeFilter}
           onAvailableSlotClick={handleAvailableSlotClick}

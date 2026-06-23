@@ -8,6 +8,8 @@ export interface Company {
   name: string;
   groupId: string;
   assignedDeliveries: number;
+  inboundDeliveries: number;
+  outboundDeliveries: number;
 }
 
 export type RouteType   = 'inbound' | 'outbound';
