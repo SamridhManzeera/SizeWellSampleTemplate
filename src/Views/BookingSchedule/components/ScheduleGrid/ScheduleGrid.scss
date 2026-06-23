@@ -100,6 +100,70 @@ $left-allocated: $col-company + $col-stat;     // 300px
     }
   }
 
+  // ── Column totals row ──────────────────────────────────────
+  &__totals-row {
+    background: $navy;
+  }
+
+  &__totals-label {
+    position: sticky;
+    left: 0;
+    z-index: 40;
+    background: $navy;
+    text-align: left;
+    padding: 7px 14px 7px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-right: 1.5px solid rgba(255, 255, 255, 0.15);
+    white-space: nowrap;
+  }
+
+  &__totals-stat {
+    background: $navy;
+    padding: 5px 8px;
+    text-align: center;
+    vertical-align: middle;
+
+    &--req {
+      position: sticky;
+      left: $left-assigned;
+      z-index: 39;
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    &--alloc {
+      position: sticky;
+      left: $left-allocated;
+      z-index: 38;
+      border-right: 2px solid rgba(255, 255, 255, 0.2);
+    }
+  }
+
+  &__totals-cell {
+    text-align: center;
+    padding: 5px 3px;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    background: $navy;
+  }
+
+  &__col-total {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 26px;
+    height: 22px;
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 5px;
+    padding: 0 6px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+  }
+
   &__time {
     display: block;
     font-size: 12px;

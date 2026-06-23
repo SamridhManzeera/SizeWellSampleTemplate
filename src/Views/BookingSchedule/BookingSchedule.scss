@@ -86,6 +86,11 @@ $blue: #3b5bdb;
       background: #fff4e6;
       color: #e8770a;
     }
+
+    &--purple {
+      background: #f3f0ff;
+      color: #7048e8;
+    }
   }
 
   &__kpi-info {
@@ -103,6 +108,7 @@ $blue: #3b5bdb;
     &--navy   { color: $navy; }
     &--green  { color: $teal; }
     &--orange { color: #e8770a; }
+    &--purple { color: #7048e8; }
   }
 
   &__kpi-label {

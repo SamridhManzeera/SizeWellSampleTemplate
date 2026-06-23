@@ -33,6 +33,19 @@ function ScheduleGrid({
   onAvailableSlotClick,
   onOccupiedSlotClick,
 }: ScheduleGridProps) {
+  // Per-hour delivery totals across all companies
+  const hourTotals = HOURS.map((hour) => {
+    let total = 0;
+    companies.forEach((company) => {
+      const allocation = allocations.get(buildSlotKey(company.id, selectedDate, hour));
+      if (allocation) total += allocation.deliveryCount;
+    });
+    return total;
+  });
+
+  const totalRequested = companies.reduce((s, c) => s + c.assignedDeliveries, 0);
+  const totalAllocated = companies.reduce((s, c) => s + (allocatedCounts.get(c.id) ?? 0), 0);
+
   return (
     <div className="sg-wrapper">
       <table className="sg">
@@ -46,6 +59,22 @@ function ScheduleGrid({
 
         {/* ── Header ──────────────────────────────────────────── */}
         <thead>
+          {/* ── Column delivery totals row — sits above time labels ── */}
+          <tr className="sg__totals-row">
+            <th className="sg__totals-label">Deliveries / Hour</th>
+            <th className="sg__totals-stat sg__totals-stat--req">
+              <span className="sg__col-total">{totalRequested}</span>
+            </th>
+            <th className="sg__totals-stat sg__totals-stat--alloc">
+              <span className="sg__col-total">{totalAllocated}</span>
+            </th>
+            {hourTotals.map((total, hour) => (
+              <th key={hour} className="sg__totals-cell">
+                <span className="sg__col-total">{total}</span>
+              </th>
+            ))}
+          </tr>
+          {/* ── Time slot column headers ─────────────────────────── */}
           <tr>
             <th className="sg__th sg__th--company">Company / Structure</th>
             <th className="sg__th sg__th--stat sg__th--assigned">Requested</th>
