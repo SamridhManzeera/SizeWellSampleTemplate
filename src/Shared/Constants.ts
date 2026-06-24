@@ -7,6 +7,7 @@ const ROUTES = {
   REGISTER: '/register',
   ABOUT: '/about-us',
   BOOKING_SCHEDULE: '/booking-schedule',
+  SCHEDULE_CONFIG: '/schedule-config',
 };
 
 const WILDCARD_ROUTES = {
@@ -34,6 +35,10 @@ const ROUTES_CONFIG = {
   BOOKING_SCHEDULE: {
     path: ROUTES.BOOKING_SCHEDULE,
     title: 'Booking Schedule',
+  },
+  SCHEDULE_CONFIG: {
+    path: ROUTES.SCHEDULE_CONFIG,
+    title: 'Schedule Config',
   },
 };
 

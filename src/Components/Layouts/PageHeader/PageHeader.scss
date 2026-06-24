@@ -1,0 +1,35 @@
+$navy-dark: #122a52;
+$border:    rgba(255, 255, 255, 0.12);
+
+.page-header {
+  background: $navy-dark;
+  padding: 0 20px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  border-bottom: 1px solid $border;
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  &__logo {
+    height: 30px;
+    width: auto;
+    object-fit: contain;
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+}

@@ -1,6 +1,7 @@
 import { Navigate } from 'react-router-dom';
 import { ROUTES_CONFIG, WILDCARD_ROUTES } from '../Shared/Constants';
 import BookingSchedule from '../Views/BookingSchedule';
+import ScheduleConfig from '../Views/ScheduleConfig/ScheduleConfig';
 import { CustomRouter } from './RootRoutes';
 
 // eslint-disable-next-line import/prefer-default-export
@@ -9,6 +10,11 @@ export const PUBLIC_ROUTES: Array<CustomRouter> = [
     path: ROUTES_CONFIG.HOMEPAGE.path,
     element: <BookingSchedule />,
     title: ROUTES_CONFIG.HOMEPAGE.title,
+  },
+  {
+    path: ROUTES_CONFIG.SCHEDULE_CONFIG.path,
+    element: <ScheduleConfig />,
+    title: ROUTES_CONFIG.SCHEDULE_CONFIG.title,
   },
   {
     path: `${ROUTES_CONFIG.LOGIN.path}`,

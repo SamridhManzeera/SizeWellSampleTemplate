@@ -15,11 +15,11 @@ $blue: #3b5bdb;
   display: flex;
   flex-direction: column;
 
-  // ── Page header ─────────────────────────────────────────────
+  // ── Sub-header: page title + KPI row ─────────────────────────
   &__header {
     background: #fff;
     border-bottom: 1px solid $border;
-    padding: 20px 28px;
+    padding: 16px 28px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -29,23 +29,8 @@ $blue: #3b5bdb;
 
   &__title-block {
     display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  &__logo {
-    height: 40px;
-    width: auto;
-    object-fit: contain;
-    flex-shrink: 0;
-  }
-
-  &__logo-divider {
-    width: 1.5px;
-    height: 38px;
-    background: $border;
-    border-radius: 2px;
-    flex-shrink: 0;
+    flex-direction: column;
+    gap: 2px;
   }
 
   &__title-text {

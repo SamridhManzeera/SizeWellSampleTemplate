@@ -1,0 +1,341 @@
+$navy:      #1a3a6b;
+$teal:      #26a69a;
+$border:    #e8ecf4;
+$bg-page:   #f8f9fc;
+$text-dark: #111827;
+$text-mid:  #374151;
+$text-muted:#9ca3af;
+$in-color:  #16a34a;
+$out-color: #f97316;
+$tw-color:  #7c3aed;
+$radius:    14px;
+
+.sc {
+  flex: 1;
+  padding: 0;
+  overflow-y: auto;
+  background: $bg-page;
+  min-height: 100vh;
+
+  // ── Header ────────────────────────────────────────────────
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    gap: 16px;
+  }
+
+  &__header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 800;
+    color: $navy;
+    letter-spacing: -0.4px;
+  }
+
+  &__subtitle {
+    margin: 0;
+    font-size: 13px;
+    color: $text-muted;
+    font-weight: 500;
+  }
+
+  &__save-btn {
+    padding: 10px 24px;
+    border-radius: 10px;
+    border: none;
+    background: $navy;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s, transform 0.1s;
+    flex-shrink: 0;
+
+    &:hover { background: lighten($navy, 8%); }
+    &:active { transform: scale(0.97); }
+
+    &--saved {
+      background: $in-color;
+      &:hover { background: darken($in-color, 5%); }
+    }
+  }
+
+  // ── Section ───────────────────────────────────────────────
+  &__section {
+    background: #fff;
+    border: 1.5px solid $border;
+    border-radius: $radius;
+    padding: 24px;
+    margin: 0 36px 20px;
+    box-shadow: 0 1px 4px rgba(17, 24, 39, 0.05);
+  }
+
+  &__page-title {
+    padding: 24px 36px 0;
+  }
+
+  &__page-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  &__section-header {
+    margin-bottom: 20px;
+  }
+
+  &__section-title {
+    margin: 0 0 4px;
+    font-size: 16px;
+    font-weight: 700;
+    color: $text-dark;
+  }
+
+  &__section-desc {
+    margin: 0;
+    font-size: 12px;
+    color: $text-muted;
+  }
+
+  // ── Capacity cards ────────────────────────────────────────
+  &__cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  &__card {
+    border: 1.5px solid $border;
+    border-radius: 12px;
+    padding: 18px 16px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    &--in  { border-color: rgba($in-color,  0.3); background: rgba($in-color,  0.02); }
+    &--out { border-color: rgba($out-color, 0.3); background: rgba($out-color, 0.02); }
+    &--tw  { border-color: rgba($tw-color,  0.3); background: rgba($tw-color,  0.02); }
+  }
+
+  &__card-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    &--in  { background: rgba($in-color,  0.12); color: $in-color; }
+    &--out { background: rgba($out-color, 0.12); color: $out-color; }
+    &--tw  { background: rgba($tw-color,  0.12); color: $tw-color; }
+  }
+
+  &__card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  &__card-arrow {
+    font-size: 18px;
+    font-weight: 900;
+    line-height: 1;
+
+    .sc__card--in  & { color: $in-color; }
+    .sc__card--out & { color: $out-color; }
+    .sc__card--tw  & { color: $tw-color; }
+  }
+
+  &__card-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: $text-dark;
+  }
+
+  &__card-desc {
+    margin: 0;
+    font-size: 11px;
+    color: $text-muted;
+    line-height: 1.4;
+  }
+
+  &__card-footer {
+    padding-top: 8px;
+    border-top: 1px solid $border;
+  }
+
+  &__card-footer-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: $text-muted;
+  }
+
+  // ── Counter input ─────────────────────────────────────────
+  &__counter {
+    display: flex;
+    align-items: center;
+    border: 1.5px solid $border;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  &__counter-btn {
+    width: 38px;
+    height: 42px;
+    border: none;
+    background: $bg-page;
+    font-size: 20px;
+    font-weight: 500;
+    color: $text-mid;
+    cursor: pointer;
+    transition: background 0.12s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-family: inherit;
+
+    &:hover:not(:disabled) { background: darken($bg-page, 4%); }
+    &:disabled { opacity: 0.35; cursor: not-allowed; }
+  }
+
+  &__counter-input {
+    flex: 1;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 800;
+    color: $navy;
+    border: none;
+    border-left: 1px solid $border;
+    border-right: 1px solid $border;
+    padding: 6px 4px;
+    outline: none;
+    font-family: inherit;
+    background: #fff;
+    min-width: 0;
+
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button { -webkit-appearance: none; }
+  }
+
+  // ── Total bar ─────────────────────────────────────────────
+  &__total-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: $navy;
+    border-radius: 10px;
+    padding: 12px 18px;
+    gap: 16px;
+    margin-top: 4px;
+  }
+
+  &__total-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  &__total-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+
+  &__total-chips {
+    display: flex;
+    gap: 6px;
+  }
+
+  &__total-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 700;
+
+    &--in  { background: rgba(#4ade80, 0.18); color: #86efac; border: 1px solid rgba(#4ade80, 0.3); }
+    &--out { background: rgba(#fb923c, 0.18); color: #fdba74; border: 1px solid rgba(#fb923c, 0.3); }
+    &--tw  { background: rgba(#c4b5fd, 0.18); color: #c4b5fd; border: 1px solid rgba(#c4b5fd, 0.3); }
+  }
+
+  &__total-num {
+    font-size: 28px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+    flex-shrink: 0;
+  }
+
+  // ── Hour limit card ────────────────────────────────────────
+  &__hour-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    background: $bg-page;
+    border: 1.5px solid $border;
+    border-radius: 12px;
+    padding: 20px 20px;
+  }
+
+  &__hour-card-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    flex: 1;
+  }
+
+  &__hour-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: #eef2ff;
+    color: #3b5bdb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &__hour-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: $text-dark;
+    margin-bottom: 4px;
+  }
+
+  &__hour-desc {
+    margin: 0;
+    font-size: 12px;
+    color: $text-muted;
+    line-height: 1.5;
+    max-width: 400px;
+  }
+}

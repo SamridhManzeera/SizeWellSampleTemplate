@@ -1,0 +1,13 @@
+.public-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f8f9fc;
+
+  &__main {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+}

@@ -1,6 +1,5 @@
 import { useState, useMemo, useRef } from 'react';
 import { Allocation, DrawerState, ModalState, RouteFilter, SlotKey } from './types';
-import sizewellLogo from '../../assets/SizewellIcon/SZC-nostrap-transparent.png';
 
 interface ConfirmData {
   inboundCount: number;
@@ -12,6 +11,7 @@ import { MOCK_ALLOCATIONS, MOCK_COMPANIES, buildSlotKey } from './mockData';
 import ScheduleGrid from './components/ScheduleGrid/ScheduleGrid';
 import AllocationModal from './components/AllocationModal/AllocationModal';
 import DetailDrawer from './components/DetailDrawer/DetailDrawer';
+import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
 import './BookingSchedule.scss';
 
 function getTodayString(): string {
@@ -212,17 +212,17 @@ export default function BookingSchedule() {
 
   return (
     <div className="bs">
-      {/* ── Page header ───────────────────────────────────────── */}
+      {/* ── Top bar ───────────────────────────────────────────── */}
+      <PageHeader />
+
+      {/* ── Page title + KPI row ──────────────────────────────── */}
       <div className="bs__header">
         <div className="bs__title-block">
-          <img src={sizewellLogo} alt="Sizewell C" className="bs__logo" />
-          <span className="bs__logo-divider" aria-hidden="true" />
           <div className="bs__title-text">
             <h1 className="bs__title">Full Schedule</h1>
             <p className="bs__subtitle">All time slots overview</p>
           </div>
         </div>
-
         <div className="bs__kpi-row">
           {/* Total Slot */}
           <div className="bs__kpi-card">
