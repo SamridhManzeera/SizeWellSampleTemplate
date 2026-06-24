@@ -141,14 +141,14 @@ function ScheduleConfig() {
         </div>
 
         <div className="sc__cards">
-          {CAPACITY_CARDS.map(({ key, label, desc, icon, mod, arrow }) => (
+          {CAPACITY_CARDS.map(({ key, label, desc, mod, arrow }) => (
             <div key={key} className={`sc__card sc__card--${mod}`}>
               <div className="sc__card-top">
                 <div className={`sc__card-icon sc__card-icon--${mod}`}>
-                  {icon}
+                  {arrow}
                 </div>
                 <div className="sc__card-info">
-                  <span className="sc__card-arrow">{arrow}</span>
+                  {/* <span className="sc__card-arrow">{arrow}</span> */}
                   <span className="sc__card-label">{label}</span>
                 </div>
               </div>
