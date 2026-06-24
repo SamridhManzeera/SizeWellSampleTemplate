@@ -31,7 +31,9 @@ function formatDateTime(isoString: string): string {
 }
 
 function DetailDrawer({ open, allocation, onClose, onEdit }: DetailDrawerProps) {
-  const total = allocation ? allocation.inboundCount + allocation.outboundCount : 0;
+  const total = allocation
+    ? allocation.inboundCount + allocation.outboundCount + allocation.twoWayCount * 2
+    : 0;
 
   return (
     <>
@@ -87,6 +89,13 @@ function DetailDrawer({ open, allocation, onClose, onEdit }: DetailDrawerProps) 
                     <div className="dd__breakdown-info">
                       <span className="dd__breakdown-label">Outbound</span>
                       <span className="dd__breakdown-count">{allocation.outboundCount}</span>
+                    </div>
+                  </div>
+                  <div className="dd__breakdown-card dd__breakdown-card--twoway">
+                    <span className="dd__breakdown-icon">↕</span>
+                    <div className="dd__breakdown-info">
+                      <span className="dd__breakdown-label">Two Way</span>
+                      <span className="dd__breakdown-count">{allocation.twoWayCount}</span>
                     </div>
                   </div>
                 </div>

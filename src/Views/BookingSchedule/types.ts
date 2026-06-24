@@ -7,13 +7,14 @@ export interface Company {
   id: string;
   name: string;
   groupId: string;
-  assignedDeliveries: number;
+  assignedDeliveries: number;   // inbound + outbound + twoWay×2
   inboundDeliveries: number;
   outboundDeliveries: number;
+  twoWayDeliveries: number;
 }
 
-export type RouteType   = 'inbound' | 'outbound';
-export type RouteFilter = 'all' | 'inbound' | 'outbound';
+export type RouteType   = 'inbound' | 'outbound' | 'twoWay';
+export type RouteFilter = 'all' | 'inbound' | 'outbound' | 'twoWay';
 
 export interface Allocation {
   id: string;
@@ -23,6 +24,7 @@ export interface Allocation {
   hour: number;
   inboundCount: number;
   outboundCount: number;
+  twoWayCount: number;
   notes: string;
   createdAt: string;
 }

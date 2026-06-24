@@ -80,13 +80,39 @@ $blue: #3b5bdb;
   &__kpi-card {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
     background: #fff;
     border: 1.5px solid $border;
     border-radius: 14px;
-    padding: 14px 22px;
-    min-width: 160px;
+    padding: 14px 18px;
     box-shadow: 0 1px 4px rgba(17, 24, 39, 0.05);
+  }
+
+  &__kpi-main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  &__kpi-center {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  &__kpi-divider {
+    width: 1px;
+    align-self: stretch;
+    background: $border;
+    margin: 2px 0;
+    flex-shrink: 0;
+  }
+
+  &__kpi-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
   }
 
   &__kpi-icon {
@@ -154,6 +180,7 @@ $blue: #3b5bdb;
 
     &--in  { background: rgba(#16a34a, 0.1); color: #16a34a; }
     &--out { background: rgba(#f97316, 0.1); color: darken(#f97316, 8%); }
+    &--tw  { background: rgba(#7c3aed, 0.08); color: #7c3aed; border: 1px solid rgba(#7c3aed, 0.2); }
   }
 
   &__kpi-label {
@@ -316,9 +343,44 @@ $blue: #3b5bdb;
     &--full      { background: #e5e7eb; border: 1.5px solid #d1d5db; }
   }
 
+  &__legend-swatch {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 18px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 800;
+    flex-shrink: 0;
+
+    &--in  { background: rgba(#16a34a, 0.12); color: #16a34a; border: 1px solid rgba(#16a34a, 0.3); }
+    &--out { background: rgba(#f97316, 0.12); color: #f97316; border: 1px solid rgba(#f97316, 0.3); }
+    &--tw  { background: rgba(#7c3aed, 0.10); color: #7c3aed; border: 1px solid rgba(#7c3aed, 0.3); }
+  }
+
   // ── Grid area ────────────────────────────────────────────────
   &__grid-area {
     flex: 1;
     padding: 20px 28px 28px;
+  }
+
+  // ── Bottom legend ─────────────────────────────────────────────
+  &__bottom-legend {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 28px 20px;
+    border-top: 1px solid $border;
+    margin-top: 4px;
+  }
+
+  &__bottom-legend-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-right: 4px;
   }
 }

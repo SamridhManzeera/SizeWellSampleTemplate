@@ -5,6 +5,7 @@ import sizewellLogo from '../../assets/SizewellIcon/SZC-nostrap-transparent.png'
 interface ConfirmData {
   inboundCount: number;
   outboundCount: number;
+  twoWayCount: number;
   notes: string;
 }
 import { MOCK_ALLOCATIONS, MOCK_COMPANIES, buildSlotKey } from './mockData';
@@ -34,9 +35,11 @@ function buildInitialAllocations(): Map<SlotKey, Allocation> {
   return map;
 }
 
-const TOTAL_SLOT_CAPACITY   = 250;
 const INBOUND_SLOT_CAPACITY  = 130;
 const OUTBOUND_SLOT_CAPACITY = 120;
+const TWOWAY_SLOT_CAPACITY   = 125;
+const TOTAL_SLOT_CAPACITY    = INBOUND_SLOT_CAPACITY + OUTBOUND_SLOT_CAPACITY + TWOWAY_SLOT_CAPACITY * 2; // 500
+const HOUR_SLOT_CAPACITY     = 10;
 
 let idCounter = MOCK_ALLOCATIONS.length + 1;
 
@@ -86,14 +89,17 @@ export default function BookingSchedule() {
     const counts    = new Map<string, number>();
     const inCounts  = new Map<string, number>();
     const outCounts = new Map<string, number>();
+    const twCounts  = new Map<string, number>();
     allocations.forEach((a) => {
       if (a.date === selectedDate) {
-        counts.set(a.companyId,    (counts.get(a.companyId)    ?? 0) + a.inboundCount + a.outboundCount);
+        const total = a.inboundCount + a.outboundCount + a.twoWayCount * 2;
+        counts.set(a.companyId,    (counts.get(a.companyId)    ?? 0) + total);
         inCounts.set(a.companyId,  (inCounts.get(a.companyId)  ?? 0) + a.inboundCount);
         outCounts.set(a.companyId, (outCounts.get(a.companyId) ?? 0) + a.outboundCount);
+        twCounts.set(a.companyId,  (twCounts.get(a.companyId)  ?? 0) + a.twoWayCount);
       }
     });
-    return { counts, inCounts, outCounts };
+    return { counts, inCounts, outCounts, twCounts };
   }, [allocations, selectedDate]);
 
   const totalAllocatedToday = useMemo(() => {
@@ -102,21 +108,27 @@ export default function BookingSchedule() {
     return sum;
   }, [allocatedCountsByCompany]);
 
-  const { totalInboundToday, totalOutboundToday } = useMemo(() => {
-    let inbound = 0; let outbound = 0;
+  const { totalInboundToday, totalOutboundToday, totalTwoWayToday } = useMemo(() => {
+    let inbound = 0; let outbound = 0; let twoWay = 0;
     allocations.forEach((a) => {
-      if (a.date === selectedDate) { inbound += a.inboundCount; outbound += a.outboundCount; }
+      if (a.date === selectedDate) {
+        inbound  += a.inboundCount;
+        outbound += a.outboundCount;
+        twoWay   += a.twoWayCount;
+      }
     });
-    return { totalInboundToday: inbound, totalOutboundToday: outbound };
+    return { totalInboundToday: inbound, totalOutboundToday: outbound, totalTwoWayToday: twoWay };
   }, [allocations, selectedDate]);
 
   const totalAssigned          = MOCK_COMPANIES.reduce((s, c) => s + c.assignedDeliveries,  0);
   const totalInboundRequested  = MOCK_COMPANIES.reduce((s, c) => s + c.inboundDeliveries,   0);
   const totalOutboundRequested = MOCK_COMPANIES.reduce((s, c) => s + c.outboundDeliveries,  0);
+  const totalTwoWayRequested   = MOCK_COMPANIES.reduce((s, c) => s + c.twoWayDeliveries,    0);
 
-  const availableSlots         = TOTAL_SLOT_CAPACITY   - totalAllocatedToday;
+  const availableSlots         = TOTAL_SLOT_CAPACITY    - totalAllocatedToday;
   const availableInboundSlots  = INBOUND_SLOT_CAPACITY  - totalInboundToday;
   const availableOutboundSlots = OUTBOUND_SLOT_CAPACITY - totalOutboundToday;
+  const availableTwoWaySlots   = TWOWAY_SLOT_CAPACITY   - totalTwoWayToday;
 
   const isToday = selectedDate === getTodayString();
 
@@ -159,6 +171,7 @@ export default function BookingSchedule() {
           ...modalState.existingAllocation!,
           inboundCount:  data.inboundCount,
           outboundCount: data.outboundCount,
+          twoWayCount:   data.twoWayCount,
           notes:         data.notes,
         })
       );
@@ -172,6 +185,7 @@ export default function BookingSchedule() {
           hour:          modalState.hour,
           inboundCount:  data.inboundCount,
           outboundCount: data.outboundCount,
+          twoWayCount:   data.twoWayCount,
           notes:         data.notes,
           createdAt:     new Date().toISOString(),
         })
@@ -182,6 +196,19 @@ export default function BookingSchedule() {
 
   const modalCompany = MOCK_COMPANIES.find((c) => c.id === modalState.companyId) ?? null;
   const modalCurrentAllocated = allocatedCountsByCompany.counts.get(modalState.companyId) ?? 0;
+
+  // Total deliveries already in this hour across ALL companies (for per-hour cap)
+  const modalCurrentHourTotal = useMemo(() => {
+    let sum = 0;
+    MOCK_COMPANIES.forEach((c) => {
+      const a = allocations.get(buildSlotKey(c.id, selectedDate, modalState.hour));
+      if (a) {
+        const skip = modalState.mode === 'edit' && c.id === modalState.companyId;
+        if (!skip) sum += a.inboundCount + a.outboundCount + a.twoWayCount * 2;
+      }
+    });
+    return sum;
+  }, [allocations, selectedDate, modalState.hour, modalState.mode, modalState.companyId]);
 
   return (
     <div className="bs">
@@ -197,63 +224,70 @@ export default function BookingSchedule() {
         </div>
 
         <div className="bs__kpi-row">
-          {/* Total Slot card */}
+          {/* Total Slot */}
           <div className="bs__kpi-card">
-            <div className="bs__kpi-icon bs__kpi-icon--purple">
-              <BoxIcon />
-            </div>
-            <div className="bs__kpi-info">
-              <span className="bs__kpi-num bs__kpi-num--purple">{TOTAL_SLOT_CAPACITY}</span>
-              <div className="bs__kpi-sub">
-                <span className="bs__kpi-sub-item bs__kpi-sub-item--in">↑ {INBOUND_SLOT_CAPACITY}</span>
-                <span className="bs__kpi-sub-item bs__kpi-sub-item--out">↓ {OUTBOUND_SLOT_CAPACITY}</span>
+            <div className="bs__kpi-main">
+              <div className="bs__kpi-icon bs__kpi-icon--purple"><BoxIcon /></div>
+              <div className="bs__kpi-center">
+                <span className="bs__kpi-num bs__kpi-num--purple">{TOTAL_SLOT_CAPACITY}</span>
+                <span className="bs__kpi-label">Total Slot</span>
               </div>
-              <span className="bs__kpi-label">Total Slot</span>
+            </div>
+            <div className="bs__kpi-divider" />
+            <div className="bs__kpi-stack">
+              <span className="bs__kpi-sub-item bs__kpi-sub-item--in">↑ {INBOUND_SLOT_CAPACITY}</span>
+              <span className="bs__kpi-sub-item bs__kpi-sub-item--out">↓ {OUTBOUND_SLOT_CAPACITY}</span>
+              <span className="bs__kpi-sub-item bs__kpi-sub-item--tw">↕ {TWOWAY_SLOT_CAPACITY}</span>
             </div>
           </div>
-          {/* Allocated card */}
+          {/* Allocated */}
           <div className="bs__kpi-card">
-            <div className="bs__kpi-icon bs__kpi-icon--blue">
-              <PeopleIcon />
-            </div>
-            <div className="bs__kpi-info">
-              <span className="bs__kpi-num bs__kpi-num--navy">{totalAllocatedToday}</span>
-              <div className="bs__kpi-sub">
-                <span className="bs__kpi-sub-item bs__kpi-sub-item--in">↑ {totalInboundToday}</span>
-                <span className="bs__kpi-sub-item bs__kpi-sub-item--out">↓ {totalOutboundToday}</span>
+            <div className="bs__kpi-main">
+              <div className="bs__kpi-icon bs__kpi-icon--blue"><PeopleIcon /></div>
+              <div className="bs__kpi-center">
+                <span className="bs__kpi-num bs__kpi-num--navy">{totalAllocatedToday}</span>
+                <span className="bs__kpi-label">Allocated</span>
               </div>
-              <span className="bs__kpi-label">Allocated</span>
+            </div>
+            <div className="bs__kpi-divider" />
+            <div className="bs__kpi-stack">
+              <span className="bs__kpi-sub-item bs__kpi-sub-item--in">↑ {totalInboundToday}</span>
+              <span className="bs__kpi-sub-item bs__kpi-sub-item--out">↓ {totalOutboundToday}</span>
+              <span className="bs__kpi-sub-item bs__kpi-sub-item--tw">↕ {totalTwoWayToday}</span>
             </div>
           </div>
-          {/* Total Assigned card */}
+          {/* Requested */}
           <div className="bs__kpi-card">
-            <div className="bs__kpi-icon bs__kpi-icon--green">
-              <PeopleIcon />
-            </div>
-            <div className="bs__kpi-info">
-              <span className="bs__kpi-num bs__kpi-num--green">{totalAssigned}</span>
-              <div className="bs__kpi-sub">
-                <span className="bs__kpi-sub-item bs__kpi-sub-item--in">↑ {totalInboundRequested}</span>
-                <span className="bs__kpi-sub-item bs__kpi-sub-item--out">↓ {totalOutboundRequested}</span>
+            <div className="bs__kpi-main">
+              <div className="bs__kpi-icon bs__kpi-icon--green"><PeopleIcon /></div>
+              <div className="bs__kpi-center">
+                <span className="bs__kpi-num bs__kpi-num--green">{totalAssigned}</span>
+                <span className="bs__kpi-label">Requested</span>
               </div>
-              <span className="bs__kpi-label">Requested</span>
+            </div>
+            <div className="bs__kpi-divider" />
+            <div className="bs__kpi-stack">
+              <span className="bs__kpi-sub-item bs__kpi-sub-item--in">↑ {totalInboundRequested}</span>
+              <span className="bs__kpi-sub-item bs__kpi-sub-item--out">↓ {totalOutboundRequested}</span>
+              <span className="bs__kpi-sub-item bs__kpi-sub-item--tw">↕ {totalTwoWayRequested}</span>
             </div>
           </div>
-          {/* Available Slots card */}
+          {/* Available */}
           <div className="bs__kpi-card">
-            <div className="bs__kpi-icon bs__kpi-icon--orange">
-              <GridIcon />
-            </div>
-            <div className="bs__kpi-info">
-              <span className="bs__kpi-num bs__kpi-num--orange">{availableSlots}</span>
-              <div className="bs__kpi-sub">
-                <span className="bs__kpi-sub-item bs__kpi-sub-item--in">↑ {availableInboundSlots}</span>
-                <span className="bs__kpi-sub-item bs__kpi-sub-item--out">↓ {availableOutboundSlots}</span>
+            <div className="bs__kpi-main">
+              <div className="bs__kpi-icon bs__kpi-icon--orange"><GridIcon /></div>
+              <div className="bs__kpi-center">
+                <span className="bs__kpi-num bs__kpi-num--orange">{availableSlots}</span>
+                <span className="bs__kpi-label">Available</span>
               </div>
-              <span className="bs__kpi-label">Available</span>
+            </div>
+            <div className="bs__kpi-divider" />
+            <div className="bs__kpi-stack">
+              <span className="bs__kpi-sub-item bs__kpi-sub-item--in">↑ {availableInboundSlots}</span>
+              <span className="bs__kpi-sub-item bs__kpi-sub-item--out">↓ {availableOutboundSlots}</span>
+              <span className="bs__kpi-sub-item bs__kpi-sub-item--tw">↕ {availableTwoWaySlots}</span>
             </div>
           </div>
-
         </div>
       </div>
 
@@ -299,18 +333,30 @@ export default function BookingSchedule() {
               <span className="bs__legend-dot bs__legend-dot--available" />
               Available
             </span>
+            <span className="bs__legend-item">
+              <span className="bs__legend-swatch bs__legend-swatch--in">↑</span>
+              Inbound
+            </span>
+            <span className="bs__legend-item">
+              <span className="bs__legend-swatch bs__legend-swatch--out">↓</span>
+              Outbound
+            </span>
+            <span className="bs__legend-item">
+              <span className="bs__legend-swatch bs__legend-swatch--tw">↕</span>
+              Two Way
+            </span>
           </div>
 
           <div className="bs__route-filter">
             <span className="bs__route-filter-label">Route Type:</span>
-            {(['all', 'inbound', 'outbound'] as RouteFilter[]).map((f) => (
+            {(['all', 'inbound', 'outbound', 'twoWay'] as RouteFilter[]).map((f) => (
               <button
                 key={f}
                 type="button"
                 className={`bs__route-btn${routeFilter === f ? ' bs__route-btn--active' : ''}`}
                 onClick={() => setRouteFilter(f)}
               >
-                {f === 'all' ? 'All' : f === 'inbound' ? '↑ Inbound' : '↓ Outbound'}
+                {f === 'all' ? 'All' : f === 'inbound' ? '↑ Inbound' : f === 'outbound' ? '↓ Outbound' : '↕ Two Way'}
               </button>
             ))}
           </div>
@@ -325,11 +371,29 @@ export default function BookingSchedule() {
           allocatedCounts={allocatedCountsByCompany.counts}
           allocatedInboundCounts={allocatedCountsByCompany.inCounts}
           allocatedOutboundCounts={allocatedCountsByCompany.outCounts}
+          allocatedTwoWayCounts={allocatedCountsByCompany.twCounts}
           selectedDate={selectedDate}
           routeFilter={routeFilter}
+          hourCapacity={HOUR_SLOT_CAPACITY}
           onAvailableSlotClick={handleAvailableSlotClick}
           onOccupiedSlotClick={handleOccupiedSlotClick}
         />
+
+        <div className="bs__bottom-legend">
+          <span className="bs__bottom-legend-title">Routing Legend</span>
+          <span className="bs__legend-item">
+            <span className="bs__legend-swatch bs__legend-swatch--in">↑</span>
+            Inbound
+          </span>
+          <span className="bs__legend-item">
+            <span className="bs__legend-swatch bs__legend-swatch--out">↓</span>
+            Outbound
+          </span>
+          <span className="bs__legend-item">
+            <span className="bs__legend-swatch bs__legend-swatch--tw">↕</span>
+            Two Way
+          </span>
+        </div>
       </div>
 
       <AllocationModal
@@ -339,6 +403,8 @@ export default function BookingSchedule() {
         selectedDate={selectedDate}
         company={modalCompany}
         currentAllocated={modalCurrentAllocated}
+        currentHourTotal={modalCurrentHourTotal}
+        hourCapacity={HOUR_SLOT_CAPACITY}
         existingAllocation={modalState.existingAllocation}
         onConfirm={handleAllocationConfirm}
         onClose={handleModalClose}

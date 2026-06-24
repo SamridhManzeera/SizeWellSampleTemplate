@@ -11,9 +11,10 @@ $error:     #ef4444;
 $warn:      #f59e0b;
 $radius:    16px;
 
-// Inbound = teal/green family, Outbound = orange family
+// Inbound = green, Outbound = orange, TwoWay = violet
 $in-color:  #16a34a;
 $out-color: $orange;
+$tw-color:  #7c3aed;
 
 .am-backdrop {
   position: fixed;
@@ -176,20 +177,21 @@ $out-color: $orange;
   // ── Counter cards ──────────────────────────────────────
   &__cards {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
   }
 
   &__card {
     border: 1.5px solid $border;
     border-radius: 14px;
-    padding: 18px 16px 14px;
+    padding: 14px 12px 12px;
     display: flex;
     flex-direction: column;
     gap: 8px;
 
     &--inbound  { border-color: rgba($in-color,  0.3); background: rgba($in-color,  0.02); }
     &--outbound { border-color: rgba($out-color, 0.3); background: rgba($out-color, 0.02); }
+    &--twoway   { border-color: rgba($tw-color,  0.3); background: rgba($tw-color,  0.02); }
   }
 
   &__card-header {
@@ -211,6 +213,7 @@ $out-color: $orange;
 
     &--inbound  { background: rgba($in-color,  0.12); color: $in-color; }
     &--outbound { background: rgba($out-color, 0.12); color: $out-color; }
+    &--twoway   { background: rgba($tw-color,  0.12); color: $tw-color; }
   }
 
   &__card-name {
@@ -272,6 +275,7 @@ $out-color: $orange;
 
     &--inbound  { color: $in-color; }
     &--outbound { color: $out-color; }
+    &--twoway   { color: $tw-color; }
   }
 
   &__card-footer {
@@ -294,6 +298,7 @@ $out-color: $orange;
 
     &--inbound  { color: $in-color; }
     &--outbound { color: $out-color; }
+    &--twoway   { color: $tw-color; }
   }
 
   // ── Total bar ─────────────────────────────────────────
@@ -313,11 +318,20 @@ $out-color: $orange;
     color: $text-mid;
   }
 
+  &__total-bar-stats {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
   &__total-bar-num {
     font-size: 13px;
     font-weight: 700;
     color: $navy;
     white-space: nowrap;
+
+    &--warn { color: $error; }
+    &--low  { color: $warn; }
   }
 
   // ── Notes ─────────────────────────────────────────────

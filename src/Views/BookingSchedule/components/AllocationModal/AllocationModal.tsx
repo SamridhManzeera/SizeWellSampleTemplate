@@ -9,8 +9,10 @@ interface AllocationModalProps {
   selectedDate: string;
   company: Company | null;
   currentAllocated: number;
+  currentHourTotal: number;
+  hourCapacity: number;
   existingAllocation?: Allocation;
-  onConfirm: (data: { inboundCount: number; outboundCount: number; notes: string }) => void;
+  onConfirm: (data: { inboundCount: number; outboundCount: number; twoWayCount: number; notes: string }) => void;
   onClose: () => void;
 }
 
@@ -19,19 +21,24 @@ function formatHour(hour: number): string {
 }
 
 function AllocationModal({
-  open, mode, hour, selectedDate, company, currentAllocated, existingAllocation, onConfirm, onClose,
+  open, mode, hour, selectedDate, company, currentAllocated,
+  currentHourTotal, hourCapacity, existingAllocation, onConfirm, onClose,
 }: AllocationModalProps) {
   const [inbound,  setInbound]  = useState(0);
   const [outbound, setOutbound] = useState(0);
+  const [twoWay,   setTwoWay]   = useState(0);
   const [notes,    setNotes]    = useState('');
   const [error,    setError]    = useState('');
 
   const isEdit = mode === 'edit';
 
-  const existing = isEdit && existingAllocation ? existingAllocation.inboundCount + existingAllocation.outboundCount : 0;
+  const existing  = isEdit && existingAllocation
+    ? existingAllocation.inboundCount + existingAllocation.outboundCount + existingAllocation.twoWayCount * 2
+    : 0;
   const remaining = company ? company.assignedDeliveries - currentAllocated + existing : 0;
 
-  const total    = inbound + outbound;
+  // twoWay counts as 2 towards total
+  const total    = inbound + outbound + twoWay * 2;
   const usedPct  = company ? Math.round(((company.assignedDeliveries - remaining) / company.assignedDeliveries) * 100) : 0;
   const availPct = company ? Math.round((remaining / company.assignedDeliveries) * 100) : 0;
 
@@ -41,10 +48,12 @@ function AllocationModal({
       if (isEdit && existingAllocation) {
         setInbound(existingAllocation.inboundCount);
         setOutbound(existingAllocation.outboundCount);
+        setTwoWay(existingAllocation.twoWayCount);
         setNotes(existingAllocation.notes);
       } else {
         setInbound(0);
         setOutbound(0);
+        setTwoWay(0);
         setNotes('');
       }
     }
@@ -52,12 +61,14 @@ function AllocationModal({
 
   if (!open || !company) return null;
 
-  const canAdd = total < remaining;
+  const hourRemaining  = hourCapacity - currentHourTotal;
+  const canAdd         = total + 1 <= remaining && total + 1 <= hourRemaining;
+  const canAddTwoWay   = total + 2 <= remaining && total + 2 <= hourRemaining;
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (total === 0) { setError('Add at least 1 inbound or outbound delivery.'); return; }
-    onConfirm({ inboundCount: inbound, outboundCount: outbound, notes });
+    if (total === 0) { setError('Add at least 1 inbound, outbound, or two-way delivery.'); return; }
+    onConfirm({ inboundCount: inbound, outboundCount: outbound, twoWayCount: twoWay, notes });
   }
 
   return (
@@ -116,25 +127,9 @@ function AllocationModal({
               </div>
               <span className="am__card-label">Deliveries</span>
               <div className="am__counter">
-                <button
-                  type="button"
-                  className="am__counter-btn"
-                  onClick={() => setInbound(c => Math.max(0, c - 1))}
-                  disabled={inbound === 0}
-                  aria-label="Decrease inbound"
-                >
-                  −
-                </button>
+                <button type="button" className="am__counter-btn" onClick={() => setInbound(c => Math.max(0, c - 1))} disabled={inbound === 0} aria-label="Decrease inbound">−</button>
                 <span className="am__counter-val am__counter-val--inbound">{inbound}</span>
-                <button
-                  type="button"
-                  className="am__counter-btn"
-                  onClick={() => { if (canAdd) setInbound(c => c + 1); }}
-                  disabled={!canAdd}
-                  aria-label="Increase inbound"
-                >
-                  +
-                </button>
+                <button type="button" className="am__counter-btn" onClick={() => { if (canAdd) setInbound(c => c + 1); }} disabled={!canAdd} aria-label="Increase inbound">+</button>
               </div>
               <div className="am__card-footer">
                 <span className="am__card-total-label">Total</span>
@@ -150,38 +145,43 @@ function AllocationModal({
               </div>
               <span className="am__card-label">Deliveries</span>
               <div className="am__counter">
-                <button
-                  type="button"
-                  className="am__counter-btn"
-                  onClick={() => setOutbound(c => Math.max(0, c - 1))}
-                  disabled={outbound === 0}
-                  aria-label="Decrease outbound"
-                >
-                  −
-                </button>
+                <button type="button" className="am__counter-btn" onClick={() => setOutbound(c => Math.max(0, c - 1))} disabled={outbound === 0} aria-label="Decrease outbound">−</button>
                 <span className="am__counter-val am__counter-val--outbound">{outbound}</span>
-                <button
-                  type="button"
-                  className="am__counter-btn"
-                  onClick={() => { if (canAdd) setOutbound(c => c + 1); }}
-                  disabled={!canAdd}
-                  aria-label="Increase outbound"
-                >
-                  +
-                </button>
+                <button type="button" className="am__counter-btn" onClick={() => { if (canAdd) setOutbound(c => c + 1); }} disabled={!canAdd} aria-label="Increase outbound">+</button>
               </div>
               <div className="am__card-footer">
                 <span className="am__card-total-label">Total</span>
                 <span className="am__card-total-val am__card-total-val--outbound">{outbound}</span>
               </div>
             </div>
+
+            {/* Two Way */}
+            <div className="am__card am__card--twoway">
+              <div className="am__card-header">
+                <span className="am__card-icon am__card-icon--twoway">↕</span>
+                <span className="am__card-name">Two Way</span>
+              </div>
+              <span className="am__card-label">↑ + ↓ each (×2)</span>
+              <div className="am__counter">
+                <button type="button" className="am__counter-btn" onClick={() => setTwoWay(c => Math.max(0, c - 1))} disabled={twoWay === 0} aria-label="Decrease two-way">−</button>
+                <span className="am__counter-val am__counter-val--twoway">{twoWay}</span>
+                <button type="button" className="am__counter-btn" onClick={() => { if (canAddTwoWay) setTwoWay(c => c + 1); }} disabled={!canAddTwoWay} aria-label="Increase two-way">+</button>
+              </div>
+              <div className="am__card-footer">
+                <span className="am__card-total-label">Counts as</span>
+                <span className="am__card-total-val am__card-total-val--twoway">{twoWay * 2}</span>
+              </div>
+            </div>
           </div>
 
           <div className="am__total-bar">
-            <span className="am__total-bar-text">
-              ⓘ Total deliveries for this slot
-            </span>
-            <span className="am__total-bar-num">Total: {total}</span>
+            <span className="am__total-bar-text">↕ Two Way counts as ×2</span>
+            <div className="am__total-bar-stats">
+              <span className="am__total-bar-num">Company: {total} / {remaining}</span>
+              <span className={`am__total-bar-num${hourRemaining <= 0 ? ' am__total-bar-num--warn' : hourRemaining <= 2 ? ' am__total-bar-num--low' : ''}`}>
+                Hour: {currentHourTotal + total} / {hourCapacity}
+              </span>
+            </div>
           </div>
 
           {/* ── Notes ───────────────────────────────────── */}

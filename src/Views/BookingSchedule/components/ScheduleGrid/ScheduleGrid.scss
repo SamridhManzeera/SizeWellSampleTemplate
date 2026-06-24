@@ -9,9 +9,9 @@ $teal: #26a69a;
 $full-red: #ef4444;
 $sticky-shadow: 2px 0 8px rgba(0, 0, 0, 0.07);
 
-// Company col: 210px  |  each stat col: 115px  |  each hour col: 110px
+// Company col: 210px  |  each stat col: 145px  |  each hour col: 140px
 $col-company:    210px;
-$col-stat:       115px;
+$col-stat:       145px;
 $left-assigned:  $col-company;                 // 210px
 $left-allocated: $col-company + $col-stat;     // 325px
 
@@ -35,28 +35,27 @@ $left-allocated: $col-company + $col-stat;     // 325px
   // ── Column widths ───────────────────────────────────────────
   &__col-company { width: $col-company; min-width: $col-company; }
   &__col-stat    { width: $col-stat;    min-width: $col-stat; }
-  &__col-hour    { width: 110px;        min-width: 110px; }
+  &__col-hour    { width: 140px;        min-width: 140px; }
 
   // ── Header ─────────────────────────────────────────────────
-  thead {
-    position: sticky;
-    top: 0;
-    z-index: 30;
-  }
+  // thead is NOT sticky — each th carries its own top:0 so that
+  // sticky-left inside sticky-top doesn't break horizontal scroll.
+  thead { z-index: 30; }
 
   &__th {
+    position: sticky;
+    top: 0;
     background: $header-bg;
     border-bottom: 1.5px solid $border;
     font-weight: 600;
     padding: 12px 8px;
     white-space: nowrap;
-    // Prevent body content from bleeding through header
     border-top: none;
+    z-index: 31;
 
     &--company {
-      position: sticky;
       left: 0;
-      z-index: 40;
+      z-index: 42;
       text-align: left;
       padding: 12px 16px;
       font-size: 12px;
@@ -76,17 +75,15 @@ $left-allocated: $col-company + $col-stat;     // 325px
 
     &--assigned {
       color: $text-dark;
-      position: sticky;
       left: $left-assigned;
-      z-index: 39;
+      z-index: 41;
       background: $header-bg;
     }
 
     &--allocated {
       color: $text-dark;
-      position: sticky;
       left: $left-allocated;
-      z-index: 38;
+      z-index: 40;
       background: $header-bg;
       border-right: 2px solid darken($border, 8%);
       box-shadow: $sticky-shadow;
@@ -107,8 +104,9 @@ $left-allocated: $col-company + $col-stat;     // 325px
 
   &__totals-label {
     position: sticky;
+    top: 0;
     left: 0;
-    z-index: 40;
+    z-index: 42;
     background: $navy;
     text-align: left;
     padding: 7px 14px 7px 16px;
@@ -129,16 +127,24 @@ $left-allocated: $col-company + $col-stat;     // 325px
 
     &--req {
       position: sticky;
+      top: 0;
       left: $left-assigned;
-      z-index: 39;
+      z-index: 41;
       border-right: 1px solid rgba(255, 255, 255, 0.1);
+      width: $col-stat;
+      min-width: $col-stat;
+      max-width: $col-stat;
     }
 
     &--alloc {
       position: sticky;
+      top: 0;
       left: $left-allocated;
-      z-index: 38;
+      z-index: 40;
       border-right: 2px solid rgba(255, 255, 255, 0.2);
+      width: $col-stat;
+      min-width: $col-stat;
+      max-width: $col-stat;
     }
   }
 
@@ -180,6 +186,23 @@ $left-allocated: $col-company + $col-stat;     // 325px
     line-height: 1;
   }
 
+  &__hour-cap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 5px;
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    background: #e8edf7;
+    color: $navy;
+    letter-spacing: 0.02em;
+
+    &--near { background: #fff3cd; color: #b45309; }
+    &--full { background: #fee2e2; color: #dc2626; }
+  }
+
   // ── Rows ───────────────────────────────────────────────────
   &__row {
     background: #fff;
@@ -219,6 +242,9 @@ $left-allocated: $col-company + $col-stat;     // 325px
       padding: 8px 8px;
       border-right: 1px solid $border;
       vertical-align: middle;
+      width: $col-stat;
+      min-width: $col-stat;
+      max-width: $col-stat;
     }
 
     // ── Allocated (sticky col 3) ───────────────────────────
@@ -232,6 +258,9 @@ $left-allocated: $col-company + $col-stat;     // 325px
       border-right: 2px solid darken($border, 8%);
       box-shadow: $sticky-shadow;
       vertical-align: middle;
+      width: $col-stat;
+      min-width: $col-stat;
+      max-width: $col-stat;
     }
 
     // ── Time-slot cells (non-sticky) ───────────────────────
@@ -341,6 +370,11 @@ $left-allocated: $col-company + $col-stat;     // 325px
       color: #ea6c00;
       border: 1px solid rgba(#f97316, 0.3);
     }
+    &--tw {
+      background: rgba(#7c3aed, 0.08);
+      color: #7c3aed;
+      border: 1px solid rgba(#7c3aed, 0.25);
+    }
   }
 
   // ── Slot button ────────────────────────────────────────────
@@ -350,7 +384,7 @@ $left-allocated: $col-company + $col-stat;     // 325px
     align-items: center;
     justify-content: center;
     width: 100%;
-    height: 64px;
+    height: 80px;
     border-radius: 10px;
     border: none;
     cursor: pointer;
@@ -433,6 +467,13 @@ $left-allocated: $col-company + $col-stat;     // 325px
     color: #fb923c;
   }
 
+  &__slot-bd-tw {
+    @extend %slot-bd-base;
+    background: rgba(124, 58, 237, 0.22);
+    border: 1px solid rgba(124, 58, 237, 0.5);
+    color: #c4b5fd;
+  }
+
   // ── Totals row chips ────────────────────────────────────
   &__totals-chips {
     display: flex;
@@ -442,8 +483,9 @@ $left-allocated: $col-company + $col-stat;     // 325px
     flex-wrap: nowrap;
 
     &--sm {
-      margin-top: 5px;
-      gap: 4px;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 3px;
     }
   }
 
@@ -466,6 +508,12 @@ $left-allocated: $col-company + $col-stat;     // 325px
       background: rgba(251, 146, 60, 0.15);
       border: 1px solid rgba(251, 146, 60, 0.35);
       color: #fdba74;
+    }
+
+    &--tw {
+      background: rgba(124, 58, 237, 0.18);
+      border: 1px solid rgba(124, 58, 237, 0.4);
+      color: #c4b5fd;
     }
   }
 
@@ -514,13 +562,15 @@ $left-allocated: $col-company + $col-stat;     // 325px
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
+    width: 24px;
     height: 20px;
-    background: $navy;
-    color: #fff;
     font-size: 12px;
-    font-weight: 700;
-    border-radius: 4px;
+    font-weight: 800;
+    border-radius: 5px;
+
+    &--in  { background: rgba(#16a34a, 0.12); color: #16a34a; border: 1px solid rgba(#16a34a, 0.3); }
+    &--out { background: rgba(#f97316, 0.12); color: #f97316; border: 1px solid rgba(#f97316, 0.3); }
+    &--tw  { background: rgba(#7c3aed, 0.10); color: #7c3aed; border: 1px solid rgba(#7c3aed, 0.3); }
   }
 
   &__footer-right {
