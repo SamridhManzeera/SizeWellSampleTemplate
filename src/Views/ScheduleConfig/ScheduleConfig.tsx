@@ -1,20 +1,7 @@
 import { useState } from 'react';
 import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
+import { useScheduleConfig } from './ScheduleConfigContext';
 import './ScheduleConfig.scss';
-
-interface CapacityConfig {
-  inbound: number;
-  outbound: number;
-  twoWay: number;
-  hourMax: number;
-}
-
-const DEFAULTS: CapacityConfig = {
-  inbound: 130,
-  outbound: 120,
-  twoWay: 125,
-  hourMax: 10,
-};
 
 function InboundIcon() {
   return (
@@ -81,16 +68,18 @@ function NumberInput({
 }
 
 function ScheduleConfig() {
-  const [config, setConfig] = useState<CapacityConfig>(DEFAULTS);
+  const { inboundCapacity, outboundCapacity, twoWayCapacity, hourCapacity, updateConfig } = useScheduleConfig();
+  const [draft, setDraft] = useState({ inbound: inboundCapacity, outbound: outboundCapacity, twoWay: twoWayCapacity, hourMax: hourCapacity });
   const [saved, setSaved] = useState(false);
 
-  const total = config.inbound + config.outbound + config.twoWay * 2;
+  const total = draft.inbound + draft.outbound + draft.twoWay * 2;
 
-  function set(key: keyof CapacityConfig) {
-    return (v: number) => { setConfig((prev) => ({ ...prev, [key]: v })); setSaved(false); };
+  function set(key: keyof typeof draft) {
+    return (v: number) => { setDraft((prev) => ({ ...prev, [key]: v })); setSaved(false); };
   }
 
   function handleSave() {
+    updateConfig({ inboundCapacity: draft.inbound, outboundCapacity: draft.outbound, twoWayCapacity: draft.twoWay, hourCapacity: draft.hourMax });
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   }
@@ -164,10 +153,10 @@ function ScheduleConfig() {
                 </div>
               </div>
               <p className="sc__card-desc">{desc}</p>
-              <NumberInput value={config[key]} onChange={set(key)} />
+              <NumberInput value={draft[key]} onChange={set(key)} />
               <div className="sc__card-footer">
                 <span className="sc__card-footer-label">
-                  {key === 'twoWay' ? `Counts as ${config.twoWay * 2} total` : `${config[key]} slots`}
+                  {key === 'twoWay' ? `Counts as ${draft.twoWay * 2} total` : `${draft[key]} slots`}
                 </span>
               </div>
             </div>
@@ -179,9 +168,9 @@ function ScheduleConfig() {
           <div className="sc__total-bar-left">
             <span className="sc__total-label">Total Capacity</span>
             <span className="sc__total-chips">
-              <span className="sc__total-chip sc__total-chip--in">↑ {config.inbound}</span>
-              <span className="sc__total-chip sc__total-chip--out">↓ {config.outbound}</span>
-              <span className="sc__total-chip sc__total-chip--tw">↕ {config.twoWay} (×2)</span>
+              <span className="sc__total-chip sc__total-chip--in">↑ {draft.inbound}</span>
+              <span className="sc__total-chip sc__total-chip--out">↓ {draft.outbound}</span>
+              <span className="sc__total-chip sc__total-chip--tw">↕ {draft.twoWay} (×2)</span>
             </span>
           </div>
           <div className="sc__total-num">{total}</div>
@@ -208,7 +197,7 @@ function ScheduleConfig() {
               </p>
             </div>
           </div>
-          <NumberInput value={config.hourMax} onChange={set('hourMax')} min={1} max={100} />
+          <NumberInput value={draft.hourMax} onChange={set('hourMax')} min={1} max={100} />
         </div>
       </section>
     </div>

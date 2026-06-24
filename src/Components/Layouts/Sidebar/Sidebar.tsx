@@ -84,7 +84,7 @@ function Sidebar() {
         </nav>
 
         <div className="sidebar__footer">
-          <span className="sidebar__footer-text">Sizewell C · NNB</span>
+          <span className="sidebar__footer-text">Sizewell C</span>
         </div>
       </aside>
     </>

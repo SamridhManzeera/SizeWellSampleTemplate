@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef } from 'react';
+import { useScheduleConfig } from '../ScheduleConfig/ScheduleConfigContext';
 import { Allocation, DrawerState, ModalState, RouteFilter, SlotKey } from './types';
 
 interface ConfirmData {
@@ -35,11 +36,6 @@ function buildInitialAllocations(): Map<SlotKey, Allocation> {
   return map;
 }
 
-const INBOUND_SLOT_CAPACITY  = 130;
-const OUTBOUND_SLOT_CAPACITY = 120;
-const TWOWAY_SLOT_CAPACITY   = 125;
-const TOTAL_SLOT_CAPACITY    = INBOUND_SLOT_CAPACITY + OUTBOUND_SLOT_CAPACITY + TWOWAY_SLOT_CAPACITY * 2; // 500
-const HOUR_SLOT_CAPACITY     = 10;
 
 let idCounter = MOCK_ALLOCATIONS.length + 1;
 
@@ -68,6 +64,13 @@ function BoxIcon() {
 }
 
 export default function BookingSchedule() {
+  const { inboundCapacity, outboundCapacity, twoWayCapacity, hourCapacity } = useScheduleConfig();
+  const INBOUND_SLOT_CAPACITY  = inboundCapacity;
+  const OUTBOUND_SLOT_CAPACITY = outboundCapacity;
+  const TWOWAY_SLOT_CAPACITY   = twoWayCapacity;
+  const TOTAL_SLOT_CAPACITY    = inboundCapacity + outboundCapacity + twoWayCapacity * 2;
+  const HOUR_SLOT_CAPACITY     = hourCapacity;
+
   const [selectedDate, setSelectedDate] = useState(getTodayString());
   const [allocations, setAllocations] = useState<Map<SlotKey, Allocation>>(buildInitialAllocations);
   const [modalState, setModalState] = useState<ModalState>({
