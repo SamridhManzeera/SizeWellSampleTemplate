@@ -1,32 +1,46 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 
-export interface ScheduleConfigValues {
+export const HOURS = Array.from({ length: 24 }, (_, i) => i);
+
+export interface DayConfig {
   inboundCapacity: number;
   outboundCapacity: number;
   twoWayCapacity: number;
-  hourCapacity: number;
+  hourLimits: Record<number, number>; // hour -> max (0 = unlimited)
 }
 
-interface ScheduleConfigCtx extends ScheduleConfigValues {
-  updateConfig: (values: ScheduleConfigValues) => void;
-}
-
-const DEFAULT: ScheduleConfigValues = {
+export const DEFAULT_DAY_CONFIG: DayConfig = {
   inboundCapacity: 130,
   outboundCapacity: 120,
   twoWayCapacity: 125,
-  hourCapacity: 10,
+  hourLimits: Object.fromEntries(HOURS.map(h => [h, 0])),
 };
 
+interface ScheduleConfigCtx {
+  getConfigForDate: (date: string) => DayConfig;
+  updateConfigForDate: (date: string, config: DayConfig) => void;
+  configByDate: Record<string, DayConfig>;
+}
+
 const Ctx = createContext<ScheduleConfigCtx>({
-  ...DEFAULT,
-  updateConfig: () => {},
+  getConfigForDate: () => DEFAULT_DAY_CONFIG,
+  updateConfigForDate: () => {},
+  configByDate: {},
 });
 
 export function ScheduleConfigProvider({ children }: { children: ReactNode }) {
-  const [config, setConfig] = useState<ScheduleConfigValues>(DEFAULT);
+  const [configByDate, setConfigByDate] = useState<Record<string, DayConfig>>({});
+
+  function getConfigForDate(date: string): DayConfig {
+    return configByDate[date] ?? DEFAULT_DAY_CONFIG;
+  }
+
+  function updateConfigForDate(date: string, config: DayConfig) {
+    setConfigByDate(prev => ({ ...prev, [date]: config }));
+  }
+
   return (
-    <Ctx.Provider value={{ ...config, updateConfig: setConfig }}>
+    <Ctx.Provider value={{ getConfigForDate, updateConfigForDate, configByDate }}>
       {children}
     </Ctx.Provider>
   );

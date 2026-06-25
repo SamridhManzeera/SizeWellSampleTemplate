@@ -64,14 +64,16 @@ function BoxIcon() {
 }
 
 export default function BookingSchedule() {
-  const { inboundCapacity, outboundCapacity, twoWayCapacity, hourCapacity } = useScheduleConfig();
-  const INBOUND_SLOT_CAPACITY  = inboundCapacity;
-  const OUTBOUND_SLOT_CAPACITY = outboundCapacity;
-  const TWOWAY_SLOT_CAPACITY   = twoWayCapacity;
-  const TOTAL_SLOT_CAPACITY    = inboundCapacity + outboundCapacity + twoWayCapacity * 2;
-  const HOUR_SLOT_CAPACITY     = hourCapacity;
+  const { getConfigForDate } = useScheduleConfig();
 
   const [selectedDate, setSelectedDate] = useState(getTodayString());
+
+  const dayConfig = getConfigForDate(selectedDate);
+  const INBOUND_SLOT_CAPACITY  = dayConfig.inboundCapacity;
+  const OUTBOUND_SLOT_CAPACITY = dayConfig.outboundCapacity;
+  const TWOWAY_SLOT_CAPACITY   = dayConfig.twoWayCapacity;
+  const TOTAL_SLOT_CAPACITY    = dayConfig.inboundCapacity + dayConfig.outboundCapacity + dayConfig.twoWayCapacity * 2;
+  const HOUR_LIMITS            = dayConfig.hourLimits;
   const [allocations, setAllocations] = useState<Map<SlotKey, Allocation>>(buildInitialAllocations);
   const [modalState, setModalState] = useState<ModalState>({
     open: false,
@@ -377,7 +379,7 @@ export default function BookingSchedule() {
           allocatedTwoWayCounts={allocatedCountsByCompany.twCounts}
           selectedDate={selectedDate}
           routeFilter={routeFilter}
-          hourCapacity={HOUR_SLOT_CAPACITY}
+          hourLimits={HOUR_LIMITS}
           onAvailableSlotClick={handleAvailableSlotClick}
           onOccupiedSlotClick={handleOccupiedSlotClick}
         />
@@ -407,7 +409,7 @@ export default function BookingSchedule() {
         company={modalCompany}
         currentAllocated={modalCurrentAllocated}
         currentHourTotal={modalCurrentHourTotal}
-        hourCapacity={HOUR_SLOT_CAPACITY}
+        hourCapacity={HOUR_LIMITS[modalState.hour] ?? 0}
         existingAllocation={modalState.existingAllocation}
         onConfirm={handleAllocationConfirm}
         onClose={handleModalClose}

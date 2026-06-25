@@ -61,7 +61,8 @@ function AllocationModal({
 
   if (!open || !company) return null;
 
-  const hourRemaining  = hourCapacity - currentHourTotal;
+  const hasHourLimit   = hourCapacity > 0;
+  const hourRemaining  = hasHourLimit ? hourCapacity - currentHourTotal : Infinity;
   const canAdd         = total + 1 <= remaining && total + 1 <= hourRemaining;
   const canAddTwoWay   = total + 2 <= remaining && total + 2 <= hourRemaining;
 
@@ -178,9 +179,11 @@ function AllocationModal({
             <span className="am__total-bar-text">↕ Two Way counts as ×2</span>
             <div className="am__total-bar-stats">
               <span className="am__total-bar-num">Company: {total} / {remaining}</span>
-              <span className={`am__total-bar-num${hourRemaining <= 0 ? ' am__total-bar-num--warn' : hourRemaining <= 2 ? ' am__total-bar-num--low' : ''}`}>
-                Hour: {currentHourTotal + total} / {hourCapacity}
-              </span>
+              {hasHourLimit && (
+                <span className={`am__total-bar-num${hourRemaining <= 0 ? ' am__total-bar-num--warn' : hourRemaining <= 2 ? ' am__total-bar-num--low' : ''}`}>
+                  Hour: {currentHourTotal + total} / {hourCapacity}
+                </span>
+              )}
             </div>
           </div>
 

@@ -12,7 +12,7 @@ interface ScheduleGridProps {
   allocatedTwoWayCounts: Map<string, number>;
   selectedDate: string;
   routeFilter: RouteFilter;
-  hourCapacity: number;
+  hourLimits: Record<number, number>;
   onAvailableSlotClick: (companyId: string, hour: number) => void;
   onOccupiedSlotClick: (allocation: Allocation) => void;
 }
@@ -33,7 +33,7 @@ function formatHour(hour: number): { time: string; period: string } {
 function ScheduleGrid({
   companies, allocations, allocatedCounts,
   allocatedInboundCounts, allocatedOutboundCounts, allocatedTwoWayCounts,
-  selectedDate, routeFilter, hourCapacity, onAvailableSlotClick, onOccupiedSlotClick,
+  selectedDate, routeFilter, hourLimits, onAvailableSlotClick, onOccupiedSlotClick,
 }: ScheduleGridProps) {
 
   const hourTotals = HOURS.map((hour) => {
@@ -100,7 +100,9 @@ function ScheduleGrid({
                 <th key={hour} className="sg__th sg__th--hour">
                   <span className="sg__time">{time}</span>
                   <span className="sg__period">{period}</span>
-                  <span className="sg__hour-cap">Max {hourCapacity}</span>
+                  {(hourLimits[hour] ?? 0) > 0 && (
+                    <span className="sg__hour-cap">Max {hourLimits[hour]}</span>
+                  )}
                 </th>
               );
             })}
