@@ -88,7 +88,59 @@ $radius:    14px;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
+  }
+
+  // ── Date toolbar ──────────────────────────────────────────
+  &__toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 36px 20px;
+  }
+
+  &__date-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: 1.5px solid $border;
+    background: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    color: $text-dark;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    &:hover { border-color: darken($border, 10%); box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  }
+
+  &__cal-icon { font-size: 15px; }
+  &__date-label { font-weight: 600; }
+  &__chevron { font-size: 11px; color: $text-muted; margin-left: 2px; }
+
+  &__today-btn {
+    padding: 8px 16px;
+    border-radius: 10px;
+    border: 1.5px solid $border;
+    background: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-mid;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+    &:hover { background: $bg-page; }
+    &--active { background: $navy; color: #fff; border-color: $navy; &:hover { background: lighten($navy, 6%); } }
+  }
+
+  &__date-hidden {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
   }
 
   &__section-header {
@@ -292,18 +344,7 @@ $radius:    14px;
     flex-shrink: 0;
   }
 
-  // ── Two-column layout ─────────────────────────────────────
-  &__body {
-    display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 20px;
-    padding: 0 36px 36px;
-    align-items: start;
-  }
-
-  &__left { display: flex; flex-direction: column; gap: 0; }
-  &__right { display: flex; flex-direction: column; gap: 0; }
-
+  // ── Calendar (unused — kept for potential future use) ─────
   // ── Calendar ──────────────────────────────────────────────
   &__cal {
     user-select: none;
