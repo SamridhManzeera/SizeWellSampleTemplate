@@ -9,6 +9,7 @@ import './App.css';
 const baseName = import.meta.env.VITE_BASE_NAME;
 
 function App() {
+  console.log("Branch:Two add")
   // const [count, setCount] = useState<number>(0);
   return (
     <Provider store={store}>
