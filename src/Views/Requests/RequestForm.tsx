@@ -232,7 +232,7 @@ export default function RequestForm() {
             ) : (
               <>
                 <div className="rf__field">
-                  <label className="rf__label">Company Name *</label>
+                  <label className="rf__label">Tier Contractor *</label>
                   <input
                     type="text"
                     className={`rf__input${errors.companyName ? ' rf__input--error' : ''}`}
@@ -329,9 +329,9 @@ export default function RequestForm() {
 
                 {isView ? (
                   <div className="rf__driver-view-grid">
-                    <ReadField label="Name"        value={driver.name} />
-                    <ReadField label="Email"       value={driver.email} />
-                    <ReadField label="Contact"     value={driver.contact} />
+                    <ReadField label="Name" value={driver.name} />
+                    <ReadField label="Email" value={driver.email} />
+                    <ReadField label="Contact" value={driver.contact} />
                     <ReadField label="Vehicle No." value={driver.vehicleNumber} />
                     <div className="rf__field">
                       <span className="rf__label">Vehicle Type</span>
