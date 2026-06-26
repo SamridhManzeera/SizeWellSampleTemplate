@@ -1,8 +1,13 @@
 import { useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Tooltip } from 'react-tooltip';
+import 'react-tooltip/dist/react-tooltip.css';
 import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
 import { useRequests } from './RequestsContext';
-import { Driver, VehicleType, RouteType, RequestKind, VEHICLE_TYPE_LABELS } from './requestTypes';
+import {
+  Driver, VehicleType, RouteType, RequestKind, DriverRoute,
+  VEHICLE_TYPE_LABELS, DRIVER_ROUTE_LABELS, DRIVER_ROUTE_DESCRIPTIONS,
+} from './requestTypes';
 import './RequestForm.scss';
 
 // ── Icons ─────────────────────────────────────────────────────────
@@ -24,8 +29,14 @@ function EditIcon() {
 function uid() { return Math.random().toString(36).slice(2, 9); }
 
 function newDriver(): Driver {
-  return { id: uid(), name: '', email: '', contact: '', vehicleNumber: '', vehicleType: 'HGV_ACA_MDS' };
+  return { id: uid(), name: '', email: '', contact: '', vehicleNumber: '', vehicleType: 'HGV_ACA_MDS', driverRoute: 'route1a' };
 }
+
+const DRIVER_ROUTE_OPTIONS: Array<{ value: DriverRoute; label: string; description: string }> = [
+  { value: 'route1a', label: 'Route 1a', description: DRIVER_ROUTE_DESCRIPTIONS.route1a },
+  { value: 'route2a', label: 'Route 2a', description: DRIVER_ROUTE_DESCRIPTIONS.route2a },
+  { value: 'route3a', label: 'Route 3a', description: DRIVER_ROUTE_DESCRIPTIONS.route3a },
+];
 
 function todayString() { return new Date().toISOString().split('T')[0]; }
 
@@ -38,9 +49,9 @@ function formatDate(dateStr: string) {
 
 const VEHICLE_OPTIONS: VehicleType[] = ['HDV_MDS', 'LGV_MDS', 'HGV_ACA_MDS'];
 const ROUTE_OPTIONS: Array<{ value: RouteType; label: string }> = [
-  { value: 'inbound',  label: '↑ Inbound'  },
+  { value: 'inbound', label: '↑ Inbound' },
   { value: 'outbound', label: '↓ Outbound' },
-  { value: 'twoWay',   label: '↕ Two Way'  },
+  { value: 'twoWay', label: '↕ Two Way' },
 ];
 
 // ── Read-only field ───────────────────────────────────────────────
@@ -59,32 +70,32 @@ function ReadField({ label, value }: { label: string; value: string }) {
 type Mode = 'view' | 'edit' | 'create';
 
 export default function RequestForm() {
-  const navigate      = useNavigate();
-  const { id }        = useParams<{ id: string }>();
-  const [params]      = useSearchParams();
+  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const [params] = useSearchParams();
   const { requests, addRequest, updateRequest, getRequest } = useRequests();
 
-  const existing  = id ? getRequest(id) : undefined;
+  const existing = id ? getRequest(id) : undefined;
   const initMode: Mode = existing
     ? (params.get('edit') === 'true' ? 'edit' : 'view')
     : 'create';
 
   const kindParam = (params.get('kind') as RequestKind | null) ?? 'normal';
 
-  const [mode,         setMode]         = useState<Mode>(initMode);
-  const [kind,         setKind]         = useState<RequestKind>(existing?.kind ?? kindParam);
+  const [mode, setMode] = useState<Mode>(initMode);
+  const [kind, setKind] = useState<RequestKind>(existing?.kind ?? kindParam);
   const [deliveryDate, setDeliveryDate] = useState(existing?.deliveryDate ?? todayString());
-  const [companyName,  setCompanyName]  = useState(existing?.companyName  ?? '');
-  const [routeType,    setRouteType]    = useState<RouteType>(existing?.routeType ?? 'inbound');
-  const [notes,        setNotes]        = useState(existing?.notes ?? '');
-  const [drivers,      setDrivers]      = useState<Driver[]>(existing?.drivers ?? []);
-  const [errors,       setErrors]       = useState<Record<string, string>>({});
-  const [submitted,    setSubmitted]    = useState(false);
+  const [companyName, setCompanyName] = useState(existing?.companyName ?? '');
+  const [routeType, setRouteType] = useState<RouteType>(existing?.routeType ?? 'inbound');
+  const [notes, setNotes] = useState(existing?.notes ?? '');
+  const [drivers, setDrivers] = useState<Driver[]>(existing?.drivers ?? []);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitted, setSubmitted] = useState(false);
 
-  const isView   = mode === 'view';
+  const isView = mode === 'view';
   const isCreate = mode === 'create';
 
-  function addDriver()   { setDrivers(prev => [...prev, newDriver()]); }
+  function addDriver() { setDrivers(prev => [...prev, newDriver()]); }
   function removeDriver(did: string) { setDrivers(prev => prev.filter(d => d.id !== did)); }
   function updateDriver(did: string, field: keyof Driver, value: string) {
     setDrivers(prev => prev.map(d => d.id === did ? { ...d, [field]: value } : d));
@@ -92,13 +103,13 @@ export default function RequestForm() {
 
   function validate() {
     const errs: Record<string, string> = {};
-    if (!companyName.trim()) errs.companyName  = 'Company name is required.';
-    if (!deliveryDate)       errs.deliveryDate = 'Delivery date is required.';
+    if (!companyName.trim()) errs.companyName = 'Company name is required.';
+    if (!deliveryDate) errs.deliveryDate = 'Delivery date is required.';
     if (drivers.length === 0) errs.drivers = 'Add at least one driver.';
     drivers.forEach((d, i) => {
-      if (!d.name.trim())          errs[`d${i}_name`]    = 'Name required.';
-      if (!d.email.trim())         errs[`d${i}_email`]   = 'Email required.';
-      if (!d.contact.trim())       errs[`d${i}_contact`] = 'Contact required.';
+      if (!d.name.trim()) errs[`d${i}_name`] = 'Name required.';
+      if (!d.email.trim()) errs[`d${i}_email`] = 'Email required.';
+      if (!d.contact.trim()) errs[`d${i}_contact`] = 'Contact required.';
       if (!d.vehicleNumber.trim()) errs[`d${i}_vehicle`] = 'Vehicle no. required.';
     });
     return errs;
@@ -214,9 +225,9 @@ export default function RequestForm() {
           <div className="rf__row">
             {isView ? (
               <>
-                <ReadField label="Company Name"  value={companyName} />
+                <ReadField label="Company Name" value={companyName} />
                 <ReadField label="Delivery Date" value={formatDate(deliveryDate)} />
-                <ReadField label="Route Type"    value={ROUTE_OPTIONS.find(r => r.value === routeType)?.label ?? routeType} />
+                <ReadField label="Route Type" value={ROUTE_OPTIONS.find(r => r.value === routeType)?.label ?? routeType} />
               </>
             ) : (
               <>
@@ -281,14 +292,19 @@ export default function RequestForm() {
         <section className="rf__section">
           <div className="rf__drivers-header">
             <div>
-              <h2 className="rf__section-title">Drivers</h2>
+              <div className="rf__section-title-row">
+                <h2 className="rf__section-title">Slots</h2>
+                {drivers.length > 0 && (
+                  <span className="rf__slot-count">{drivers.length} slot{drivers.length !== 1 ? 's' : ''}</span>
+                )}
+              </div>
               <p className="rf__section-desc">
-                {isView ? `${drivers.length} driver${drivers.length !== 1 ? 's' : ''} on this request.` : 'Add all drivers attending this delivery.'}
+                {isView ? `${drivers.length} driver${drivers.length !== 1 ? 's' : ''} on this request.` : 'Add all drivers & delivery Details.'}
               </p>
             </div>
             {!isView && (
               <button type="button" className="rf__add-driver-btn" onClick={addDriver}>
-                <PlusIcon /> Add Driver
+                <PlusIcon /> Add Slots
               </button>
             )}
           </div>
@@ -297,7 +313,7 @@ export default function RequestForm() {
 
           {!isView && drivers.length === 0 && (
             <div className="rf__no-drivers">
-              <p>No drivers added yet. Click <strong>Add Driver</strong> to get started.</p>
+              <p>No Details added yet. Click <strong>Add Slots</strong> to get started.</p>
             </div>
           )}
 
@@ -313,13 +329,21 @@ export default function RequestForm() {
 
                 {isView ? (
                   <div className="rf__driver-view-grid">
-                    <ReadField label="Name"         value={driver.name} />
-                    <ReadField label="Email"        value={driver.email} />
-                    <ReadField label="Contact"      value={driver.contact} />
-                    <ReadField label="Vehicle No."  value={driver.vehicleNumber} />
-                    <div className="rf__field rf__field--full">
+                    <ReadField label="Name"        value={driver.name} />
+                    <ReadField label="Email"       value={driver.email} />
+                    <ReadField label="Contact"     value={driver.contact} />
+                    <ReadField label="Vehicle No." value={driver.vehicleNumber} />
+                    <div className="rf__field">
                       <span className="rf__label">Vehicle Type</span>
                       <div className="rf__read-val">{VEHICLE_TYPE_LABELS[driver.vehicleType]}</div>
+                    </div>
+                    <div className="rf__field">
+                      <span className="rf__label">Route</span>
+                      <div className="rf__read-val">{DRIVER_ROUTE_LABELS[driver.driverRoute]}</div>
+                    </div>
+                    <div className="rf__field rf__field--full">
+                      <span className="rf__label">Route Description</span>
+                      <div className="rf__read-val rf__read-val--multiline">{DRIVER_ROUTE_DESCRIPTIONS[driver.driverRoute]}</div>
                     </div>
                   </div>
                 ) : (
@@ -364,6 +388,23 @@ export default function RequestForm() {
                         ))}
                       </div>
                     </div>
+                    <div className="rf__field rf__field--full">
+                      <label className="rf__label">Route <span className="rf__label-hint">Hover for route description</span></label>
+                      <div className="rf__route-opt-group">
+                        {DRIVER_ROUTE_OPTIONS.map(opt => (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            data-tooltip-id="driver-route-tip"
+                            data-tooltip-content={opt.description}
+                            className={`rf__route-opt-btn${driver.driverRoute === opt.value ? ' rf__route-opt-btn--active' : ''}`}
+                            onClick={() => updateDriver(driver.id, 'driverRoute', opt.value)}
+                          >
+                            {opt.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -383,6 +424,12 @@ export default function RequestForm() {
           </div>
         )}
       </form>
+
+      <Tooltip
+        id="driver-route-tip"
+        place="top"
+        style={{ maxWidth: 300, fontSize: 12, lineHeight: 1.6, zIndex: 9999 }}
+      />
     </div>
   );
 }

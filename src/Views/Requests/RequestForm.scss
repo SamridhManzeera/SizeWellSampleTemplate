@@ -232,10 +232,28 @@ $radius:  12px;
   }
 
   &__section-title {
-    margin: 0 0 4px;
+    margin: 0;
     font-size: 16px;
     font-weight: 700;
     color: $dark;
+  }
+
+  &__section-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  &__slot-count {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: rgba($navy, 0.08);
+    color: $navy;
+    font-size: 12px;
+    font-weight: 700;
   }
 
   &__section-desc {
@@ -285,6 +303,21 @@ $radius:  12px;
 
   &__read-empty { color: $muted; font-style: italic; }
 
+  &__read-val--multiline {
+    align-items: flex-start;
+    line-height: 1.6;
+    min-height: auto;
+    white-space: normal;
+  }
+
+  // ── Label hint ────────────────────────────────────────────────
+  &__label-hint {
+    font-size: 11px;
+    font-weight: 400;
+    color: $muted;
+    margin-left: 4px;
+  }
+
   // ── Driver view grid ──────────────────────────────────────────
   &__driver-view-grid {
     display: grid;
@@ -292,6 +325,38 @@ $radius:  12px;
     gap: 14px;
 
     @media (max-width: 600px) { grid-template-columns: 1fr; }
+  }
+
+  // ── Driver route selector ─────────────────────────────────────
+  &__route-opt-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  &__route-opt-btn {
+    padding: 9px 20px;
+    border-radius: 9px;
+    border: 2px solid $border;
+    background: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    color: $mid;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.12s, background 0.12s, color 0.12s;
+
+    &:hover:not(&--active) {
+      border-color: rgba($navy, 0.3);
+      background: rgba($navy, 0.03);
+      color: $navy;
+    }
+
+    &--active {
+      background: rgba($navy, 0.08);
+      color: $navy;
+      border-color: rgba($navy, 0.4);
+    }
   }
 
   // ── Input / Textarea ──────────────────────────────────────────
