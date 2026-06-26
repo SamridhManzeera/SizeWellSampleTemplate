@@ -2,6 +2,8 @@ import { Navigate } from 'react-router-dom';
 import { ROUTES_CONFIG, WILDCARD_ROUTES } from '../Shared/Constants';
 import BookingSchedule from '../Views/BookingSchedule';
 import ScheduleConfig from '../Views/ScheduleConfig/ScheduleConfig';
+import Requests from '../Views/Requests/Requests';
+import RequestForm from '../Views/Requests/RequestForm';
 import { CustomRouter } from './RootRoutes';
 
 // eslint-disable-next-line import/prefer-default-export
@@ -15,6 +17,22 @@ export const PUBLIC_ROUTES: Array<CustomRouter> = [
     path: ROUTES_CONFIG.SCHEDULE_CONFIG.path,
     element: <ScheduleConfig />,
     title: ROUTES_CONFIG.SCHEDULE_CONFIG.title,
+  },
+  {
+    path: ROUTES_CONFIG.REQUESTS.path,
+    element: <Requests />,
+    title: ROUTES_CONFIG.REQUESTS.title,
+  },
+  // /requests/apply must come before /requests/:id so it isn't caught by the param route
+  {
+    path: ROUTES_CONFIG.REQUESTS_APPLY.path,
+    element: <RequestForm />,
+    title: ROUTES_CONFIG.REQUESTS_APPLY.title,
+  },
+  {
+    path: ROUTES_CONFIG.REQUESTS_VIEW.path,
+    element: <RequestForm />,
+    title: ROUTES_CONFIG.REQUESTS_VIEW.title,
   },
   {
     path: `${ROUTES_CONFIG.LOGIN.path}`,

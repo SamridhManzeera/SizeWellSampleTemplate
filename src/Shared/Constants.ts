@@ -8,6 +8,9 @@ const ROUTES = {
   ABOUT: '/about-us',
   BOOKING_SCHEDULE: '/booking-schedule',
   SCHEDULE_CONFIG: '/schedule-config',
+  REQUESTS: '/requests',
+  REQUESTS_APPLY: '/requests/apply',
+  REQUESTS_VIEW: '/requests/:id',
 };
 
 const WILDCARD_ROUTES = {
@@ -39,6 +42,18 @@ const ROUTES_CONFIG = {
   SCHEDULE_CONFIG: {
     path: ROUTES.SCHEDULE_CONFIG,
     title: 'Schedule Config',
+  },
+  REQUESTS: {
+    path: ROUTES.REQUESTS,
+    title: 'Requests',
+  },
+  REQUESTS_APPLY: {
+    path: ROUTES.REQUESTS_APPLY,
+    title: 'Apply Request',
+  },
+  REQUESTS_VIEW: {
+    path: ROUTES.REQUESTS_VIEW,
+    title: 'View Request',
   },
 };
 

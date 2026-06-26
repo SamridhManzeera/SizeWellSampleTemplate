@@ -1,0 +1,559 @@
+$navy:    #1a3a6b;
+$teal:    #26a69a;
+$border:  #e8ecf4;
+$bg:      #f8f9fc;
+$dark:    #111827;
+$mid:     #374151;
+$muted:   #9ca3af;
+$green:   #16a34a;
+$red:     #dc2626;
+$amber:   #d97706;
+$radius:  12px;
+
+.rf {
+  background: $bg;
+  min-height: 100vh;
+
+  // ── Hero (view / edit existing request) ──────────────────────
+  &__hero {
+    background: linear-gradient(135deg, #122a52 0%, #1a3a6b 60%, #1e4a8a 100%);
+    padding: 32px 40px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  &__hero-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  &__hero-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: 1.5px solid rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.08);
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.85);
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background 0.12s, border-color 0.12s;
+    &:hover { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.4); }
+  }
+
+  &__hero-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.1);
+    border: 1.5px solid rgba(255,255,255,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.85);
+    flex-shrink: 0;
+  }
+
+  &__hero-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+
+  &__hero-title {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.3px;
+  }
+
+  &__hero-sub {
+    margin: 0;
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+  }
+
+  &__hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  &__hero-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: 1.5px solid rgba(255,255,255,0.35);
+    background: rgba(255,255,255,0.1);
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s, border-color 0.15s;
+    &:hover { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.55); }
+  }
+
+  &__hero-cancel-btn {
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: 1.5px solid rgba(255,255,255,0.2);
+    background: transparent;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.65);
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.12s;
+    &:hover { background: rgba(255,255,255,0.07); }
+  }
+
+  // ── Status & kind badges inside hero (light versions for dark bg) ──
+  &__status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 11px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+
+    &--pending  { background: rgba(#d97706, 0.22); color: #fbbf24; }
+    &--approved { background: rgba(#16a34a, 0.22); color: #4ade80; }
+    &--rejected { background: rgba(#dc2626, 0.22); color: #f87171; }
+  }
+
+  &__hero &__kind-badge {
+    &--normal    { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); }
+    &--emergency { background: rgba(#dc2626, 0.35);   color: #fca5a5; border: 1px solid rgba(#dc2626,0.5); }
+  }
+
+  // ── Flat title bar (create form only) ────────────────────────
+  &__page-title {
+    padding: 20px 36px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  &__back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: 1.5px solid $border;
+    background: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    color: $mid;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    margin-top: 4px;
+    flex-shrink: 0;
+    transition: background 0.12s;
+    &:hover { background: darken($bg, 2%); }
+  }
+
+  &__page-title-center {
+    flex: 1;
+  }
+
+  &__title {
+    margin: 0 0 4px;
+    font-size: 22px;
+    font-weight: 800;
+    color: $navy;
+    letter-spacing: -0.3px;
+  }
+
+  &__subtitle {
+    margin: 0;
+    font-size: 13px;
+    color: $muted;
+  }
+
+  // ── Kind badge ───────────────────────────────────────────────
+  &__kind-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 11px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+
+    &--normal    { background: rgba($navy, 0.08); color: $navy; }
+    &--emergency { background: rgba($red,  0.1);  color: $red;  }
+  }
+
+  // ── Success banner ────────────────────────────────────────────
+  &__success {
+    margin: 16px 36px 0;
+    padding: 14px 20px;
+    background: rgba($green, 0.08);
+    border: 1.5px solid rgba($green, 0.3);
+    border-radius: 10px;
+    color: $green;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  // ── Form ──────────────────────────────────────────────────────
+  &__form {
+    padding: 24px 36px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  // ── Section ───────────────────────────────────────────────────
+  &__section {
+    background: #fff;
+    border: 1.5px solid $border;
+    border-radius: $radius;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(17,24,39,0.04);
+  }
+
+  &__section-title {
+    margin: 0 0 4px;
+    font-size: 16px;
+    font-weight: 700;
+    color: $dark;
+  }
+
+  &__section-desc {
+    margin: 0 0 20px;
+    font-size: 12px;
+    color: $muted;
+  }
+
+  // ── Row / Field ───────────────────────────────────────────────
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+
+    @media (max-width: 900px) { grid-template-columns: 1fr 1fr; }
+    @media (max-width: 600px) { grid-template-columns: 1fr; }
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    &--full { grid-column: 1 / -1; }
+  }
+
+  &__label {
+    font-size: 12px;
+    font-weight: 600;
+    color: $mid;
+  }
+
+  // ── Read-only display field ───────────────────────────────────
+  &__read-val {
+    padding: 10px 14px;
+    background: $bg;
+    border: 1.5px solid $border;
+    border-radius: 9px;
+    font-size: 14px;
+    color: $dark;
+    font-weight: 500;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+  }
+
+  &__read-empty { color: $muted; font-style: italic; }
+
+  // ── Driver view grid ──────────────────────────────────────────
+  &__driver-view-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+
+    @media (max-width: 600px) { grid-template-columns: 1fr; }
+  }
+
+  // ── Input / Textarea ──────────────────────────────────────────
+  &__input {
+    padding: 10px 14px;
+    border: 1.5px solid $border;
+    border-radius: 9px;
+    font-size: 14px;
+    font-family: inherit;
+    color: $dark;
+    background: #fff;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+
+    &:focus {
+      border-color: $navy;
+      box-shadow: 0 0 0 3px rgba($navy, 0.08);
+    }
+
+    &--error {
+      border-color: $red;
+      &:focus { box-shadow: 0 0 0 3px rgba($red, 0.08); }
+    }
+  }
+
+  &__textarea {
+    padding: 10px 14px;
+    border: 1.5px solid $border;
+    border-radius: 9px;
+    font-size: 14px;
+    font-family: inherit;
+    color: $dark;
+    background: #fff;
+    outline: none;
+    resize: vertical;
+    transition: border-color 0.15s;
+    &:focus { border-color: $navy; box-shadow: 0 0 0 3px rgba($navy, 0.08); }
+  }
+
+  &__err {
+    font-size: 11px;
+    color: $red;
+    font-weight: 500;
+  }
+
+  // ── Request Kind toggle ───────────────────────────────────────
+  &__kind-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  &__kind-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: 2px solid $border;
+    background: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    color: $mid;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.12s;
+
+    &--normal.rf__kind-btn--active    { background: rgba($navy, 0.07); color: $navy; border-color: rgba($navy, 0.35); }
+    &--emergency.rf__kind-btn--active { background: rgba($red,  0.08); color: $red;  border-color: rgba($red,  0.35); }
+  }
+
+  &__kind-hint {
+    font-size: 11px;
+    font-weight: 500;
+    color: $muted;
+    padding: 2px 7px;
+    background: rgba($red, 0.08);
+    border-radius: 12px;
+    color: $red;
+  }
+
+  // ── Route buttons ─────────────────────────────────────────────
+  &__route-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  &__route-btn {
+    padding: 8px 14px;
+    border-radius: 9px;
+    border: 1.5px solid $border;
+    background: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    color: $mid;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.12s;
+
+    &--inbound  { &.rf__route-btn--active { background: rgba(#16a34a,0.1); color: #16a34a; border-color: rgba(#16a34a,0.4); } }
+    &--outbound { &.rf__route-btn--active { background: rgba(#f97316,0.1); color: #f97316; border-color: rgba(#f97316,0.4); } }
+    &--twoWay   { &.rf__route-btn--active { background: rgba($red,   0.1); color: $red;    border-color: rgba($red,   0.4); } }
+  }
+
+  // ── Drivers ───────────────────────────────────────────────────
+  &__drivers-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  &__add-driver-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 18px;
+    border-radius: 10px;
+    border: none;
+    background: $navy;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+    &:hover { background: lighten($navy, 6%); }
+  }
+
+  &__no-drivers {
+    text-align: center;
+    padding: 32px;
+    color: $muted;
+    font-size: 13px;
+    border: 2px dashed $border;
+    border-radius: 12px;
+    background: $bg;
+  }
+
+  &__drivers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 8px;
+  }
+
+  &__driver-card {
+    border: 1.5px solid $border;
+    border-radius: 12px;
+    padding: 20px;
+    background: $bg;
+
+    &--view {
+      background: #fff;
+    }
+  }
+
+  &__driver-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  &__driver-num {
+    font-size: 12px;
+    font-weight: 700;
+    color: $navy;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  &__remove-driver {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1.5px solid $border;
+    background: #fff;
+    color: $muted;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.12s;
+    &:hover { background: rgba($red,0.06); color: $red; border-color: rgba($red,0.3); }
+  }
+
+  &__driver-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+
+    @media (max-width: 600px) { grid-template-columns: 1fr; }
+  }
+
+  // ── Vehicle type buttons ───────────────────────────────────────
+  &__vehicle-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  &__vehicle-btn {
+    padding: 7px 12px;
+    border-radius: 8px;
+    border: 1.5px solid $border;
+    background: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    color: $mid;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.12s;
+    text-align: left;
+
+    &--active {
+      background: rgba($navy, 0.07);
+      color: $navy;
+      border-color: rgba($navy, 0.3);
+    }
+
+    &:hover:not(&--active) { background: darken($bg, 2%); }
+  }
+
+  // ── Footer ────────────────────────────────────────────────────
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 8px;
+  }
+
+  &__cancel-btn {
+    padding: 11px 24px;
+    border-radius: 10px;
+    border: 1.5px solid $border;
+    background: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    color: $mid;
+    cursor: pointer;
+    font-family: inherit;
+    &:hover { background: $bg; }
+  }
+
+  &__submit-btn {
+    padding: 11px 28px;
+    border-radius: 10px;
+    border: none;
+    background: $navy;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s, transform 0.1s;
+    &:hover  { background: lighten($navy, 6%); }
+    &:active { transform: scale(0.97); }
+  }
+}
