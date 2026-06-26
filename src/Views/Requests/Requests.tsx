@@ -128,10 +128,10 @@ export default function Requests() {
               <tr>
                 <th>Request ID</th>
                 <th>Type</th>
-                <th>Company</th>
+                {/* <th>Company</th> */}
                 <th>Delivery Date</th>
                 <th>Route</th>
-                <th>Drivers</th>
+                {/* <th>Drivers</th> */}
                 <th>Submitted</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -149,14 +149,14 @@ export default function Requests() {
                       {req.kind === 'emergency' ? '⚡ Emergency' : 'Normal'}
                     </span>
                   </td>
-                  <td className="rq__company">{req.companyName}</td>
+                  {/* <td className="rq__company">{req.companyName}</td> */}
                   <td>{formatDate(req.deliveryDate)}</td>
                   <td>
                     <span className={`rq__route rq__route--${req.routeType}`}>
                       {ROUTE_TYPE_LABELS[req.routeType]}
                     </span>
                   </td>
-                  <td><span className="rq__driver-count">{req.drivers.length} driver{req.drivers.length !== 1 ? 's' : ''}</span></td>
+                  {/* <td><span className="rq__driver-count">{req.drivers.length} driver{req.drivers.length !== 1 ? 's' : ''}</span></td> */}
                   <td className="rq__submitted">{formatSubmitted(req.submittedAt)}</td>
                   <td>
                     <span className={`rq__status rq__status--${req.status}`}>
