@@ -11,15 +11,10 @@ $error:     #ef4444;
 $warn:      #f59e0b;
 $radius:    16px;
 
-// Inbound = green, Outbound = orange, TwoWay = violet
-$in-color:  #16a34a;
-$out-color: $orange;
-$tw-color:  #7c3aed;
-
 .am-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(10, 18, 45, 0.45);
+  background: rgba(10, 18, 45, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -31,7 +26,7 @@ $tw-color:  #7c3aed;
 .am {
   background: #fff;
   border-radius: $radius;
-  width: 540px;
+  width: 480px;
   max-width: calc(100vw - 32px);
   max-height: 92vh;
   overflow-y: auto;
@@ -59,6 +54,7 @@ $tw-color:  #7c3aed;
     align-items: flex-start;
     gap: 12px;
     flex: 1;
+    min-width: 0;
   }
 
   &__mode-tag {
@@ -71,29 +67,27 @@ $tw-color:  #7c3aed;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     flex-shrink: 0;
-    margin-top: 2px;
+    margin-top: 3px;
 
     &--create { background: #e6faf8; color: darken($teal, 8%); }
     &--edit   { background: #eef2ff; color: $blue; }
   }
 
-  &__title-block {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
   &__title {
-    margin: 0;
-    font-size: 17px;
+    margin: 0 0 3px;
+    font-size: 16px;
     font-weight: 700;
     color: $text-dark;
+    line-height: 1.2;
   }
 
   &__subtitle {
     margin: 0;
     font-size: 12px;
     color: $text-muted;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   &__close {
@@ -111,23 +105,31 @@ $tw-color:  #7c3aed;
     &:hover { background: $border; color: $text-dark; }
   }
 
-  // ── Meta ──────────────────────────────────────────────
-  &__meta {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px 16px;
-    padding: 14px 24px;
+  // ── Capacity strip ────────────────────────────────────
+  &__cap-strip {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
     background: $bg-page;
     border-bottom: 1px solid $border;
   }
 
-  &__meta-item {
+  &__cap-item {
+    flex: 1;
+    padding: 12px 18px;
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 5px;
   }
 
-  &__meta-label {
+  &__cap-divider {
+    width: 1px;
+    background: $border;
+    margin: 10px 0;
+    flex-shrink: 0;
+  }
+
+  &__cap-label {
     font-size: 10px;
     font-weight: 600;
     color: $text-muted;
@@ -135,8 +137,8 @@ $tw-color:  #7c3aed;
     letter-spacing: 0.06em;
   }
 
-  &__meta-value {
-    font-size: 14px;
+  &__cap-val {
+    font-size: 13px;
     font-weight: 700;
     color: $text-dark;
 
@@ -144,194 +146,131 @@ $tw-color:  #7c3aed;
     &--low  { color: $warn; }
   }
 
-  &__capacity-bar {
-    width: 100%;
-    height: 6px;
+  &__cap-bar {
+    height: 5px;
     background: #e5e7eb;
     border-radius: 3px;
-    margin-top: 5px;
     overflow: hidden;
+    margin-top: 2px;
   }
 
-  &__capacity-fill {
+  &__cap-fill {
     height: 100%;
     background: $navy;
     border-radius: 3px;
-    transition: width 0.3s;
-  }
+    transition: width 0.25s ease;
 
-  &__capacity-pct {
-    font-size: 11px;
-    color: $text-muted;
-    margin-top: 2px;
+    &--hour { background: $teal; }
   }
 
   // ── Form ──────────────────────────────────────────────
   &__form {
-    padding: 20px 24px 24px;
+    padding: 24px 24px 20px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 20px;
   }
 
-  // ── Counter cards ──────────────────────────────────────
-  &__cards {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 10px;
-  }
-
-  &__card {
+  // ── Stepper ───────────────────────────────────────────
+  &__stepper-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 24px 20px 20px;
+    background: $bg-page;
     border: 1.5px solid $border;
     border-radius: 14px;
-    padding: 14px 12px 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-
-    &--inbound  { border-color: rgba($in-color,  0.3); background: rgba($in-color,  0.02); }
-    &--outbound { border-color: rgba($out-color, 0.3); background: rgba($out-color, 0.02); }
-    &--twoway   { border-color: rgba($tw-color,  0.3); background: rgba($tw-color,  0.02); }
   }
 
-  &__card-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  &__card-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    font-size: 20px;
-    font-weight: 900;
-    line-height: 1;
-
-    &--inbound  { background: rgba($in-color,  0.12); color: $in-color; }
-    &--outbound { background: rgba($out-color, 0.12); color: $out-color; }
-    &--twoway   { background: rgba($tw-color,  0.12); color: $tw-color; }
-  }
-
-  &__card-name {
-    font-size: 16px;
+  &__stepper-label {
+    margin: 0;
+    font-size: 12px;
     font-weight: 700;
-    color: $text-dark;
-  }
-
-  &__card-label {
-    font-size: 11px;
     color: $text-muted;
-    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
   }
 
-  // ── +/- Counter ────────────────────────────────────────
-  &__counter {
+  &__stepper {
     display: flex;
     align-items: center;
-    gap: 0;
-    border: 1.5px solid $border;
-    border-radius: 10px;
-    overflow: hidden;
-    background: #fff;
+    gap: 20px;
   }
 
-  &__counter-btn {
-    width: 40px;
-    height: 44px;
-    border: none;
-    background: $bg-page;
-    font-size: 20px;
-    font-weight: 600;
+  &__stepper-btn {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 2px solid $border;
+    background: #fff;
     color: $text-mid;
     cursor: pointer;
-    transition: background 0.12s, color 0.12s;
     display: flex;
     align-items: center;
     justify-content: center;
-    line-height: 1;
+    transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
     flex-shrink: 0;
 
     &:hover:not(:disabled) {
-      background: darken($bg-page, 4%);
-      color: $text-dark;
+      border-color: $navy;
+      color: $navy;
+      background: #f0f4ff;
+      transform: scale(1.06);
     }
 
-    &:disabled { opacity: 0.35; cursor: not-allowed; }
+    &:active:not(:disabled) { transform: scale(0.96); }
+
+    &:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    &--inc:hover:not(:disabled) {
+      border-color: $teal;
+      color: $teal;
+      background: #e6faf8;
+    }
   }
 
-  &__counter-val {
-    flex: 1;
-    text-align: center;
-    font-size: 22px;
+  &__stepper-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 90px;
+  }
+
+  &__stepper-num {
+    font-size: 52px;
     font-weight: 800;
-    line-height: 1;
-    border-left: 1px solid $border;
-    border-right: 1px solid $border;
-    padding: 8px 4px;
-
-    &--inbound  { color: $in-color; }
-    &--outbound { color: $out-color; }
-    &--twoway   { color: $tw-color; }
-  }
-
-  &__card-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-top: 8px;
-    border-top: 1px solid $border;
-  }
-
-  &__card-total-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: $text-muted;
-  }
-
-  &__card-total-val {
-    font-size: 15px;
-    font-weight: 800;
-
-    &--inbound  { color: $in-color; }
-    &--outbound { color: $out-color; }
-    &--twoway   { color: $tw-color; }
-  }
-
-  // ── Total bar ─────────────────────────────────────────
-  &__total-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: #f0f4ff;
-    border: 1px solid #c7d2fe;
-    border-radius: 8px;
-    padding: 10px 14px;
-    gap: 12px;
-  }
-
-  &__total-bar-text {
-    font-size: 12px;
-    color: $text-mid;
-  }
-
-  &__total-bar-stats {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-  }
-
-  &__total-bar-num {
-    font-size: 13px;
-    font-weight: 700;
     color: $navy;
-    white-space: nowrap;
+    line-height: 1;
+    letter-spacing: -2px;
+    font-variant-numeric: tabular-nums;
+  }
 
-    &--warn { color: $error; }
-    &--low  { color: $warn; }
+  &__stepper-of {
+    font-size: 11px;
+    font-weight: 500;
+    color: $text-muted;
+    margin-top: 4px;
+  }
+
+  &__stepper-progress {
+    width: 100%;
+    height: 5px;
+    background: #e5e7eb;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 2px;
+  }
+
+  &__stepper-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, $navy, $teal);
+    border-radius: 3px;
+    transition: width 0.2s ease;
+    min-width: 0;
   }
 
   // ── Notes ─────────────────────────────────────────────
@@ -356,7 +295,7 @@ $tw-color:  #7c3aed;
     font-family: inherit;
     outline: none;
     background: #fff;
-    transition: border-color 0.15s;
+    transition: border-color 0.15s, box-shadow 0.15s;
     resize: vertical;
 
     &:focus { border-color: $teal; box-shadow: 0 0 0 3px rgba($teal, 0.1); }
@@ -379,27 +318,32 @@ $tw-color:  #7c3aed;
     display: flex;
     gap: 10px;
     justify-content: flex-end;
+    padding-top: 4px;
   }
 
   &__btn {
     padding: 10px 24px;
-    border-radius: 8px;
+    border-radius: 9px;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     border: none;
     font-family: inherit;
-    transition: background 0.15s, opacity 0.15s;
+    transition: background 0.15s, opacity 0.15s, transform 0.1s;
+
+    &:active { transform: scale(0.97); }
 
     &--cancel {
-      background: $border;
-      color: $text-dark;
-      &:hover { background: darken($border, 6%); }
+      background: $bg-page;
+      border: 1.5px solid $border;
+      color: $text-mid;
+      &:hover { background: darken($bg-page, 4%); }
     }
 
     &--confirm {
       background: $navy;
       color: #fff;
+      min-width: 140px;
       &:hover:not(:disabled) { background: lighten($navy, 8%); }
       &:disabled { opacity: 0.4; cursor: not-allowed; }
     }

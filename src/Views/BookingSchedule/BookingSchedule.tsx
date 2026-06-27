@@ -1,11 +1,9 @@
 import { useState, useMemo, useRef } from 'react';
 import { useScheduleConfig } from '../ScheduleConfig/ScheduleConfigContext';
-import { Allocation, DrawerState, ModalState, RouteFilter, SlotKey } from './types';
+import { Allocation, DrawerState, ModalState, SlotKey } from './types';
 
 interface ConfirmData {
-  inboundCount: number;
-  outboundCount: number;
-  twoWayCount: number;
+  totalCount: number;
   notes: string;
 }
 import { MOCK_ALLOCATIONS, MOCK_COMPANIES, buildSlotKey } from './mockData';
@@ -63,16 +61,22 @@ function BoxIcon() {
   );
 }
 
+function CheckIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
+    </svg>
+  );
+}
+
 export default function BookingSchedule() {
   const { getConfigForDate } = useScheduleConfig();
 
   const [selectedDate, setSelectedDate] = useState(getTodayString());
+  const [viewMode, setViewMode] = useState<'allocated' | 'booked'>('allocated');
 
   const dayConfig = getConfigForDate(selectedDate);
   const TOTAL_SLOT_CAPACITY    = dayConfig.totalCapacity;
-  const INBOUND_SLOT_CAPACITY  = Math.round(TOTAL_SLOT_CAPACITY * 0.4);
-  const OUTBOUND_SLOT_CAPACITY = Math.round(TOTAL_SLOT_CAPACITY * 0.4);
-  const TWOWAY_SLOT_CAPACITY   = TOTAL_SLOT_CAPACITY - INBOUND_SLOT_CAPACITY - OUTBOUND_SLOT_CAPACITY;
   const HOUR_LIMITS            = dayConfig.hourLimits;
   const [allocations, setAllocations] = useState<Map<SlotKey, Allocation>>(buildInitialAllocations);
   const [modalState, setModalState] = useState<ModalState>({
@@ -85,55 +89,45 @@ export default function BookingSchedule() {
     open: false,
     allocation: null,
   });
-  const [routeFilter, setRouteFilter] = useState<RouteFilter>('all');
 
   const dateInputRef = useRef<HTMLInputElement>(null);
 
   // ── Derived ────────────────────────────────────────────────
   const allocatedCountsByCompany = useMemo(() => {
-    const counts    = new Map<string, number>();
-    const inCounts  = new Map<string, number>();
-    const outCounts = new Map<string, number>();
-    const twCounts  = new Map<string, number>();
+    const counts = new Map<string, number>();
     allocations.forEach((a) => {
       if (a.date === selectedDate) {
         const total = a.inboundCount + a.outboundCount + a.twoWayCount * 2;
-        counts.set(a.companyId,    (counts.get(a.companyId)    ?? 0) + total);
-        inCounts.set(a.companyId,  (inCounts.get(a.companyId)  ?? 0) + a.inboundCount);
-        outCounts.set(a.companyId, (outCounts.get(a.companyId) ?? 0) + a.outboundCount);
-        twCounts.set(a.companyId,  (twCounts.get(a.companyId)  ?? 0) + a.twoWayCount);
+        counts.set(a.companyId, (counts.get(a.companyId) ?? 0) + total);
       }
     });
-    return { counts, inCounts, outCounts, twCounts };
+    return counts;
+  }, [allocations, selectedDate]);
+
+  const bookedCountsByCompany = useMemo(() => {
+    const counts = new Map<string, number>();
+    allocations.forEach((a) => {
+      if (a.date === selectedDate) {
+        counts.set(a.companyId, (counts.get(a.companyId) ?? 0) + a.bookedCount);
+      }
+    });
+    return counts;
   }, [allocations, selectedDate]);
 
   const totalAllocatedToday = useMemo(() => {
     let sum = 0;
-    allocatedCountsByCompany.counts.forEach((v) => { sum += v; });
+    allocatedCountsByCompany.forEach((v) => { sum += v; });
     return sum;
   }, [allocatedCountsByCompany]);
 
-  const { totalInboundToday, totalOutboundToday, totalTwoWayToday } = useMemo(() => {
-    let inbound = 0; let outbound = 0; let twoWay = 0;
-    allocations.forEach((a) => {
-      if (a.date === selectedDate) {
-        inbound  += a.inboundCount;
-        outbound += a.outboundCount;
-        twoWay   += a.twoWayCount;
-      }
-    });
-    return { totalInboundToday: inbound, totalOutboundToday: outbound, totalTwoWayToday: twoWay };
-  }, [allocations, selectedDate]);
+  const totalBookedToday = useMemo(() => {
+    let sum = 0;
+    bookedCountsByCompany.forEach((v) => { sum += v; });
+    return sum;
+  }, [bookedCountsByCompany]);
 
-  const totalAssigned          = MOCK_COMPANIES.reduce((s, c) => s + c.assignedDeliveries,  0);
-  const totalInboundRequested  = MOCK_COMPANIES.reduce((s, c) => s + c.inboundDeliveries,   0);
-  const totalOutboundRequested = MOCK_COMPANIES.reduce((s, c) => s + c.outboundDeliveries,  0);
-  const totalTwoWayRequested   = MOCK_COMPANIES.reduce((s, c) => s + c.twoWayDeliveries,    0);
-
-  const availableSlots         = TOTAL_SLOT_CAPACITY    - totalAllocatedToday;
-  const availableInboundSlots  = INBOUND_SLOT_CAPACITY  - totalInboundToday;
-  const availableOutboundSlots = OUTBOUND_SLOT_CAPACITY - totalOutboundToday;
-  const availableTwoWaySlots   = TWOWAY_SLOT_CAPACITY   - totalTwoWayToday;
+  const totalAssigned = MOCK_COMPANIES.reduce((s, c) => s + c.assignedDeliveries, 0);
+  const availableSlots = TOTAL_SLOT_CAPACITY - totalAllocatedToday;
 
   const isToday = selectedDate === getTodayString();
 
@@ -174,9 +168,10 @@ export default function BookingSchedule() {
       setAllocations((prev) =>
         new Map(prev).set(key, {
           ...modalState.existingAllocation!,
-          inboundCount:  data.inboundCount,
-          outboundCount: data.outboundCount,
-          twoWayCount:   data.twoWayCount,
+          inboundCount:  data.totalCount,
+          outboundCount: 0,
+          twoWayCount:   0,
+          bookedCount:   Math.min(modalState.existingAllocation!.bookedCount, data.totalCount),
           notes:         data.notes,
         })
       );
@@ -188,9 +183,10 @@ export default function BookingSchedule() {
           companyName:   company.name,
           date:          selectedDate,
           hour:          modalState.hour,
-          inboundCount:  data.inboundCount,
-          outboundCount: data.outboundCount,
-          twoWayCount:   data.twoWayCount,
+          inboundCount:  data.totalCount,
+          outboundCount: 0,
+          twoWayCount:   0,
+          bookedCount:   data.totalCount,
           notes:         data.notes,
           createdAt:     new Date().toISOString(),
         })
@@ -200,9 +196,8 @@ export default function BookingSchedule() {
   }
 
   const modalCompany = MOCK_COMPANIES.find((c) => c.id === modalState.companyId) ?? null;
-  const modalCurrentAllocated = allocatedCountsByCompany.counts.get(modalState.companyId) ?? 0;
+  const modalCurrentAllocated = allocatedCountsByCompany.get(modalState.companyId) ?? 0;
 
-  // Total deliveries already in this hour across ALL companies (for per-hour cap)
   const modalCurrentHourTotal = useMemo(() => {
     let sum = 0;
     MOCK_COMPANIES.forEach((c) => {
@@ -238,12 +233,6 @@ export default function BookingSchedule() {
                 <span className="bs__kpi-label">Total Slot</span>
               </div>
             </div>
-            <div className="bs__kpi-divider" />
-            <div className="bs__kpi-stack">
-              <span className="bs__kpi-sub-item bs__kpi-sub-item--in">↑ {INBOUND_SLOT_CAPACITY}</span>
-              <span className="bs__kpi-sub-item bs__kpi-sub-item--out">↓ {OUTBOUND_SLOT_CAPACITY}</span>
-              <span className="bs__kpi-sub-item bs__kpi-sub-item--tw">↕ {TWOWAY_SLOT_CAPACITY}</span>
-            </div>
           </div>
           {/* Allocated */}
           <div className="bs__kpi-card">
@@ -254,11 +243,15 @@ export default function BookingSchedule() {
                 <span className="bs__kpi-label">Allocated</span>
               </div>
             </div>
-            <div className="bs__kpi-divider" />
-            <div className="bs__kpi-stack">
-              <span className="bs__kpi-sub-item bs__kpi-sub-item--in">↑ {totalInboundToday}</span>
-              <span className="bs__kpi-sub-item bs__kpi-sub-item--out">↓ {totalOutboundToday}</span>
-              <span className="bs__kpi-sub-item bs__kpi-sub-item--tw">↕ {totalTwoWayToday}</span>
+          </div>
+          {/* Booked Slot */}
+          <div className="bs__kpi-card">
+            <div className="bs__kpi-main">
+              <div className="bs__kpi-icon bs__kpi-icon--teal"><CheckIcon /></div>
+              <div className="bs__kpi-center">
+                <span className="bs__kpi-num bs__kpi-num--teal">{totalBookedToday}</span>
+                <span className="bs__kpi-label">Booked Slot</span>
+              </div>
             </div>
           </div>
           {/* Requested */}
@@ -270,12 +263,6 @@ export default function BookingSchedule() {
                 <span className="bs__kpi-label">Requested</span>
               </div>
             </div>
-            <div className="bs__kpi-divider" />
-            <div className="bs__kpi-stack">
-              <span className="bs__kpi-sub-item bs__kpi-sub-item--in">↑ {totalInboundRequested}</span>
-              <span className="bs__kpi-sub-item bs__kpi-sub-item--out">↓ {totalOutboundRequested}</span>
-              <span className="bs__kpi-sub-item bs__kpi-sub-item--tw">↕ {totalTwoWayRequested}</span>
-            </div>
           </div>
           {/* Available */}
           <div className="bs__kpi-card">
@@ -285,12 +272,6 @@ export default function BookingSchedule() {
                 <span className="bs__kpi-num bs__kpi-num--orange">{availableSlots}</span>
                 <span className="bs__kpi-label">Available</span>
               </div>
-            </div>
-            <div className="bs__kpi-divider" />
-            <div className="bs__kpi-stack">
-              <span className="bs__kpi-sub-item bs__kpi-sub-item--in">↑ {availableInboundSlots}</span>
-              <span className="bs__kpi-sub-item bs__kpi-sub-item--out">↓ {availableOutboundSlots}</span>
-              <span className="bs__kpi-sub-item bs__kpi-sub-item--tw">↕ {availableTwoWaySlots}</span>
             </div>
           </div>
         </div>
@@ -327,7 +308,7 @@ export default function BookingSchedule() {
           />
         </div>
 
-        {/* Legend + Route filter */}
+        {/* Legend + View toggle */}
         <div className="bs__toolbar-right">
           <div className="bs__legend">
             <span className="bs__legend-item">
@@ -338,32 +319,23 @@ export default function BookingSchedule() {
               <span className="bs__legend-dot bs__legend-dot--available" />
               Available
             </span>
-            <span className="bs__legend-item">
-              <span className="bs__legend-swatch bs__legend-swatch--in">↑</span>
-              Inbound
-            </span>
-            <span className="bs__legend-item">
-              <span className="bs__legend-swatch bs__legend-swatch--out">↓</span>
-              Outbound
-            </span>
-            <span className="bs__legend-item">
-              <span className="bs__legend-swatch bs__legend-swatch--tw">↕</span>
-              Two Way
-            </span>
           </div>
 
-          <div className="bs__route-filter">
-            <span className="bs__route-filter-label">Route Type:</span>
-            {(['all', 'inbound', 'outbound', 'twoWay'] as RouteFilter[]).map((f) => (
-              <button
-                key={f}
-                type="button"
-                className={`bs__route-btn${routeFilter === f ? ' bs__route-btn--active' : ''}`}
-                onClick={() => setRouteFilter(f)}
-              >
-                {f === 'all' ? 'All' : f === 'inbound' ? '↑ Inbound' : f === 'outbound' ? '↓ Outbound' : '↕ Two Way'}
-              </button>
-            ))}
+          <div className="bs__view-toggle">
+            <button
+              type="button"
+              className={`bs__view-btn${viewMode === 'allocated' ? ' bs__view-btn--active' : ''}`}
+              onClick={() => setViewMode('allocated')}
+            >
+              Allocated
+            </button>
+            <button
+              type="button"
+              className={`bs__view-btn${viewMode === 'booked' ? ' bs__view-btn--active' : ''}`}
+              onClick={() => setViewMode('booked')}
+            >
+              Booked
+            </button>
           </div>
         </div>
       </div>
@@ -373,32 +345,14 @@ export default function BookingSchedule() {
         <ScheduleGrid
           companies={MOCK_COMPANIES}
           allocations={allocations}
-          allocatedCounts={allocatedCountsByCompany.counts}
-          allocatedInboundCounts={allocatedCountsByCompany.inCounts}
-          allocatedOutboundCounts={allocatedCountsByCompany.outCounts}
-          allocatedTwoWayCounts={allocatedCountsByCompany.twCounts}
+          allocatedCounts={allocatedCountsByCompany}
+          bookedCounts={bookedCountsByCompany}
+          viewMode={viewMode}
           selectedDate={selectedDate}
-          routeFilter={routeFilter}
           hourLimits={HOUR_LIMITS}
           onAvailableSlotClick={handleAvailableSlotClick}
           onOccupiedSlotClick={handleOccupiedSlotClick}
         />
-
-        <div className="bs__bottom-legend">
-          <span className="bs__bottom-legend-title">Routing Legend</span>
-          <span className="bs__legend-item">
-            <span className="bs__legend-swatch bs__legend-swatch--in">↑</span>
-            Inbound
-          </span>
-          <span className="bs__legend-item">
-            <span className="bs__legend-swatch bs__legend-swatch--out">↓</span>
-            Outbound
-          </span>
-          <span className="bs__legend-item">
-            <span className="bs__legend-swatch bs__legend-swatch--tw">↕</span>
-            Two Way
-          </span>
-        </div>
       </div>
 
       <AllocationModal

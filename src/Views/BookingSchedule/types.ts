@@ -25,6 +25,7 @@ export interface Allocation {
   inboundCount: number;
   outboundCount: number;
   twoWayCount: number;
+  bookedCount: number;
   notes: string;
   createdAt: string;
 }

@@ -1,5 +1,5 @@
 import { CSSProperties } from 'react';
-import { Company, Allocation, SlotKey, RouteFilter } from '../../types';
+import { Company, Allocation, SlotKey } from '../../types';
 import { buildSlotKey } from '../../mockData';
 import './ScheduleGrid.scss';
 
@@ -7,11 +7,9 @@ interface ScheduleGridProps {
   companies: Company[];
   allocations: Map<SlotKey, Allocation>;
   allocatedCounts: Map<string, number>;
-  allocatedInboundCounts: Map<string, number>;
-  allocatedOutboundCounts: Map<string, number>;
-  allocatedTwoWayCounts: Map<string, number>;
+  bookedCounts: Map<string, number>;
+  viewMode: 'allocated' | 'booked';
   selectedDate: string;
-  routeFilter: RouteFilter;
   hourLimits: Record<number, number>;
   onAvailableSlotClick: (companyId: string, hour: number) => void;
   onOccupiedSlotClick: (allocation: Allocation) => void;
@@ -31,27 +29,30 @@ function formatHour(hour: number): { time: string; period: string } {
 }
 
 function ScheduleGrid({
-  companies, allocations, allocatedCounts,
-  allocatedInboundCounts, allocatedOutboundCounts, allocatedTwoWayCounts,
-  selectedDate, routeFilter, hourLimits, onAvailableSlotClick, onOccupiedSlotClick,
+  companies, allocations, allocatedCounts, bookedCounts, viewMode,
+  selectedDate, hourLimits, onAvailableSlotClick, onOccupiedSlotClick,
 }: ScheduleGridProps) {
 
   const hourTotals = HOURS.map((hour) => {
-    let inbound = 0; let outbound = 0; let twoWay = 0;
+    let allocated = 0;
+    let booked = 0;
     companies.forEach((company) => {
       const a = allocations.get(buildSlotKey(company.id, selectedDate, hour));
-      if (a) { inbound += a.inboundCount; outbound += a.outboundCount; twoWay += a.twoWayCount; }
+      if (a) {
+        allocated += a.inboundCount + a.outboundCount + a.twoWayCount * 2;
+        booked += a.bookedCount;
+      }
     });
-    return { inbound, outbound, twoWay };
+    return { allocated, booked };
   });
 
   const totalRequestedInbound = companies.reduce((s, c) => s + c.inboundDeliveries, 0);
   const totalRequestedOutbound = companies.reduce((s, c) => s + c.outboundDeliveries, 0);
   const totalRequestedTwoWay = companies.reduce((s, c) => s + c.twoWayDeliveries, 0);
+  const totalAllocated = companies.reduce((s, c) => s + (allocatedCounts.get(c.id) ?? 0), 0);
+  const totalBooked = companies.reduce((s, c) => s + (bookedCounts.get(c.id) ?? 0), 0);
 
-  const totalAllocatedInbound = companies.reduce((s, c) => s + (allocatedInboundCounts.get(c.id) ?? 0), 0);
-  const totalAllocatedOutbound = companies.reduce((s, c) => s + (allocatedOutboundCounts.get(c.id) ?? 0), 0);
-  const totalAllocatedTwoWay = companies.reduce((s, c) => s + (allocatedTwoWayCounts.get(c.id) ?? 0), 0);
+  const columnLabel = viewMode === 'booked' ? 'Booked' : 'Allocated';
 
   return (
     <div className="sg-wrapper">
@@ -74,26 +75,21 @@ function ScheduleGrid({
               </div>
             </th>
             <th className="sg__totals-stat sg__totals-stat--alloc">
-              <div className="sg__totals-chips sg__totals-chips--sm">
-                <span className="sg__totals-chip sg__totals-chip--in">↑ {totalAllocatedInbound}</span>
-                <span className="sg__totals-chip sg__totals-chip--out">↓ {totalAllocatedOutbound}</span>
-                <span className="sg__totals-chip sg__totals-chip--tw">↕ {totalAllocatedTwoWay}</span>
-              </div>
+              <span className="sg__totals-single">{viewMode === 'booked' ? totalBooked : totalAllocated}</span>
             </th>
-            {hourTotals.map(({ inbound, outbound, twoWay }, hour) => (
-              <th key={hour} className="sg__totals-cell">
-                <div className="sg__totals-chips">
-                  {inbound  > 0 && <span className="sg__totals-chip sg__totals-chip--in">↑ {inbound}</span>}
-                  {outbound > 0 && <span className="sg__totals-chip sg__totals-chip--out">↓ {outbound}</span>}
-                  {twoWay   > 0 && <span className="sg__totals-chip sg__totals-chip--tw">↕ {twoWay}</span>}
-                </div>
-              </th>
-            ))}
+            {hourTotals.map(({ allocated, booked }, hour) => {
+              const val = viewMode === 'booked' ? booked : allocated;
+              return (
+                <th key={hour} className="sg__totals-cell">
+                  {val > 0 && <span className="sg__totals-single">{val}</span>}
+                </th>
+              );
+            })}
           </tr>
           <tr>
             <th className="sg__th sg__th--company">Company / Structure</th>
             <th className="sg__th sg__th--stat sg__th--assigned">Requested</th>
-            <th className="sg__th sg__th--stat sg__th--allocated">Allocated</th>
+            <th className="sg__th sg__th--stat sg__th--allocated">{columnLabel}</th>
             {HOURS.map((hour) => {
               const { time, period } = formatHour(hour);
               return (
@@ -112,6 +108,8 @@ function ScheduleGrid({
         <tbody>
           {companies.map((company, idx) => {
             const allocated = allocatedCounts.get(company.id) ?? 0;
+            const booked = bookedCounts.get(company.id) ?? 0;
+            const displayCount = viewMode === 'booked' ? booked : allocated;
             const isFull = allocated >= company.assignedDeliveries;
             const accentColor = ROW_COLORS[idx % ROW_COLORS.length];
 
@@ -139,60 +137,45 @@ function ScheduleGrid({
                 </td>
                 <td className="sg__td sg__td--stat-2">
                   <span className={`sg__stat-num sg__stat-num--allocated${isFull ? ' sg__stat-num--full' : ''}`}>
-                    {allocated}
+                    {displayCount}
                   </span>
-                  <div className="sg__stat-breakdown">
-                    <span className="sg__stat-bd sg__stat-bd--in">↑&nbsp;{allocatedInboundCounts.get(company.id) ?? 0}</span>
-                    <span className="sg__stat-bd sg__stat-bd--out">↓&nbsp;{allocatedOutboundCounts.get(company.id) ?? 0}</span>
-                    <span className="sg__stat-bd sg__stat-bd--tw">↕&nbsp;{allocatedTwoWayCounts.get(company.id) ?? 0}</span>
-                  </div>
                 </td>
 
                 {HOURS.map((hour) => {
                   const key = buildSlotKey(company.id, selectedDate, hour);
                   const allocation = allocations.get(key);
 
-                  const matchesFilter = !allocation
-                    || routeFilter === 'all'
-                    || (routeFilter === 'inbound' && allocation.inboundCount > 0)
-                    || (routeFilter === 'outbound' && allocation.outboundCount > 0)
-                    || (routeFilter === 'twoWay' && allocation.twoWayCount > 0);
+                  const isOccupied = !!allocation;
+                  const isDisabled = !isOccupied && isFull && viewMode !== 'booked';
+                  const isReadOnly = viewMode === 'booked';
 
-                  const isOccupied = !!allocation && matchesFilter;
-                  const isDisabled = !isOccupied && isFull;
-
-                  const inbound = isOccupied ? allocation!.inboundCount : 0;
-                  const outbound = isOccupied ? allocation!.outboundCount : 0;
-                  const twoWay = isOccupied ? allocation!.twoWayCount : 0;
-                  const total = inbound + outbound + twoWay * 2;
+                  const total = isOccupied
+                    ? allocation!.inboundCount + allocation!.outboundCount + allocation!.twoWayCount * 2
+                    : 0;
 
                   return (
                     <td key={hour} className="sg__td sg__td--slot">
                       <button
                         type="button"
-                        className={`sg__slot${isOccupied ? ' sg__slot--occupied' : ' sg__slot--available'}${isDisabled ? ' sg__slot--disabled' : ''}`}
-                        onClick={() =>
-                          isOccupied
-                            ? onOccupiedSlotClick(allocation!)
-                            : onAvailableSlotClick(company.id, hour)
-                        }
+                        className={`sg__slot${isOccupied ? ' sg__slot--occupied' : ' sg__slot--available'}${isDisabled ? ' sg__slot--disabled' : ''}${isReadOnly ? ' sg__slot--readonly' : ''}`}
+                        onClick={() => {
+                          if (isReadOnly) return;
+                          isOccupied ? onOccupiedSlotClick(allocation!) : onAvailableSlotClick(company.id, hour);
+                        }}
                         disabled={isDisabled}
                         title={
-                          isDisabled
-                            ? 'No remaining deliveries'
-                            : isOccupied
-                              ? `${total} deliveries — click to view`
-                              : 'Available — click to allocate'
+                          isReadOnly
+                            ? undefined
+                            : isDisabled
+                              ? 'No remaining deliveries'
+                              : isOccupied
+                                ? `${total} deliveries — click to view`
+                                : 'Available — click to allocate'
                         }
                       >
                         {isOccupied && (
                           <div className="sg__slot-content">
                             <span className="sg__slot-total">{total}</span>
-                            <span className="sg__slot-breakdown">
-                              {inbound > 0 && <span className="sg__slot-bd-in">↑&nbsp;{inbound}</span>}
-                              {outbound > 0 && <span className="sg__slot-bd-out">↓&nbsp;{outbound}</span>}
-                              {twoWay > 0 && <span className="sg__slot-bd-tw">↕&nbsp;{twoWay}</span>}
-                            </span>
                           </div>
                         )}
                       </button>
@@ -203,32 +186,6 @@ function ScheduleGrid({
             );
           })}
         </tbody>
-
-        {/* <tfoot>
-          <tr>
-            <td colSpan={3 + HOURS.length} className="sg__footer">
-              <div className="sg__footer-inner">
-                <div className="sg__footer-left">
-                  <span className="sg__footer-title">Routing Legend</span>
-                  <span className="sg__footer-item sg__footer-item--in">
-                    <span className="sg__footer-arrow sg__footer-arrow--in">↑</span> Inbound
-                  </span>
-                  <span className="sg__footer-item sg__footer-item--out">
-                    <span className="sg__footer-arrow sg__footer-arrow--out">↓</span> Outbound
-                  </span>
-                  <span className="sg__footer-item sg__footer-item--tw">
-                    <span className="sg__footer-arrow sg__footer-arrow--tw">↕</span> Two Way
-                  </span>
-                </div>
-                <div className="sg__footer-right">
-                  <span className="sg__footer-desc"><strong>Inbound:</strong> Deliveries arriving at the facility</span>
-                  <span className="sg__footer-desc"><strong>Outbound:</strong> Deliveries leaving the facility</span>
-                  <span className="sg__footer-desc"><strong>Two Way:</strong> Inbound + Outbound combined (counts as ×2)</span>
-                </div>
-              </div>
-            </td>
-          </tr>
-        </tfoot> */}
       </table>
     </div>
   );

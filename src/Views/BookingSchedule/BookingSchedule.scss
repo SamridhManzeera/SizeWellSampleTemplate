@@ -59,18 +59,20 @@ $blue: #3b5bdb;
   // ── KPI cards ───────────────────────────────────────────────
   &__kpi-row {
     display: flex;
-    gap: 14px;
+    gap: 10px;
+    flex-wrap: wrap;
   }
 
   &__kpi-card {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     background: #fff;
     border: 1.5px solid $border;
-    border-radius: 14px;
-    padding: 14px 18px;
+    border-radius: 12px;
+    padding: 12px 16px;
     box-shadow: 0 1px 4px rgba(17, 24, 39, 0.05);
+    flex-shrink: 0;
   }
 
   &__kpi-main {
@@ -101,9 +103,9 @@ $blue: #3b5bdb;
   }
 
   &__kpi-icon {
-    width: 46px;
-    height: 46px;
-    border-radius: 12px;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -117,6 +119,11 @@ $blue: #3b5bdb;
     &--green {
       background: #e6faf8;
       color: $teal;
+    }
+
+    &--teal {
+      background: #e0f7f6;
+      color: #00897b;
     }
 
     &--orange {
@@ -137,13 +144,14 @@ $blue: #3b5bdb;
   }
 
   &__kpi-num {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 800;
     line-height: 1;
     letter-spacing: -0.5px;
 
     &--navy   { color: $navy; }
     &--green  { color: $teal; }
+    &--teal   { color: #00897b; }
     &--orange { color: #e8770a; }
     &--purple { color: #7048e8; }
   }
@@ -261,6 +269,41 @@ $blue: #3b5bdb;
     align-items: center;
     gap: 20px;
     flex-wrap: wrap;
+  }
+
+  // ── View toggle (Allocated / Booked) ────────────────────────
+  &__view-toggle {
+    display: flex;
+    align-items: center;
+    background: #f3f4f8;
+    border: 1.5px solid $border;
+    border-radius: 10px;
+    padding: 3px;
+    gap: 3px;
+  }
+
+  &__view-btn {
+    padding: 5px 16px;
+    border-radius: 7px;
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    font-weight: 600;
+    color: $text-mid;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+    white-space: nowrap;
+
+    &:hover { background: #e8eaf0; }
+
+    &--active {
+      background: $navy;
+      color: #fff;
+      box-shadow: 0 1px 4px rgba(26, 58, 107, 0.18);
+
+      &:hover { background: lighten($navy, 6%); }
+    }
   }
 
   // ── Route filter ────────────────────────────────────────────
