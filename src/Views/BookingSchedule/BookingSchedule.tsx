@@ -308,19 +308,8 @@ export default function BookingSchedule() {
           />
         </div>
 
-        {/* Legend + View toggle */}
+        {/* View toggle */}
         <div className="bs__toolbar-right">
-          <div className="bs__legend">
-            <span className="bs__legend-item">
-              <span className="bs__legend-dot bs__legend-dot--occupied" />
-              Allocated
-            </span>
-            <span className="bs__legend-item">
-              <span className="bs__legend-dot bs__legend-dot--available" />
-              Available
-            </span>
-          </div>
-
           <div className="bs__view-toggle">
             <button
               type="button"
@@ -338,6 +327,33 @@ export default function BookingSchedule() {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* ── Legend panel ──────────────────────────────────────── */}
+      <div className="bs__legend-panel">
+        <span className="bs__legend-panel-title">Legend</span>
+        <div className="bs__legend-divider-v" />
+        <span className="bs__legend-item">
+          <span className="bs__legend-dot bs__legend-dot--occupied" />
+          {viewMode === 'booked' ? 'Booked' : 'Allocated'}
+        </span>
+        <span className="bs__legend-item">
+          <span className="bs__legend-dot bs__legend-dot--available" />
+          Available
+        </span>
+        <div className="bs__legend-divider-v" />
+        <span className="bs__legend-item">
+          <span className="bs__legend-swatch bs__legend-swatch--in">↑</span>
+          Inbound
+        </span>
+        <span className="bs__legend-item">
+          <span className="bs__legend-swatch bs__legend-swatch--out">↓</span>
+          Outbound
+        </span>
+        <span className="bs__legend-item">
+          <span className="bs__legend-swatch bs__legend-swatch--tw">↕</span>
+          Two Way
+        </span>
       </div>
 
       {/* ── Grid ──────────────────────────────────────────────── */}
