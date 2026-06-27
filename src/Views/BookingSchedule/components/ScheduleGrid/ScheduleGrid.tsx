@@ -22,10 +22,8 @@ const ROW_COLORS = [
   '#fd79a8', '#00cec9', '#a29bfe', '#e74c3c', '#55efc4',
 ];
 
-function formatHour(hour: number): { time: string; period: string } {
-  const period = hour < 12 ? 'AM' : 'PM';
-  const h = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-  return { time: `${String(h).padStart(2, '0')}:00`, period };
+function formatHour(hour: number): string {
+  return `${String(hour).padStart(2, '0')}:00`;
 }
 
 function ScheduleGrid({
@@ -81,7 +79,7 @@ function ScheduleGrid({
               const val = viewMode === 'booked' ? booked : allocated;
               return (
                 <th key={hour} className="sg__totals-cell">
-                  {val > 0 && <span className="sg__totals-single">{val}</span>}
+                  <span className="sg__totals-single">{val}</span>
                 </th>
               );
             })}
@@ -90,18 +88,14 @@ function ScheduleGrid({
             <th className="sg__th sg__th--company">Company / Structure</th>
             <th className="sg__th sg__th--stat sg__th--assigned">Requested</th>
             <th className="sg__th sg__th--stat sg__th--allocated">{columnLabel}</th>
-            {HOURS.map((hour) => {
-              const { time, period } = formatHour(hour);
-              return (
-                <th key={hour} className="sg__th sg__th--hour">
-                  <span className="sg__time">{time}</span>
-                  <span className="sg__period">{period}</span>
-                  {(hourLimits[hour] ?? 0) > 0 && (
-                    <span className="sg__hour-cap">Max {hourLimits[hour]}</span>
-                  )}
-                </th>
-              );
-            })}
+            {HOURS.map((hour) => (
+              <th key={hour} className="sg__th sg__th--hour">
+                <span className="sg__time">{formatHour(hour)}</span>
+                {(hourLimits[hour] ?? 0) > 0 && (
+                  <span className="sg__hour-cap">Max {hourLimits[hour]}</span>
+                )}
+              </th>
+            ))}
           </tr>
         </thead>
 
