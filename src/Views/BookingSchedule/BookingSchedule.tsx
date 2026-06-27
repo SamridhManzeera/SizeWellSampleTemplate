@@ -69,10 +69,10 @@ export default function BookingSchedule() {
   const [selectedDate, setSelectedDate] = useState(getTodayString());
 
   const dayConfig = getConfigForDate(selectedDate);
-  const INBOUND_SLOT_CAPACITY  = dayConfig.inboundCapacity;
-  const OUTBOUND_SLOT_CAPACITY = dayConfig.outboundCapacity;
-  const TWOWAY_SLOT_CAPACITY   = dayConfig.twoWayCapacity;
-  const TOTAL_SLOT_CAPACITY    = dayConfig.inboundCapacity + dayConfig.outboundCapacity + dayConfig.twoWayCapacity * 2;
+  const TOTAL_SLOT_CAPACITY    = dayConfig.totalCapacity;
+  const INBOUND_SLOT_CAPACITY  = Math.round(TOTAL_SLOT_CAPACITY * 0.4);
+  const OUTBOUND_SLOT_CAPACITY = Math.round(TOTAL_SLOT_CAPACITY * 0.4);
+  const TWOWAY_SLOT_CAPACITY   = TOTAL_SLOT_CAPACITY - INBOUND_SLOT_CAPACITY - OUTBOUND_SLOT_CAPACITY;
   const HOUR_LIMITS            = dayConfig.hourLimits;
   const [allocations, setAllocations] = useState<Map<SlotKey, Allocation>>(buildInitialAllocations);
   const [modalState, setModalState] = useState<ModalState>({
@@ -410,6 +410,7 @@ export default function BookingSchedule() {
         currentAllocated={modalCurrentAllocated}
         currentHourTotal={modalCurrentHourTotal}
         hourCapacity={HOUR_LIMITS[modalState.hour] ?? 0}
+        totalSlotCapacity={TOTAL_SLOT_CAPACITY}
         existingAllocation={modalState.existingAllocation}
         onConfirm={handleAllocationConfirm}
         onClose={handleModalClose}

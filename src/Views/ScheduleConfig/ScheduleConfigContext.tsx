@@ -3,16 +3,12 @@ import { createContext, useContext, useState, ReactNode } from 'react';
 export const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
 export interface DayConfig {
-  inboundCapacity: number;
-  outboundCapacity: number;
-  twoWayCapacity: number;
-  hourLimits: Record<number, number>; // hour -> max (0 = unlimited)
+  totalCapacity: number;
+  hourLimits: Record<number, number>; // -1 = blocked, 0 = unlimited (≤ totalCapacity), >0 = specific limit
 }
 
 export const DEFAULT_DAY_CONFIG: DayConfig = {
-  inboundCapacity: 130,
-  outboundCapacity: 120,
-  twoWayCapacity: 125,
+  totalCapacity: 500,
   hourLimits: Object.fromEntries(HOURS.map(h => [h, 0])),
 };
 

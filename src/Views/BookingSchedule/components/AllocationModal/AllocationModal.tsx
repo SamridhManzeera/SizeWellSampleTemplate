@@ -10,7 +10,8 @@ interface AllocationModalProps {
   company: Company | null;
   currentAllocated: number;
   currentHourTotal: number;
-  hourCapacity: number;
+  hourCapacity: number;      // -1 = blocked, 0 = unlimited (capped at totalSlotCapacity), >0 = specific limit
+  totalSlotCapacity: number;
   existingAllocation?: Allocation;
   onConfirm: (data: { inboundCount: number; outboundCount: number; twoWayCount: number; notes: string }) => void;
   onClose: () => void;
@@ -22,7 +23,7 @@ function formatHour(hour: number): string {
 
 function AllocationModal({
   open, mode, hour, selectedDate, company, currentAllocated,
-  currentHourTotal, hourCapacity, existingAllocation, onConfirm, onClose,
+  currentHourTotal, hourCapacity, totalSlotCapacity, existingAllocation, onConfirm, onClose,
 }: AllocationModalProps) {
   const [inbound,  setInbound]  = useState(0);
   const [outbound, setOutbound] = useState(0);
@@ -61,8 +62,10 @@ function AllocationModal({
 
   if (!open || !company) return null;
 
-  const hasHourLimit   = hourCapacity > 0;
-  const hourRemaining  = hasHourLimit ? hourCapacity - currentHourTotal : Infinity;
+  // 0 = no specific limit (uses totalSlotCapacity), -1 = blocked, >0 = specific limit
+  const isHourBlocked      = hourCapacity === -1;
+  const effectiveHourLimit = isHourBlocked ? 0 : (hourCapacity === 0 ? totalSlotCapacity : hourCapacity);
+  const hourRemaining      = effectiveHourLimit - currentHourTotal;
   const canAdd         = total + 1 <= remaining && total + 1 <= hourRemaining;
   const canAddTwoWay   = total + 2 <= remaining && total + 2 <= hourRemaining;
 
@@ -179,11 +182,9 @@ function AllocationModal({
             <span className="am__total-bar-text">↕ Two Way counts as ×2</span>
             <div className="am__total-bar-stats">
               <span className="am__total-bar-num">Company: {total} / {remaining}</span>
-              {hasHourLimit && (
-                <span className={`am__total-bar-num${hourRemaining <= 0 ? ' am__total-bar-num--warn' : hourRemaining <= 2 ? ' am__total-bar-num--low' : ''}`}>
-                  Hour: {currentHourTotal + total} / {hourCapacity}
-                </span>
-              )}
+              <span className={`am__total-bar-num${hourRemaining <= 0 ? ' am__total-bar-num--warn' : hourRemaining <= 2 ? ' am__total-bar-num--low' : ''}`}>
+                {isHourBlocked ? 'Hour: Blocked' : `Hour: ${currentHourTotal + total} / ${effectiveHourLimit}`}
+              </span>
             </div>
           </div>
 
