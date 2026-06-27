@@ -4,12 +4,24 @@ export const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
 export interface DayConfig {
   totalCapacity: number;
-  hourLimits: Record<number, number>; // -1 = blocked, 0 = unlimited (≤ totalCapacity), >0 = specific limit
+  hourLimits: Record<number, number>; // -1 = blocked, 0 = no limit, >0 = specific limit
 }
+
+// DCO-mandated weekday vehicle movement caps (two-way × 2 = slot count)
+export const DCO_HOUR_CONSTRAINTS: Record<number, { slots: number; movements: number; type: 'peak' | 'shoulder' }> = {
+  7:  { slots: 94,  movements: 47, type: 'shoulder' },
+  8:  { slots: 114, movements: 57, type: 'peak'     },
+  16: { slots: 84,  movements: 42, type: 'shoulder' },
+  17: { slots: 68,  movements: 34, type: 'peak'     },
+};
+
+const DEFAULT_HOUR_LIMITS = Object.fromEntries(
+  HOURS.map(h => [h, DCO_HOUR_CONSTRAINTS[h]?.slots ?? 0])
+);
 
 export const DEFAULT_DAY_CONFIG: DayConfig = {
   totalCapacity: 500,
-  hourLimits: Object.fromEntries(HOURS.map(h => [h, 0])),
+  hourLimits: DEFAULT_HOUR_LIMITS,
 };
 
 interface ScheduleConfigCtx {

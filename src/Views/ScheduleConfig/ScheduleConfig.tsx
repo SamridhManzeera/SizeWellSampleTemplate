@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
-import { useScheduleConfig, HOURS, DayConfig } from './ScheduleConfigContext';
+import { useScheduleConfig, HOURS, DayConfig, DCO_HOUR_CONSTRAINTS } from './ScheduleConfigContext';
 import './ScheduleConfig.scss';
 
 // ── Icons ────────────────────────────────────────────────────────
@@ -91,11 +91,19 @@ function ScheduleConfig() {
   const [selectedDate, setSelectedDate] = useState(todayString());
   const [draft, setDraft] = useState<DayConfig>(() => getConfigForDate(todayString()));
   const [saved, setSaved] = useState(false);
+  const [openHourMenu, setOpenHourMenu] = useState<number | null>(null);
+
+  // Explicit type label per hour — independent of the slot value
+  const defaultHourTypes = (): Record<number, 'peak' | 'shoulder' | null> =>
+    Object.fromEntries(HOURS.map(h => [h, DCO_HOUR_CONSTRAINTS[h]?.type ?? null]));
+
+  const [hourTypes, setHourTypes] = useState<Record<number, 'peak' | 'shoulder' | null>>(defaultHourTypes);
 
   const isToday = selectedDate === todayString();
 
   useEffect(() => {
     setDraft(getConfigForDate(selectedDate));
+    setHourTypes(defaultHourTypes());
     setSaved(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDate]);
@@ -119,6 +127,14 @@ function ScheduleConfig() {
   function getHourValue(h: number) {
     const v = draft.hourLimits[h] ?? 0;
     return v > 0 ? v : 0;
+  }
+
+  function setHourType(h: number, type: 'peak' | 'shoulder' | null) {
+    setHourTypes(prev => ({ ...prev, [h]: type }));
+    // Auto-apply DCO slot value for constrained hours
+    const dco = DCO_HOUR_CONSTRAINTS[h];
+    if (type && dco) setHourLimit(h, dco.slots);
+    setOpenHourMenu(null);
   }
 
   function handleSave() {
@@ -226,12 +242,19 @@ function ScheduleConfig() {
           </div>
         </div>
 
+        {openHourMenu !== null && (
+          <div className="sc__hour-menu-overlay" onClick={() => setOpenHourMenu(null)} />
+        )}
+
         <div className="sc__hour-grid">
           {[HOURS.slice(0, 12), HOURS.slice(12)].map((col, ci) => (
             <div key={ci} className="sc__hour-col">
               {col.map(h => {
-                const blocked = isBlocked(h);
-                const val = getHourValue(h);
+                const blocked  = isBlocked(h);
+                const val      = getHourValue(h);
+                const hType    = hourTypes[h] ?? null;
+                const menuOpen = openHourMenu === h;
+
                 return (
                   <div key={h} className={`sc__hour-row${blocked ? ' sc__hour-row--blocked' : ''}`}>
                     <div className="sc__hour-row-left">
@@ -241,6 +264,32 @@ function ScheduleConfig() {
                         {blocked && <span className="sc__hour-state sc__hour-state--blocked">Blocked</span>}
                       </div>
                     </div>
+
+                    {/* Type selector — available on every row */}
+                    <div className="sc__hour-type-wrap">
+                      <button
+                        type="button"
+                        className={`sc__hour-type-btn${hType ? ` sc__hour-type-btn--${hType}` : ''}`}
+                        onClick={() => setOpenHourMenu(menuOpen ? null : h)}
+                      >
+                        {hType === 'peak' ? 'Peak Hour' : hType === 'shoulder' ? 'Shoulder Hour' : 'Normal'}
+                        <span className="sc__hour-type-chevron">▾</span>
+                      </button>
+                      {menuOpen && (
+                        <div className="sc__hour-type-menu">
+                          <button type="button" className="sc__hour-type-opt" onClick={() => setHourType(h, null)}>
+                            Normal
+                          </button>
+                          <button type="button" className="sc__hour-type-opt sc__hour-type-opt--shoulder" onClick={() => setHourType(h, 'shoulder')}>
+                            Shoulder Hour
+                          </button>
+                          <button type="button" className="sc__hour-type-opt sc__hour-type-opt--peak" onClick={() => setHourType(h, 'peak')}>
+                            Peak Hour
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
                     <NumberInput
                       value={blocked ? 0 : val}
                       onChange={(v) => setHourLimit(h, Math.min(v, totalCapacity))}

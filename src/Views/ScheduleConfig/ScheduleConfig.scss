@@ -306,6 +306,84 @@ $radius:    14px;
     }
   }
 
+  // ── DCO type chip & dropdown ───────────────────────────────
+  &__hour-type-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  &__hour-type-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1.5px solid $border;
+    background: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    color: $text-muted;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    transition: border-color 0.12s, color 0.12s, background 0.12s;
+    &:hover { border-color: darken($border, 10%); color: $text-mid; }
+
+    &--peak {
+      border-color: rgba(234, 88, 12, 0.4);
+      color: #ea580c;
+      background: rgba(234, 88, 12, 0.05);
+    }
+    &--shoulder {
+      border-color: rgba(161, 98, 7, 0.4);
+      color: #a16207;
+      background: rgba(161, 98, 7, 0.05);
+    }
+  }
+
+  &__hour-type-chevron {
+    font-size: 9px;
+    opacity: 0.6;
+  }
+
+  &__hour-type-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 100;
+    background: #fff;
+    border: 1.5px solid $border;
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    min-width: 140px;
+    overflow: hidden;
+  }
+
+  &__hour-type-opt {
+    display: block;
+    width: 100%;
+    padding: 9px 14px;
+    border: none;
+    background: none;
+    font-size: 12px;
+    font-weight: 600;
+    color: $text-mid;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.1s;
+    &:hover { background: $bg-page; }
+
+    &--peak    { color: #ea580c; }
+    &--shoulder { color: #a16207; }
+  }
+
+  &__hour-menu-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+  }
+
   &__hour-row-left {
     display: flex;
     align-items: center;
