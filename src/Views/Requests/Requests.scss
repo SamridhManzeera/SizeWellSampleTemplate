@@ -209,7 +209,7 @@ $radius:   12px;
 
     th {
       padding: 12px 16px;
-      text-align: left;
+      text-align: center;
       font-size: 12px;
       font-weight: 800;
       color: $dark;
@@ -227,6 +227,7 @@ $radius:   12px;
       border-right: 1px solid $border;
       color: $mid;
       vertical-align: middle;
+      text-align: center;
       &:last-child { border-right: none; }
     }
 
@@ -290,6 +291,7 @@ $radius:   12px;
   &__actions {
     display: flex;
     gap: 6px;
+    justify-content: center;
   }
 
   &__action-btn {

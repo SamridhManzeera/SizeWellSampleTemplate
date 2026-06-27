@@ -149,12 +149,7 @@ export default function Requests() {
                   </td>
                   <td>{formatDate(req.deliveryDate)}</td>
                   <td>
-                    <div className="rq__slots">
-                      {req.inboundCount  > 0 && <span className="rq__slot-chip rq__slot-chip--in">↑ {req.inboundCount}</span>}
-                      {req.outboundCount > 0 && <span className="rq__slot-chip rq__slot-chip--out">↓ {req.outboundCount}</span>}
-                      {req.twoWayCount   > 0 && <span className="rq__slot-chip rq__slot-chip--tw">↕ {req.twoWayCount}</span>}
-                      <span className="rq__slot-total">{req.inboundCount + req.outboundCount + req.twoWayCount * 2}</span>
-                    </div>
+                    <span className="rq__slot-total">{req.inboundCount + req.outboundCount + req.twoWayCount * 2}</span>
                   </td>
                   <td className="rq__submitted">{formatSubmitted(req.submittedAt)}</td>
                   <td>
