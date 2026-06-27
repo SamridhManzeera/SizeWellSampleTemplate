@@ -462,6 +462,188 @@ $radius:  12px;
     &--twoWay   { &.rf__route-btn--active { background: rgba($red,   0.1); color: $red;    border-color: rgba($red,   0.4); } }
   }
 
+  // ── Slot counters (edit / create) ────────────────────────────
+  &__slot-counters {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+
+    @media (max-width: 640px) { grid-template-columns: 1fr; }
+  }
+
+  &__slot-card {
+    border: 1.5px solid $border;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: #fff;
+
+    &--in  { border-color: rgba(#16a34a, 0.3); background: rgba(#16a34a, 0.02); }
+    &--out { border-color: rgba(#f97316, 0.3); background: rgba(#f97316, 0.02); }
+    &--tw  { border-color: rgba(#7c3aed, 0.3); background: rgba(#7c3aed, 0.02); }
+  }
+
+  &__slot-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__slot-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 900;
+    flex-shrink: 0;
+
+    &--in  { background: rgba(#16a34a, 0.12); color: #16a34a; }
+    &--out { background: rgba(#f97316, 0.12); color: #f97316; }
+    &--tw  { background: rgba(#7c3aed, 0.12); color: #7c3aed; }
+  }
+
+  &__slot-card-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: $dark;
+  }
+
+  &__slot-counter {
+    display: flex;
+    align-items: center;
+    border: 1.5px solid $border;
+    border-radius: 9px;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  &__slot-btn {
+    width: 40px;
+    height: 44px;
+    border: none;
+    background: $bg;
+    font-size: 20px;
+    font-weight: 600;
+    color: $mid;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.12s, color 0.12s;
+    font-family: inherit;
+
+    &:hover:not(:disabled) { background: darken($bg, 4%); color: $dark; }
+    &:disabled { opacity: 0.35; cursor: not-allowed; }
+  }
+
+  &__slot-val {
+    flex: 1;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1;
+    border-left: 1px solid $border;
+    border-right: 1px solid $border;
+    padding: 10px 4px;
+
+    &--in  { color: #16a34a; }
+    &--out { color: #f97316; }
+    &--tw  { color: #7c3aed; }
+  }
+
+  &__slot-total-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba($navy, 0.05);
+    border: 1.5px solid rgba($navy, 0.12);
+    border-radius: 10px;
+    padding: 12px 18px;
+  }
+
+  &__slot-total-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: $mid;
+  }
+
+  &__slot-total-num {
+    font-size: 22px;
+    font-weight: 800;
+    color: $navy;
+    letter-spacing: -0.5px;
+  }
+
+  // ── Slot view (read-only) ──────────────────────────────────────
+  &__slot-view-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  &__slot-view-chip {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+
+    &--in  { background: rgba(#16a34a, 0.08); border: 1.5px solid rgba(#16a34a, 0.25); }
+    &--out { background: rgba(#f97316, 0.08); border: 1.5px solid rgba(#f97316, 0.25); }
+    &--tw  { background: rgba(#7c3aed, 0.08); border: 1.5px solid rgba(#7c3aed, 0.25); }
+  }
+
+  &__slot-view-icon {
+    font-size: 16px;
+    font-weight: 900;
+  }
+
+  &__slot-view-chip--in  &__slot-view-icon { color: #16a34a; }
+  &__slot-view-chip--out &__slot-view-icon { color: #f97316; }
+  &__slot-view-chip--tw  &__slot-view-icon { color: #7c3aed; }
+
+  &__slot-view-label { color: $mid; }
+
+  &__slot-view-chip--in  &__slot-view-num { color: #16a34a; font-weight: 800; font-size: 15px; }
+  &__slot-view-chip--out &__slot-view-num { color: #f97316; font-weight: 800; font-size: 15px; }
+  &__slot-view-chip--tw  &__slot-view-num { color: #7c3aed; font-weight: 800; font-size: 15px; }
+
+  &__slot-view-total {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    background: rgba($navy, 0.06);
+    border: 1.5px solid rgba($navy, 0.15);
+    margin-left: 4px;
+  }
+
+  &__slot-view-total-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: $mid;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__slot-view-total-num {
+    font-size: 20px;
+    font-weight: 800;
+    color: $navy;
+    letter-spacing: -0.3px;
+  }
+
   // ── Drivers ───────────────────────────────────────────────────
   &__drivers-header {
     display: flex;

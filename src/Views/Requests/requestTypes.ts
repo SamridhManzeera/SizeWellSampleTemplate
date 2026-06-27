@@ -28,24 +28,16 @@ export const ROUTE_TYPE_LABELS: Record<RouteType, string> = {
   twoWay:   '↕ Two Way',
 };
 
-export interface Driver {
-  id: string;
-  name: string;
-  email: string;
-  contact: string;
-  vehicleNumber: string;
-  vehicleType: VehicleType;
-  driverRoute: DriverRoute;
-}
-
 export interface DeliveryRequest {
   id: string;
   kind: RequestKind;
   deliveryDate: string;
-  companyName: string;
-  routeType: RouteType;
-  drivers: Driver[];
+  inboundCount: number;
+  outboundCount: number;
+  twoWayCount: number;
+  vehicleType: VehicleType;
+  driverRoute: DriverRoute;
+  notes: string;
   status: RequestStatus;
   submittedAt: string;
-  notes: string;
 }

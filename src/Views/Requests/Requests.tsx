@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
 import { useRequests } from './RequestsContext';
-import { RequestStatus, ROUTE_TYPE_LABELS } from './requestTypes';
+import { RequestStatus } from './requestTypes';
 import './Requests.scss';
 
 // ── Icons ─────────────────────────────────────────────────────────
@@ -128,10 +128,8 @@ export default function Requests() {
               <tr>
                 <th>Request ID</th>
                 <th>Type</th>
-                {/* <th>Company</th> */}
                 <th>Delivery Date</th>
-                <th>Route</th>
-                {/* <th>Drivers</th> */}
+                <th>Slots</th>
                 <th>Submitted</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -149,14 +147,15 @@ export default function Requests() {
                       {req.kind === 'emergency' ? '⚡ Emergency' : 'Normal'}
                     </span>
                   </td>
-                  {/* <td className="rq__company">{req.companyName}</td> */}
                   <td>{formatDate(req.deliveryDate)}</td>
                   <td>
-                    <span className={`rq__route rq__route--${req.routeType}`}>
-                      {ROUTE_TYPE_LABELS[req.routeType]}
-                    </span>
+                    <div className="rq__slots">
+                      {req.inboundCount  > 0 && <span className="rq__slot-chip rq__slot-chip--in">↑ {req.inboundCount}</span>}
+                      {req.outboundCount > 0 && <span className="rq__slot-chip rq__slot-chip--out">↓ {req.outboundCount}</span>}
+                      {req.twoWayCount   > 0 && <span className="rq__slot-chip rq__slot-chip--tw">↕ {req.twoWayCount}</span>}
+                      <span className="rq__slot-total">{req.inboundCount + req.outboundCount + req.twoWayCount * 2}</span>
+                    </div>
                   </td>
-                  {/* <td><span className="rq__driver-count">{req.drivers.length} driver{req.drivers.length !== 1 ? 's' : ''}</span></td> */}
                   <td className="rq__submitted">{formatSubmitted(req.submittedAt)}</td>
                   <td>
                     <span className={`rq__status rq__status--${req.status}`}>
