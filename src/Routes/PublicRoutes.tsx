@@ -4,6 +4,7 @@ import BookingSchedule from '../Views/BookingSchedule';
 import ScheduleConfig from '../Views/ScheduleConfig/ScheduleConfig';
 import Requests from '../Views/Requests/Requests';
 import RequestForm from '../Views/Requests/RequestForm';
+import LoginV1 from '../Views/Login/LoginV1';
 import { CustomRouter } from './RootRoutes';
 
 // eslint-disable-next-line import/prefer-default-export
@@ -35,9 +36,9 @@ export const PUBLIC_ROUTES: Array<CustomRouter> = [
     title: ROUTES_CONFIG.REQUESTS_VIEW.title,
   },
   {
-    path: `${ROUTES_CONFIG.LOGIN.path}`,
+    path: ROUTES_CONFIG.LOGIN.path,
     title: ROUTES_CONFIG.LOGIN.title,
-    element: '<Login />',
+    element: <LoginV1 />,
   },
   {
     path: '*',

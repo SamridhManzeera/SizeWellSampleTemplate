@@ -60,6 +60,22 @@ function ChevronIcon() {
   );
 }
 
+function LoginIcon() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M11 7L9.6 8.4l2.6 2.6H2v2h10.2l-2.6 2.6L11 17l5-5-5-5zm9 12h-8v2h8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-8v2h8v14z" />
+    </svg>
+  );
+}
+
+function FormIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6zm2-5h8v2H8v-2zm0-4h8v2H8v-2zm0-4h5v2H8V7z" />
+    </svg>
+  );
+}
+
 const NAV_GROUPS = [
   {
     key: 'admin',
@@ -76,6 +92,14 @@ const NAV_GROUPS = [
     icon: <ContractorIcon />,
     items: [
       { to: '/requests', label: 'Requests', icon: <RequestsIcon />, end: false },
+    ],
+  },
+  {
+    key: 'login',
+    label: 'Login',
+    icon: <LoginIcon />,
+    items: [
+      { to: '/login', label: 'Login V1', icon: <FormIcon />, end: true },
     ],
   },
 ];
