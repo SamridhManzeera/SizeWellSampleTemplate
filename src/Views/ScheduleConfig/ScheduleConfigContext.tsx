@@ -9,14 +9,16 @@ export interface DayConfig {
 
 // DCO-mandated weekday vehicle movement caps (two-way × 2 = slot count)
 export const DCO_HOUR_CONSTRAINTS: Record<number, { slots: number; movements: number; type: 'peak' | 'shoulder' }> = {
-  7:  { slots: 94,  movements: 47, type: 'shoulder' },
-  8:  { slots: 114, movements: 57, type: 'peak'     },
-  16: { slots: 84,  movements: 42, type: 'shoulder' },
-  17: { slots: 68,  movements: 34, type: 'peak'     },
+  7: { slots: 94, movements: 47, type: 'shoulder' },
+  8: { slots: 114, movements: 57, type: 'peak' },
+  16: { slots: 84, movements: 42, type: 'shoulder' },
+  17: { slots: 68, movements: 34, type: 'peak' },
 };
 
+const BLOCKED_BY_DEFAULT = new Set([0, 1, 2, 3, 4, 5, 6, 23]);
+
 const DEFAULT_HOUR_LIMITS = Object.fromEntries(
-  HOURS.map(h => [h, DCO_HOUR_CONSTRAINTS[h]?.slots ?? 0])
+  HOURS.map(h => [h, BLOCKED_BY_DEFAULT.has(h) ? -1 : (DCO_HOUR_CONSTRAINTS[h]?.slots ?? 0)])
 );
 
 export const DEFAULT_DAY_CONFIG: DayConfig = {
@@ -32,7 +34,7 @@ interface ScheduleConfigCtx {
 
 const Ctx = createContext<ScheduleConfigCtx>({
   getConfigForDate: () => DEFAULT_DAY_CONFIG,
-  updateConfigForDate: () => {},
+  updateConfigForDate: () => { },
   configByDate: {},
 });
 

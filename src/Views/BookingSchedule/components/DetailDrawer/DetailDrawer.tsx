@@ -73,33 +73,6 @@ function DetailDrawer({ open, allocation, onClose, onEdit }: DetailDrawerProps) 
                 </dl>
               </section>
 
-              {/* ── Delivery Breakdown ────────────────────── */}
-              {false && <section className="dd__section">
-                <h3 className="dd__section-title">Delivery Breakdown</h3>
-                <div className="dd__breakdown">
-                  <div className="dd__breakdown-card dd__breakdown-card--inbound">
-                    <span className="dd__breakdown-icon">↑</span>
-                    <div className="dd__breakdown-info">
-                      <span className="dd__breakdown-label">Inbound</span>
-                      <span className="dd__breakdown-count">{allocation.inboundCount}</span>
-                    </div>
-                  </div>
-                  <div className="dd__breakdown-card dd__breakdown-card--outbound">
-                    <span className="dd__breakdown-icon">↓</span>
-                    <div className="dd__breakdown-info">
-                      <span className="dd__breakdown-label">Outbound</span>
-                      <span className="dd__breakdown-count">{allocation.outboundCount}</span>
-                    </div>
-                  </div>
-                  <div className="dd__breakdown-card dd__breakdown-card--twoway">
-                    <span className="dd__breakdown-icon">↕</span>
-                    <div className="dd__breakdown-info">
-                      <span className="dd__breakdown-label">Two Way</span>
-                      <span className="dd__breakdown-count">{allocation.twoWayCount}</span>
-                    </div>
-                  </div>
-                </div>
-              </section>}
 
               {allocation.notes && (
                 <section className="dd__section">
