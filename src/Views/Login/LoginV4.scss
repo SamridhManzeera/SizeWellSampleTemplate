@@ -1,0 +1,248 @@
+// V5 — video background, centered floating glass card
+
+// ── Page ───────────────────────────────────────────────────────
+.lv4-page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #0a1c3d;
+  overflow: hidden;
+}
+
+.lv4-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.lv4-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(8,16,42,0.5) 0%, rgba(8,16,42,0.3) 50%, rgba(8,16,42,0.55) 100%);
+  pointer-events: none;
+}
+
+// ── Back button ────────────────────────────────────────────────
+.lv4-back-btn {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.22);
+    border-color: rgba(255, 255, 255, 0.35);
+  }
+}
+
+// ── Brand (top-left) ───────────────────────────────────────────
+.lv4-brand {
+  position: absolute;
+  top: 80px;
+  left: 36px;
+  z-index: 20;
+
+  img {
+    height: 36px;
+    width: auto;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+  }
+
+  p {
+    margin-top: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+// ── Centered glass card ────────────────────────────────────────
+.lv4-glass-card {
+  position: relative;
+  z-index: 10;
+  width: min(92vw, 480px);
+  padding: 44px 48px 48px;
+  border-radius: 24px;
+  background: rgba(8, 18, 45, 0.55);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  animation: lv4FadeUp 0.8s ease both;
+
+  @media (max-width: 520px) {
+    padding: 36px 24px 40px;
+    border-radius: 18px;
+  }
+}
+
+.lv4-form { width: 100%; }
+
+.lv4-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  margin-bottom: 24px;
+  border-radius: 999px;
+  color: #93c5fd;
+  background: rgba(147, 197, 253, 0.1);
+  border: 1px solid rgba(147, 197, 253, 0.2);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+
+  svg { width: 15px; height: 15px; flex-shrink: 0; }
+}
+
+.lv4-form h1 {
+  font-size: 36px;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  margin-bottom: 10px;
+  color: #fff;
+  font-weight: 800;
+}
+
+.lv4-subtitle {
+  color: rgba(255, 255, 255, 0.58);
+  margin-bottom: 30px;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.lv4-field-group { margin-bottom: 20px; }
+
+.lv4-field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+
+  a { color: #93c5fd; text-decoration: none; font-weight: 700; &:hover { text-decoration: underline; } }
+}
+
+.lv4-input-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  height: 52px;
+  padding: 0 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+
+  &:focus-within {
+    border-color: rgba(147, 197, 253, 0.5);
+    background: rgba(255, 255, 255, 0.11);
+    box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.12);
+  }
+
+  svg { color: rgba(255, 255, 255, 0.35); flex-shrink: 0; }
+
+  input {
+    width: 100%; height: 100%; border: 0; outline: 0;
+    background: transparent; color: #fff; font-size: 15px; font-family: inherit;
+    &::placeholder { color: rgba(255, 255, 255, 0.28); }
+  }
+}
+
+.lv4-pw-toggle {
+  border: 0; background: transparent; color: rgba(255, 255, 255, 0.35);
+  cursor: pointer; display: flex; align-items: center; padding: 0; flex-shrink: 0;
+  transition: color 0.15s;
+  &:hover { color: rgba(255, 255, 255, 0.7); }
+}
+
+.lv4-options {
+  display: flex; align-items: center; gap: 10px;
+  margin: 4px 0 26px; font-size: 15px; font-weight: 600;
+  color: rgba(255, 255, 255, 0.7); cursor: pointer; width: fit-content;
+  input { width: 18px; height: 18px; accent-color: #93c5fd; cursor: pointer; }
+}
+
+.lv4-submit {
+  position: relative; width: 100%; height: 58px; border: 0;
+  border-radius: 10px; background: linear-gradient(90deg, #1d4ed8, #2563eb);
+  color: #fff; font-size: 16px; font-weight: 800; font-family: inherit;
+  cursor: pointer; overflow: hidden; box-shadow: 0 12px 28px rgba(37,99,235,0.4);
+  transition: transform 0.18s, box-shadow 0.18s;
+
+  &:hover { transform: translateY(-2px); box-shadow: 0 18px 36px rgba(37,99,235,0.5); }
+
+  &::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.28) 50%, transparent 65%);
+    transform: translateX(-130%);
+    animation: lv4BtnSweep 3.8s ease-in-out infinite;
+  }
+}
+
+.lv4-btn-content {
+  position: relative; z-index: 1;
+  display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+}
+
+.lv4-secure {
+  margin-top: 32px; display: grid; gap: 14px; justify-items: center;
+}
+
+.lv4-secure-line {
+  width: 100%; display: flex; align-items: center; gap: 14px;
+  color: rgba(255, 255, 255, 0.28); font-size: 12px;
+  &::before, &::after { content: ''; height: 1px; flex: 1; background: rgba(255,255,255,0.1); }
+}
+
+.lv4-secure-note {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; color: rgba(255, 255, 255, 0.4); font-weight: 500;
+  animation: lv4SecureBreathe 3.2s ease-in-out infinite;
+  svg { color: rgba(255, 255, 255, 0.3); }
+}
+
+@keyframes lv4FadeUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes lv4BtnSweep {
+  0%, 30%   { transform: translateX(-130%); }
+  65%, 100% { transform: translateX(130%);  }
+}
+
+@keyframes lv4SecureBreathe {
+  0%, 100% { opacity: 0.75; }
+  50%       { opacity: 1;    }
+}

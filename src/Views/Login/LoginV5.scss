@@ -1,0 +1,248 @@
+// V6 — video background, glass panel fills the full right half flush (no card spacing)
+
+// ── Page ───────────────────────────────────────────────────────
+.lv5-page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: stretch;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #0a1c3d;
+  overflow: hidden;
+}
+
+.lv5-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+// ── Back button ────────────────────────────────────────────────
+.lv5-back-btn {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.22);
+    border-color: rgba(255, 255, 255, 0.35);
+  }
+}
+
+// ── Brand (left half) ──────────────────────────────────────────
+.lv5-visual-brand {
+  position: absolute;
+  top: 80px;
+  left: 36px;
+  z-index: 20;
+  width: 50%;
+
+  img {
+    height: 38px;
+    width: auto;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+  }
+
+  p {
+    margin-top: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+  }
+}
+
+// ── Full-height flush glass panel — right 50%, no border-radius on right edge ──
+.lv5-glass-panel {
+  position: relative;
+  z-index: 10;
+  margin-left: auto;
+  width: 50%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 60px;
+  background: rgba(8, 18, 45, 0.6);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+
+  @media (max-width: 768px) {
+    width: 100%;
+    padding: 100px 24px 48px;
+  }
+}
+
+// ── Form — full width inside the panel, no card wrapping ───────
+.lv5-card {
+  width: 100%;
+  max-width: 420px;
+  animation: lv5FadeUp 0.8s ease both;
+}
+
+.lv5-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  margin-bottom: 28px;
+  border-radius: 999px;
+  color: #93c5fd;
+  background: rgba(147, 197, 253, 0.1);
+  border: 1px solid rgba(147, 197, 253, 0.2);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+
+  svg { width: 15px; height: 15px; flex-shrink: 0; }
+}
+
+.lv5-card h1 {
+  font-size: 40px;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  margin-bottom: 10px;
+  color: #fff;
+  font-weight: 800;
+}
+
+.lv5-subtitle {
+  color: rgba(255, 255, 255, 0.58);
+  margin-bottom: 36px;
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.lv5-field-group { margin-bottom: 22px; }
+
+.lv5-field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+
+  a { color: #93c5fd; text-decoration: none; font-weight: 700; &:hover { text-decoration: underline; } }
+}
+
+.lv5-input-box {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  height: 56px;
+  padding: 0 18px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+
+  &:focus-within {
+    border-color: rgba(147, 197, 253, 0.5);
+    background: rgba(255, 255, 255, 0.11);
+    box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.12);
+  }
+
+  svg { color: rgba(255, 255, 255, 0.35); flex-shrink: 0; }
+
+  input {
+    width: 100%; height: 100%; border: 0; outline: 0;
+    background: transparent; color: #fff; font-size: 15px; font-family: inherit;
+    &::placeholder { color: rgba(255, 255, 255, 0.28); }
+  }
+}
+
+.lv5-pw-toggle {
+  border: 0; background: transparent; color: rgba(255, 255, 255, 0.35);
+  cursor: pointer; display: flex; align-items: center; padding: 0; flex-shrink: 0;
+  transition: color 0.15s;
+  &:hover { color: rgba(255, 255, 255, 0.7); }
+}
+
+.lv5-options {
+  display: flex; align-items: center; gap: 10px;
+  margin: 4px 0 30px; font-size: 15px; font-weight: 600;
+  color: rgba(255, 255, 255, 0.7); cursor: pointer; width: fit-content;
+  input { width: 18px; height: 18px; accent-color: #93c5fd; cursor: pointer; }
+}
+
+.lv5-submit {
+  position: relative; width: 100%; height: 62px; border: 0;
+  border-radius: 10px; background: linear-gradient(90deg, #1d4ed8, #2563eb);
+  color: #fff; font-size: 17px; font-weight: 800; font-family: inherit;
+  cursor: pointer; overflow: hidden; box-shadow: 0 14px 28px rgba(37,99,235,0.4);
+  transition: transform 0.18s, box-shadow 0.18s;
+
+  &:hover { transform: translateY(-2px); box-shadow: 0 20px 36px rgba(37,99,235,0.5); }
+
+  &::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.28) 50%, transparent 65%);
+    transform: translateX(-130%);
+    animation: lv5BtnSweep 3.8s ease-in-out infinite;
+  }
+}
+
+.lv5-btn-content {
+  position: relative; z-index: 1;
+  display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+}
+
+.lv5-secure {
+  margin-top: 38px; display: grid; gap: 16px; justify-items: center;
+}
+
+.lv5-secure-line {
+  width: 100%; display: flex; align-items: center; gap: 16px;
+  color: rgba(255, 255, 255, 0.28); font-size: 12px;
+  &::before, &::after { content: ''; height: 1px; flex: 1; background: rgba(255,255,255,0.1); }
+}
+
+.lv5-secure-note {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; color: rgba(255, 255, 255, 0.4); font-weight: 500;
+  animation: lv5SecureBreathe 3.2s ease-in-out infinite;
+  svg { color: rgba(255, 255, 255, 0.3); }
+}
+
+@keyframes lv5FadeUp {
+  from { transform: translateY(18px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes lv5BtnSweep {
+  0%, 30%   { transform: translateX(-130%); }
+  65%, 100% { transform: translateX(130%);  }
+}
+
+@keyframes lv5SecureBreathe {
+  0%, 100% { opacity: 0.75; }
+  50%       { opacity: 1;    }
+}
