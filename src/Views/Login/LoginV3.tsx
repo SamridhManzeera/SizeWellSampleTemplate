@@ -1,43 +1,41 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import brandLogo from '../../assets/SizeWellIcon/SZC22_Primary Logo_Print-nostrap.png';
 import heroImage from '../../assets/Login/sizewellLoginV1.png';
-import './LoginV1.scss';
+import brandLogo from '../../assets/SizeWellIcon/SZC22_Primary Logo_Print-nostrap.png';
+import './LoginV3.scss';
 
-function LoginV1() {
+function LoginV3() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   return (
-    <main className="lv1-page">
-      <section
-        className="lv1-visual"
-        aria-label="Sizewell C visual"
-        style={{ backgroundImage: `url(${heroImage})` }}
+    <main
+      className="lv3-page"
+      style={{ '--hero-image': `url(${heroImage})` } as React.CSSProperties}
+    >
+      {/* ── Back button (top-left, always visible) ── */}
+      <button
+        type="button"
+        className="lv3-back-btn"
+        onClick={() => navigate(-1)}
+        aria-label="Go back"
       >
-        <button
-          type="button"
-          className="lv1-back-btn"
-          onClick={() => navigate(-1)}
-          aria-label="Go back"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
-          </svg>
-          Back
-        </button>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+        </svg>
+        Back
+      </button>
 
-        <div className="lv1-sheen" />
+      {/* ── Brand (top-left of left half) ── */}
+      <div className="lv3-visual-brand">
+        <img src={brandLogo} alt="Sizewell C" />
+        <p>Forecasting Portal</p>
+      </div>
 
-        <div className="lv1-visual-brand">
-          <img src={brandLogo} alt="Sizewell C" />
-          <p>Forecasting Portal</p>
-        </div>
-      </section>
-
-      <section className="lv1-form-panel">
-        <form className="lv1-card" onSubmit={e => e.preventDefault()}>
-          <div className="lv1-eyebrow">
+      {/* ── Right glass panel ── */}
+      <section className="lv3-glass-panel">
+        <form className="lv3-card" onSubmit={e => e.preventDefault()}>
+          <div className="lv3-eyebrow">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M4 18V9M9 18V5M14 18v-7M19 18V8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               <path d="M3 19h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -46,18 +44,18 @@ function LoginV1() {
           </div>
 
           <h1>Welcome Back</h1>
-          <p className="lv1-subtitle">Sign in to access the Sizewell C Forecasting Portal.</p>
+          <p className="lv3-subtitle">Sign in to access the Sizewell C Forecasting Portal.</p>
 
-          <div className="lv1-field-group">
-            <div className="lv1-field-row">
-              <label htmlFor="lv1-email">Email or Username</label>
+          <div className="lv3-field-group">
+            <div className="lv3-field-row">
+              <label htmlFor="lv3-email">Email or Username</label>
             </div>
-            <div className="lv1-input-box">
+            <div className="lv3-input-box">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm7 8a7 7 0 0 0-14 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
               <input
-                id="lv1-email"
+                id="lv3-email"
                 name="email"
                 type="email"
                 placeholder="e.g. john.doe@sizewellc.com"
@@ -66,24 +64,24 @@ function LoginV1() {
             </div>
           </div>
 
-          <div className="lv1-field-group">
-            <div className="lv1-field-row">
-              <label htmlFor="lv1-password">Password</label>
+          <div className="lv3-field-group">
+            <div className="lv3-field-row">
+              <label htmlFor="lv3-password">Password</label>
               <a href="#">Forgot password?</a>
             </div>
-            <div className="lv1-input-box">
+            <div className="lv3-input-box">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M7 11V8a5 5 0 0 1 10 0v3M6 11h12v9H6v-9Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
               </svg>
               <input
-                id="lv1-password"
+                id="lv3-password"
                 name="password"
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Enter your password"
                 autoComplete="current-password"
               />
               <button
-                className="lv1-pw-toggle"
+                className="lv3-pw-toggle"
                 type="button"
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
                 onClick={() => setShowPassword(p => !p)}
@@ -96,13 +94,13 @@ function LoginV1() {
             </div>
           </div>
 
-          <label className="lv1-options" htmlFor="lv1-remember">
-            <input id="lv1-remember" name="remember" type="checkbox" />
+          <label className="lv3-options" htmlFor="lv3-remember">
+            <input id="lv3-remember" name="remember" type="checkbox" />
             Keep me logged in
           </label>
 
-          <button className="lv1-submit" type="submit">
-            <span className="lv1-btn-content">
+          <button className="lv3-submit" type="submit">
+            <span className="lv3-btn-content">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M7 11V8a5 5 0 0 1 10 0v3M6 11h12v9H6v-9Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
               </svg>
@@ -110,9 +108,9 @@ function LoginV1() {
             </span>
           </button>
 
-          <div className="lv1-secure">
-            <div className="lv1-secure-line">Secure access</div>
-            <div className="lv1-secure-note">
+          <div className="lv3-secure">
+            <div className="lv3-secure-line">Secure access</div>
+            <div className="lv3-secure-note">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M12 3 20 6v6c0 5-3.4 8.6-8 10-4.6-1.4-8-5-8-10V6l8-3Z" stroke="currentColor" strokeWidth="2" />
                 <path d="m9 12 2 2 4-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -126,4 +124,4 @@ function LoginV1() {
   );
 }
 
-export default LoginV1;
+export default LoginV3;

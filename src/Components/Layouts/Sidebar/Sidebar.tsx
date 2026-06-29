@@ -99,8 +99,9 @@ const NAV_GROUPS = [
     label: 'Login',
     icon: <LoginIcon />,
     items: [
-      // { to: '/login',    label: 'Login V1', icon: <FormIcon />, end: true },
-      { to: '/login-v2', label: 'Login V1', icon: <FormIcon />, end: true },
+      { to: '/login', label: 'Login V1', icon: <FormIcon />, end: true },
+      { to: '/login-v2', label: 'Login V2', icon: <FormIcon />, end: true },
+      { to: '/login-v3', label: 'Login V3', icon: <FormIcon />, end: true },
     ],
   },
 ];

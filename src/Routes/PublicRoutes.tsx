@@ -6,6 +6,7 @@ import Requests from '../Views/Requests/Requests';
 import RequestForm from '../Views/Requests/RequestForm';
 import LoginV1 from '../Views/Login/LoginV1';
 import LoginV2 from '../Views/Login/LoginV2';
+import LoginV3 from '../Views/Login/LoginV3';
 import { CustomRouter } from './RootRoutes';
 
 // eslint-disable-next-line import/prefer-default-export
@@ -45,6 +46,11 @@ export const PUBLIC_ROUTES: Array<CustomRouter> = [
     path: '/login-v2',
     title: 'Login V2',
     element: <LoginV2 />,
+  },
+  {
+    path: '/login-v3',
+    title: 'Login V3',
+    element: <LoginV3 />,
   },
   {
     path: '*',
