@@ -1,0 +1,358 @@
+$navy-dark: #122a52;
+$blue:      #0f57d6;
+$text-dark: #10234a;
+$text-dim:  #5f6c82;
+
+// ── Page layout ────────────────────────────────────────────────
+.lv2-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 54% 46%;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #fff;
+  color: $text-dark;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ── Left visual panel ──────────────────────────────────────────
+.lv2-visual {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background-color: $navy-dark;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+// ── Background video ───────────────────────────────────────────
+.lv2-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+// ── Darkening overlay so text/logo remain legible ──────────────
+.lv2-video-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    160deg,
+    rgba(10, 20, 50, 0.45) 0%,
+    rgba(10, 20, 50, 0.25) 50%,
+    rgba(10, 20, 50, 0.5) 100%
+  );
+  pointer-events: none;
+}
+
+// ── Back button ────────────────────────────────────────────────
+.lv2-back-btn {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.22);
+    color: #fff;
+  }
+}
+
+// ── Brand in visual panel ──────────────────────────────────────
+.lv2-visual-brand {
+  position: absolute;
+  top: 80px;
+  left: 36px;
+  z-index: 10;
+
+  img {
+    height: 38px;
+    width: auto;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+  }
+
+  p {
+    margin-top: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+  }
+}
+
+// ── Right form panel ───────────────────────────────────────────
+.lv2-form-panel {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 64px;
+  background:
+    radial-gradient(circle at 70% 18%, rgba(27, 102, 230, 0.07), transparent 28%),
+    radial-gradient(circle at 35% 90%, rgba(27, 102, 230, 0.04), transparent 26%),
+    #fff;
+
+  @media (max-width: 768px) {
+    padding: 40px 24px;
+  }
+}
+
+.lv2-card {
+  width: min(100%, 500px);
+  animation: lv2FadeUp 0.8s ease both;
+}
+
+// ── Eyebrow badge ──────────────────────────────────────────────
+.lv2-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 15px;
+  margin-bottom: 32px;
+  border-radius: 999px;
+  color: $blue;
+  background: #eaf2ff;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+
+  svg {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+  }
+}
+
+.lv2-card h1 {
+  font-size: 42px;
+  line-height: 1.1;
+  letter-spacing: -1.3px;
+  margin-bottom: 12px;
+  color: $text-dark;
+  font-weight: 800;
+}
+
+.lv2-subtitle {
+  color: $text-dim;
+  margin-bottom: 38px;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+// ── Form fields ────────────────────────────────────────────────
+.lv2-field-group {
+  margin-bottom: 25px;
+}
+
+.lv2-field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 11px;
+  font-size: 14px;
+  font-weight: 700;
+  color: $text-dark;
+
+  a {
+    color: #0c4edc;
+    text-decoration: none;
+    font-weight: 700;
+
+    &:hover { text-decoration: underline; }
+  }
+}
+
+.lv2-input-box {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  height: 58px;
+  padding: 0 18px;
+  border: 1px solid #cbd6e7;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 8px 22px rgba(16, 35, 74, 0.05);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+
+  &:focus-within {
+    border-color: $blue;
+    box-shadow: 0 0 0 4px rgba(15, 87, 214, 0.1), 0 10px 24px rgba(16, 35, 74, 0.08);
+    transform: translateY(-1px);
+  }
+
+  svg {
+    color: #7d8ba4;
+    flex-shrink: 0;
+  }
+
+  input {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: $text-dark;
+    font-size: 16px;
+    font-family: inherit;
+
+    &::placeholder { color: #8f9db4; }
+  }
+}
+
+.lv2-pw-toggle {
+  border: 0;
+  background: transparent;
+  color: #65738e;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+// ── Options row ────────────────────────────────────────────────
+.lv2-options {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin: 4px 0 31px;
+  font-size: 16px;
+  font-weight: 600;
+  color: $text-dark;
+  cursor: pointer;
+  width: fit-content;
+
+  input {
+    width: 21px;
+    height: 21px;
+    accent-color: $blue;
+    cursor: pointer;
+  }
+}
+
+// ── Submit button ──────────────────────────────────────────────
+.lv2-submit {
+  position: relative;
+  width: 100%;
+  height: 64px;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #123fbd, #0d63f2);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 18px 30px rgba(13, 99, 242, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 24px 38px rgba(13, 99, 242, 0.3);
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 0%,
+      transparent 35%,
+      rgba(255, 255, 255, 0.34) 50%,
+      transparent 65%,
+      transparent 100%
+    );
+    transform: translateX(-130%);
+    animation: lv2BtnSweep 3.8s ease-in-out infinite;
+  }
+}
+
+.lv2-btn-content {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+}
+
+// ── Secure footer ──────────────────────────────────────────────
+.lv2-secure {
+  margin-top: 42px;
+  display: grid;
+  gap: 19px;
+  justify-items: center;
+  color: #65738e;
+  font-weight: 500;
+}
+
+.lv2-secure-line {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 19px;
+  color: #7f8da3;
+  font-size: 13px;
+
+  &::before,
+  &::after {
+    content: '';
+    height: 1px;
+    flex: 1;
+    background: #dfe5ef;
+  }
+}
+
+.lv2-secure-note {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-size: 14px;
+  animation: lv2SecureBreathe 3.2s ease-in-out infinite;
+
+  svg { color: #7d8ba4; }
+}
+
+// ── Keyframes ──────────────────────────────────────────────────
+@keyframes lv2FadeUp {
+  from { transform: translateY(18px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes lv2BtnSweep {
+  0%, 30%   { transform: translateX(-130%); }
+  65%, 100% { transform: translateX(130%);  }
+}
+
+@keyframes lv2SecureBreathe {
+  0%, 100% { opacity: 0.75; }
+  50%       { opacity: 1;    }
+}

@@ -82,7 +82,7 @@ const NAV_GROUPS = [
     label: 'Admin',
     icon: <AdminIcon />,
     items: [
-      { to: '/',                label: 'Full Schedule',   icon: <CalendarIcon />, end: true  },
+      { to: '/', label: 'Full Schedule', icon: <CalendarIcon />, end: true },
       { to: '/schedule-config', label: 'Schedule Config', icon: <SettingsIcon />, end: false },
     ],
   },
@@ -99,7 +99,8 @@ const NAV_GROUPS = [
     label: 'Login',
     icon: <LoginIcon />,
     items: [
-      { to: '/login', label: 'Login V1', icon: <FormIcon />, end: true },
+      // { to: '/login',    label: 'Login V1', icon: <FormIcon />, end: true },
+      { to: '/login-v2', label: 'Login V1', icon: <FormIcon />, end: true },
     ],
   },
 ];

@@ -5,6 +5,7 @@ import ScheduleConfig from '../Views/ScheduleConfig/ScheduleConfig';
 import Requests from '../Views/Requests/Requests';
 import RequestForm from '../Views/Requests/RequestForm';
 import LoginV1 from '../Views/Login/LoginV1';
+import LoginV2 from '../Views/Login/LoginV2';
 import { CustomRouter } from './RootRoutes';
 
 // eslint-disable-next-line import/prefer-default-export
@@ -39,6 +40,11 @@ export const PUBLIC_ROUTES: Array<CustomRouter> = [
     path: ROUTES_CONFIG.LOGIN.path,
     title: ROUTES_CONFIG.LOGIN.title,
     element: <LoginV1 />,
+  },
+  {
+    path: '/login-v2',
+    title: 'Login V2',
+    element: <LoginV2 />,
   },
   {
     path: '*',
