@@ -30,6 +30,44 @@ $radius:    14px;
     margin-bottom: 16px;
   }
 
+  &__page-title-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  &__copy-trigger-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: 1.5px solid $border;
+    background: #fff;
+    color: $navy;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    
+    &:hover {
+      background: $bg-page;
+      border-color: darken($border, 10%);
+    }
+    
+    &:active {
+      transform: scale(0.97);
+    }
+  }
+
+  &__copy-trigger-icon {
+    display: flex;
+    align-items: center;
+    color: $navy;
+  }
+
   &__title {
     margin: 0 0 2px;
     font-size: 24px;
@@ -112,6 +150,273 @@ $radius:    14px;
     pointer-events: none;
     width: 0;
     height: 0;
+  }
+
+  // ── Week day tiles ────────────────────────────────────────
+  &__week-block {
+    padding: 0 36px 24px;
+  }
+
+  &__week-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  &__week-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: $text-mid;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__week-range {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: $text-muted;
+    font-weight: 500;
+  }
+
+  &__week-nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  &__week-nav-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1.5px solid $border;
+    background: #fff;
+    color: $text-mid;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.12s, border-color 0.12s;
+    &:hover { background: $bg-page; border-color: darken($border, 8%); }
+    &:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      &:hover { background: #fff; border-color: $border; }
+    }
+  }
+
+  &__week-tiles {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  &__day-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 10px 6px 8px;
+    border-radius: 10px;
+    border: 1.5px solid $border;
+    background: #fff;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+    min-width: 0;
+
+    &:hover {
+      border-color: rgba($teal, 0.45);
+      box-shadow: 0 1px 4px rgba(17, 24, 39, 0.06);
+    }
+
+    &--active {
+      border-color: $teal;
+      background: rgba($teal, 0.08);
+      box-shadow: 0 0 0 1px rgba($teal, 0.15);
+    }
+  }
+
+  &__day-tile-name {
+    font-size: 10px;
+    font-weight: 600;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  &__day-tile-month {
+    font-size: 9px;
+    font-weight: 600;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    line-height: 1;
+    min-height: 9px;
+  }
+
+  &__day-tile-num {
+    font-size: 18px;
+    font-weight: 800;
+    color: $navy;
+    line-height: 1;
+    margin: 2px 0 4px;
+  }
+
+  &__day-tile-status {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-top: 2px;
+  }
+
+  &__day-tile-stats {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 6px;
+    width: 100%;
+    padding: 0 4px;
+  }
+
+  &__day-tile-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex: 1;
+    justify-content: center;
+  }
+
+  &__day-tile-stat-val {
+    font-size: 10px;
+    font-weight: 700;
+    color: $text-dark;
+    line-height: 1;
+  }
+
+  &__day-tile-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+
+    &--total { background: $blue; }
+    &--assigned { background: #f59e0b; }
+    &--available { background: $green; }
+  }
+
+  &__day-tile-status-text {
+    font-size: 9px;
+    font-weight: 700;
+    color: $text-mid;
+    line-height: 1;
+  }
+
+  &__day-tile--active &__day-tile-name {
+    color: darken($teal, 8%);
+  }
+
+  &__day-tile--active &__day-tile-stat-val {
+    color: darken($teal, 12%);
+  }
+
+  // ── Copy config bar ───────────────────────────────────────
+  &__copy-bar {
+    margin: 0 36px 20px;
+    padding: 18px 24px;
+    background: #fff;
+    border: 1.5px solid $border;
+    border-radius: $radius;
+    box-shadow: 0 1px 4px rgba(17, 24, 39, 0.05);
+  }
+
+  &__copy-flow {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  &__copy-step {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 160px;
+  }
+
+  &__copy-step-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__copy-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding-bottom: 8px;
+    flex-shrink: 0;
+    color: $teal;
+  }
+
+  &__copy-arrow-label {
+    font-size: 10px;
+    font-weight: 800;
+    color: $text-muted;
+    letter-spacing: 0.05em;
+  }
+
+  &__date-pill--compact {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  &__copy-btn-action {
+    padding: 10px 24px;
+    border-radius: 10px;
+    border: none;
+    background: $teal;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+    box-shadow: 0 2px 6px rgba($teal, 0.25);
+    
+    &:hover:not(:disabled) { 
+      background: darken($teal, 6%); 
+      box-shadow: 0 4px 10px rgba($teal, 0.35);
+      transform: translateY(-1px);
+    }
+    &:active:not(:disabled) { transform: translateY(0); }
+    &:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+    &--done { 
+      background: $green; 
+      box-shadow: 0 2px 6px rgba($green, 0.25);
+      &:hover { 
+        background: darken($green, 5%); 
+        box-shadow: 0 4px 10px rgba($green, 0.35);
+      }
+    }
+  }
+
+  &__copy-hint {
+    margin: 14px 0 0;
+    font-size: 12px;
+    color: $text-muted;
+    font-weight: 500;
   }
 
   // ── Section ───────────────────────────────────────────────
@@ -473,3 +778,267 @@ $radius:    14px;
 
   }
 }
+
+// ── Copy Configuration Modal ────────────────────────────────
+.sc-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 18, 45, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: scModalFadeIn 0.18s ease;
+  padding: 16px;
+}
+
+.sc-modal {
+  background: #fff;
+  border-radius: 16px;
+  width: 520px;
+  max-width: 100%;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  animation: scModalPopUp 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #e8ecf4;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1.5px solid #e8ecf4;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 750;
+    color: #1a3a6b;
+    letter-spacing: -0.3px;
+  }
+
+  &__close {
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 8px;
+    line-height: 1;
+    transition: background 0.12s, color 0.12s;
+    &:hover {
+      background: #f3f4f6;
+      color: #111827;
+    }
+  }
+
+  &__body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  &__step {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__step-num-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  &__step-subtitle {
+    font-size: 12px;
+    font-weight: 500;
+    color: #6b7280;
+    margin-top: -2px;
+  }
+
+  &__date-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1.5px solid #e8ecf4;
+    background: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    position: relative;
+    &:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+  }
+
+  &__date-icon {
+    font-size: 15px;
+  }
+
+  &__date-text {
+    flex: 1;
+  }
+
+  &__chevron {
+    font-size: 11px;
+    color: #9ca3af;
+  }
+
+  &__date-hidden {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+  }
+
+  &__range-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__range-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1.5px solid #e8ecf4;
+    background: #fff;
+    cursor: pointer;
+    position: relative;
+    min-width: 0;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    
+    &:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+  }
+
+  &__range-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__range-val {
+    font-size: 13px;
+    font-weight: 700;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 18px;
+  }
+
+  &__range-icon {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+  }
+
+  &__range-arrow {
+    font-size: 18px;
+    color: #9ca3af;
+    flex-shrink: 0;
+  }
+
+  &__info-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e3a8a;
+  }
+
+  &__info-icon {
+    display: flex;
+    align-items: center;
+    color: #3b82f6;
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+
+  &__info-text {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 24px;
+    background: #f8f9fc;
+    border-top: 1.5px solid #e8ecf4;
+  }
+
+  &__btn {
+    padding: 10px 20px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    border: none;
+    outline: none;
+    &:active {
+      transform: scale(0.97);
+    }
+
+    &--cancel {
+      background: #fff;
+      border: 1.5px solid #e8ecf4;
+      color: #374151;
+      &:hover {
+        background: #f3f4f6;
+        border-color: #cbd5e1;
+      }
+    }
+
+    &--copy {
+      background: #1a3a6b;
+      color: #fff;
+      &:hover {
+        background: lighten(#1a3a6b, 8%);
+      }
+    }
+  }
+}
+
+@keyframes scModalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scModalPopUp {
+  from { transform: translateY(12px) scale(0.97); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+

@@ -38,13 +38,70 @@ function todayString() {
 
 function formatDateDisplay(dateStr: string): string {
   const [y, m, d] = dateStr.split('-').map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString('en-GB', {
-    day: 'numeric', month: 'long', year: 'numeric',
-  });
+  const date = new Date(y, m - 1, d);
+  const day = date.getDate();
+  const month = date.toLocaleDateString('en-GB', { month: 'long' });
+  const year = date.getFullYear();
+  return `${day} ${month} ${year}`;
 }
 
 function formatHour(h: number) {
   return `${String(h).padStart(2, '0')}:00`;
+}
+
+function parseDate(dateStr: string): Date {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function dateToString(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+/** Upcoming 7 days shown in tiles (today excluded) */
+const UPCOMING_PLANNING_DAYS = 7;
+
+function getUpcomingTileDates(): string[] {
+  const start = parseDate(todayString());
+  start.setDate(start.getDate() + 1);
+  return Array.from({ length: UPCOMING_PLANNING_DAYS }, (_, i) => {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    return dateToString(d);
+  });
+}
+
+function formatUpcomingRange(): string {
+  const dates = getUpcomingTileDates();
+  if (dates.length === 0) return '';
+  return `${formatDateDisplay(dates[0])} – ${formatDateDisplay(dates[dates.length - 1])}`;
+}
+
+function formatDayShort(dateStr: string): string {
+  return parseDate(dateStr).toLocaleDateString('en-GB', { weekday: 'short' });
+}
+
+function formatDayNum(dateStr: string): string {
+  return String(parseDate(dateStr).getDate());
+}
+
+function formatDayMonthShort(dateStr: string): string {
+  return parseDate(dateStr).toLocaleDateString('en-GB', { month: 'short' });
+}
+
+function getSlotsSummary(config: DayConfig): { total: number; assigned: number; status: 'good' | 'limited' | 'full' } {
+  const assigned = HOURS.reduce((sum, h) => {
+    const v = config.hourLimits[h] ?? 0;
+    return v > 0 ? sum + v : sum;
+  }, 0);
+  const utilization = config.totalCapacity > 0 ? assigned / config.totalCapacity : 0;
+  let status: 'good' | 'limited' | 'full' = 'good';
+  if (utilization >= 0.9) status = 'full';
+  else if (utilization >= 0.7) status = 'limited';
+  return { total: config.totalCapacity, assigned, status };
 }
 
 // ── Number input ─────────────────────────────────────────────────
@@ -87,11 +144,26 @@ function NumberInput({
 function ScheduleConfig() {
   const { getConfigForDate, updateConfigForDate } = useScheduleConfig();
   const dateInputRef = useRef<HTMLInputElement>(null);
+  const modalCopyFromRef = useRef<HTMLInputElement>(null);
+  const modalCopyToStartRef = useRef<HTMLInputElement>(null);
+  const modalCopyToEndRef = useRef<HTMLInputElement>(null);
 
-  const [selectedDate, setSelectedDate] = useState(todayString());
+  const [selectedDate, setSelectedDate] = useState(() => todayString());
   const [draft, setDraft] = useState<DayConfig>(() => getConfigForDate(todayString()));
   const [saved, setSaved] = useState(false);
   const [openHourMenu, setOpenHourMenu] = useState<number | null>(null);
+
+  // Copy configuration modal states
+  const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
+  const [modalCopyFrom, setModalCopyFrom] = useState(() => todayString());
+  const [modalCopyToStart, setModalCopyToStart] = useState(() => {
+    const upcoming = getUpcomingTileDates();
+    return upcoming[0] ?? todayString();
+  });
+  const [modalCopyToEnd, setModalCopyToEnd] = useState(() => {
+    const upcoming = getUpcomingTileDates();
+    return upcoming[upcoming.length - 1] ?? todayString();
+  });
 
   // Explicit type label per hour — independent of the slot value
   const defaultHourTypes = (): Record<number, 'peak' | 'shoulder' | null> =>
@@ -99,6 +171,7 @@ function ScheduleConfig() {
 
   const [hourTypes, setHourTypes] = useState<Record<number, 'peak' | 'shoulder' | null>>(defaultHourTypes);
 
+  const upcomingTileDates = getUpcomingTileDates();
   const isToday = selectedDate === todayString();
 
   useEffect(() => {
@@ -107,6 +180,18 @@ function ScheduleConfig() {
     setSaved(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDate]);
+
+  useEffect(() => {
+    setModalCopyFrom(selectedDate);
+    const upcoming = getUpcomingTileDates();
+    setModalCopyToStart(upcoming[0] ?? todayString());
+    setModalCopyToEnd(upcoming[upcoming.length - 1] ?? todayString());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDate]);
+
+  function handleModalApplyCopy() {
+    setIsCopyModalOpen(false);
+  }
 
   // Sentinels: 0 = neutral (default), -1 = blocked, >0 = specific limit
   const totalCapacity = draft.totalCapacity;
@@ -154,13 +239,29 @@ function ScheduleConfig() {
             <h1 className="sc__title">Schedule Config</h1>
             <p className="sc__subtitle">Configure slot capacities and delivery limits per date</p>
           </div>
-          <button
-            type="button"
-            className={`sc__save-btn${saved ? ' sc__save-btn--saved' : ''}`}
-            onClick={handleSave}
-          >
-            {saved ? '✓ Saved' : 'Save Changes'}
-          </button>
+          <div className="sc__page-title-actions">
+            <button
+              type="button"
+              className="sc__copy-trigger-btn"
+              onClick={() => {
+                setModalCopyFrom(selectedDate);
+                setIsCopyModalOpen(true);
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="sc__copy-trigger-icon">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              Copy Schedule
+            </button>
+            <button
+              type="button"
+              className={`sc__save-btn${saved ? ' sc__save-btn--saved' : ''}`}
+              onClick={handleSave}
+            >
+              {saved ? '✓ Saved' : 'Save Changes'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -191,6 +292,58 @@ function ScheduleConfig() {
           className="sc__date-hidden"
           aria-label="Select date"
         />
+      </div>
+
+      {/* ── Day tiles (upcoming 7 days) ─────────────────────── */}
+      <div className="sc__week-block">
+        <div className="sc__week-header">
+          <div>
+            <span className="sc__week-label">Upcoming week</span>
+            <p className="sc__week-range">{formatUpcomingRange()}</p>
+          </div>
+        </div>
+        <div className="sc__week-tiles">
+          {upcomingTileDates.map((date) => {
+            const isSelected = date === selectedDate;
+            const config = getConfigForDate(date);
+            const summary = getSlotsSummary(config);
+            return (
+              <button
+                key={date}
+                type="button"
+                className={`sc__day-tile${isSelected ? ' sc__day-tile--active' : ''}`}
+                onClick={() => setSelectedDate(date)}
+                aria-pressed={isSelected}
+                aria-label={`${formatDayShort(date)} ${formatDateDisplay(date)}`}
+              >
+                <span className="sc__day-tile-name">{formatDayShort(date)}</span>
+                <span className="sc__day-tile-month">{formatDayMonthShort(date)}</span>
+                <span className="sc__day-tile-num">{formatDayNum(date)}</span>
+                {isSelected ? (
+                  <div className="sc__day-tile-stats">
+                    <div className="sc__day-tile-stat-item">
+                      <span className="sc__day-tile-status-dot sc__day-tile-status-dot--total" />
+                      <span className="sc__day-tile-stat-val">{summary.total}</span>
+                    </div>
+                    <div className="sc__day-tile-stat-item">
+                      <span className="sc__day-tile-status-dot sc__day-tile-status-dot--assigned" />
+                      <span className="sc__day-tile-stat-val">{summary.assigned}</span>
+                    </div>
+                    <div className="sc__day-tile-stat-item">
+                      <span className="sc__day-tile-status-dot sc__day-tile-status-dot--available" />
+                      <span className="sc__day-tile-stat-val">{summary.total - summary.assigned}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="sc__day-tile-status">
+                    <span className="sc__day-tile-status-dot sc__day-tile-status-dot--available" />
+                    <span className="sc__day-tile-status-text">{summary.total - summary.assigned}</span>
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* ── Total Slot Capacity ──────────────────────────────── */}
@@ -314,6 +467,139 @@ function ScheduleConfig() {
           ))}
         </div>
       </section>
+
+      {isCopyModalOpen && (
+        <div className="sc-modal-backdrop" onClick={() => setIsCopyModalOpen(false)}>
+          <div className="sc-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+            {/* Header */}
+            <div className="sc-modal__header">
+              <h2 className="sc-modal__title">Copy Configuration</h2>
+              <button
+                type="button"
+                className="sc-modal__close"
+                onClick={() => setIsCopyModalOpen(false)}
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="sc-modal__body">
+              {/* Step 1: Copy From */}
+              <div className="sc-modal__step">
+                <span className="sc-modal__step-num-title">1. Copy From</span>
+                <div
+                  className="sc-modal__date-selector"
+                  onClick={() => modalCopyFromRef.current?.showPicker()}
+                >
+                  <span className="sc-modal__date-icon">📅</span>
+                  <span className="sc-modal__date-text">{formatDateDisplay(modalCopyFrom)}</span>
+                  <span className="sc-modal__chevron">▾</span>
+                  <input
+                    ref={modalCopyFromRef}
+                    type="date"
+                    value={modalCopyFrom}
+                    onChange={(e) => setModalCopyFrom(e.target.value)}
+                    className="sc-modal__date-hidden"
+                    aria-label="Copy config from date"
+                  />
+                </div>
+              </div>
+
+              {/* Step 2: Copy To */}
+              <div className="sc-modal__step">
+                <span className="sc-modal__step-num-title">2. Copy To</span>
+                <span className="sc-modal__step-subtitle">Select Date Range</span>
+                
+                <div className="sc-modal__range-row">
+                  <div
+                    className="sc-modal__range-box"
+                    onClick={() => modalCopyToStartRef.current?.showPicker()}
+                  >
+                    <span className="sc-modal__range-label">Start Date</span>
+                    <span className="sc-modal__range-val">{formatDateDisplay(modalCopyToStart)}</span>
+                    <span className="sc-modal__range-icon">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                      </svg>
+                    </span>
+                    <input
+                      ref={modalCopyToStartRef}
+                      type="date"
+                      value={modalCopyToStart}
+                      onChange={(e) => setModalCopyToStart(e.target.value)}
+                      className="sc-modal__date-hidden"
+                      aria-label="Copy to start date"
+                    />
+                  </div>
+
+                  <span className="sc-modal__range-arrow">→</span>
+
+                  <div
+                    className="sc-modal__range-box"
+                    onClick={() => modalCopyToEndRef.current?.showPicker()}
+                  >
+                    <span className="sc-modal__range-label">End Date</span>
+                    <span className="sc-modal__range-val">{formatDateDisplay(modalCopyToEnd)}</span>
+                    <span className="sc-modal__range-icon">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                      </svg>
+                    </span>
+                    <input
+                      ref={modalCopyToEndRef}
+                      type="date"
+                      value={modalCopyToEnd}
+                      onChange={(e) => setModalCopyToEnd(e.target.value)}
+                      className="sc-modal__date-hidden"
+                      aria-label="Copy to end date"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Information Alert Box */}
+              <div className="sc-modal__info-box">
+                <span className="sc-modal__info-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                  </svg>
+                </span>
+                <span className="sc-modal__info-text">
+                  This will copy the configuration from 2 July to 6 selected dates.
+                </span>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="sc-modal__footer">
+              <button
+                type="button"
+                className="sc-modal__btn sc-modal__btn--cancel"
+                onClick={() => setIsCopyModalOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="sc-modal__btn sc-modal__btn--copy"
+                onClick={handleModalApplyCopy}
+              >
+                Copy Configuration
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
