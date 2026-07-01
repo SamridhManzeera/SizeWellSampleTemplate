@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { Fragment, useState, useEffect, useRef } from 'react';
 import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
 import { useScheduleConfig, HOURS, DayConfig, DCO_HOUR_CONSTRAINTS } from './ScheduleConfigContext';
 import './ScheduleConfig.scss';
@@ -26,6 +26,14 @@ function TotalSlotsIcon() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z" />
+    </svg>
+  );
+}
+
+function CalendarIcon() {
+  return (
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM5 7V6h14v1H5zm2 4h5v5H7z" />
     </svg>
   );
 }
@@ -74,12 +82,6 @@ function getUpcomingTileDates(): string[] {
   });
 }
 
-function formatUpcomingRange(): string {
-  const dates = getUpcomingTileDates();
-  if (dates.length === 0) return '';
-  return `${formatDateDisplay(dates[0])} – ${formatDateDisplay(dates[dates.length - 1])}`;
-}
-
 function formatDayShort(dateStr: string): string {
   return parseDate(dateStr).toLocaleDateString('en-GB', { weekday: 'short' });
 }
@@ -91,6 +93,68 @@ function formatDayNum(dateStr: string): string {
 function formatDayMonthShort(dateStr: string): string {
   return parseDate(dateStr).toLocaleDateString('en-GB', { month: 'short' });
 }
+
+function isSunday(dateStr: string): boolean {
+  return parseDate(dateStr).getDay() === 0;
+}
+
+function getWeekDates(baseDateStr: string, weekOffset: number): string[] {
+  const base = parseDate(baseDateStr);
+  const day = base.getDay(); // 0 = Sun ... 6 = Sat
+  const diffToMonday = day === 0 ? -6 : 1 - day;
+  const monday = new Date(base);
+  monday.setDate(base.getDate() + diffToMonday + weekOffset * 7);
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return dateToString(d);
+  });
+}
+
+function getDatesInRange(startStr: string, endStr: string): string[] {
+  const start = parseDate(startStr);
+  const end = parseDate(endStr);
+  if (end < start) return [startStr];
+  const dates: string[] = [];
+  const cur = new Date(start);
+  while (cur <= end) {
+    dates.push(dateToString(cur));
+    cur.setDate(cur.getDate() + 1);
+  }
+  return dates;
+}
+
+function hashString(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+/** Deterministic pseudo-random per-hour capacity, ignoring blocked days — real per-date wiring is a follow-up. */
+function getMockHourCapacity(dateStr: string, hour: number): number {
+  return 10 + (hashString(`${dateStr}-${hour}`) % 31); // 10–40
+}
+
+/** Actual per-hour value shown in the multi-day table — zeroed out on blocked (Sunday) days. */
+function getMockHourValue(dateStr: string, hour: number): number {
+  return isSunday(dateStr) ? 0 : getMockHourCapacity(dateStr, hour);
+}
+
+function getMockDailyCapacity(dateStr: string): number {
+  return HOURS.reduce((sum, h) => sum + getMockHourCapacity(dateStr, h), 0);
+}
+
+function getMockDailyTotal(dateStr: string): number {
+  return HOURS.reduce((sum, h) => sum + getMockHourValue(dateStr, h), 0);
+}
+
+const WEEK_TABLE_HOUR_GROUPS = [
+  { label: '00:00 – 11:00', hours: HOURS.slice(0, 12) },
+  { label: '12:00 – 23:00', hours: HOURS.slice(12) },
+];
 
 function getSlotsSummary(config: DayConfig): { total: number; assigned: number; status: 'good' | 'limited' | 'full' } {
   const assigned = HOURS.reduce((sum, h) => {
@@ -153,6 +217,15 @@ function ScheduleConfig() {
   const [saved, setSaved] = useState(false);
   const [openHourMenu, setOpenHourMenu] = useState<number | null>(null);
 
+  // Multi-day table view (This Week / Next Week / custom range)
+  const [viewMode, setViewMode] = useState<'day' | 'range'>('day');
+  const [activeRangeType, setActiveRangeType] = useState<'thisWeek' | 'nextWeek' | 'custom' | null>(null);
+  const [weekTableDates, setWeekTableDates] = useState<string[]>([]);
+  const [expandedGroups, setExpandedGroups] = useState<boolean[]>([false, false]);
+  const [isRangePickerOpen, setIsRangePickerOpen] = useState(false);
+  const [rangeStart, setRangeStart] = useState(() => todayString());
+  const [rangeEnd, setRangeEnd] = useState(() => todayString());
+
   // Copy configuration modal states
   const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
   const [modalCopyFrom, setModalCopyFrom] = useState(() => todayString());
@@ -171,7 +244,6 @@ function ScheduleConfig() {
 
   const [hourTypes, setHourTypes] = useState<Record<number, 'peak' | 'shoulder' | null>>(defaultHourTypes);
 
-  const upcomingTileDates = getUpcomingTileDates();
   const isToday = selectedDate === todayString();
 
   useEffect(() => {
@@ -196,12 +268,15 @@ function ScheduleConfig() {
   // Sentinels: 0 = neutral (default), -1 = blocked, >0 = specific limit
   const totalCapacity = draft.totalCapacity;
 
-  // Sum only specific limits (>0)
-  const allocatedToHours = HOURS.reduce((sum, h) => {
-    const v = draft.hourLimits[h] ?? 0;
-    return v > 0 ? sum + v : sum;
-  }, 0);
-  const unallocated = Math.max(0, totalCapacity - allocatedToHours);
+  const daySummary = getSlotsSummary(draft);
+  const rangeTotalSlots = weekTableDates.reduce((sum, d) => sum + getMockDailyCapacity(d), 0);
+  const rangeAssignedSlots = weekTableDates.reduce((sum, d) => sum + getMockDailyTotal(d), 0);
+  const rangeSummaryTitle = activeRangeType === 'custom' ? 'Range Summary' : 'Week Summary';
+  const rangeSummarySubtitle = weekTableDates.length > 0
+    ? `${formatDateDisplay(weekTableDates[0])} – ${formatDateDisplay(weekTableDates[weekTableDates.length - 1])}`
+    : '';
+
+  const copyToDatesCount = getDatesInRange(modalCopyToStart, modalCopyToEnd).length;
 
   function setHourLimit(h: number, v: number) {
     setDraft(prev => ({ ...prev, hourLimits: { ...prev.hourLimits, [h]: v } }));
@@ -228,40 +303,65 @@ function ScheduleConfig() {
     setTimeout(() => setSaved(false), 2500);
   }
 
+  function handleTodayClick() {
+    setSelectedDate(todayString());
+    setViewMode('day');
+    setActiveRangeType(null);
+  }
+
+  function showWeekTable(weekOffset: number, type: 'thisWeek' | 'nextWeek') {
+    setWeekTableDates(getWeekDates(todayString(), weekOffset));
+    setActiveRangeType(type);
+    setViewMode('range');
+    setIsRangePickerOpen(false);
+  }
+
+  function handleApplyCustomRange() {
+    setWeekTableDates(getDatesInRange(rangeStart, rangeEnd));
+    setActiveRangeType('custom');
+    setViewMode('range');
+    setIsRangePickerOpen(false);
+  }
+
+  function toggleWeekTableGroup(i: number) {
+    setExpandedGroups(prev => prev.map((v, idx) => (idx === i ? !v : v)));
+  }
+
   return (
     <div className="sc">
       <PageHeader />
 
-      {/* ── Page title ──────────────────────────────────────── */}
-      <div className="sc__page-title">
-        <div className="sc__page-title-row">
+      {/* ── Hero ──────────────────────────────────────────────── */}
+      <div className="sc__hero">
+        <div className="sc__hero-left">
+          <div className="sc__hero-icon"><CalendarIcon /></div>
           <div>
-            <h1 className="sc__title">Schedule Config</h1>
-            <p className="sc__subtitle">Configure slot capacities and delivery limits per date</p>
+            <h1 className="sc__hero-title">Schedule Config</h1>
+            <p className="sc__hero-sub">Configure slot capacities and delivery limits per date</p>
           </div>
-          <div className="sc__page-title-actions">
-            <button
-              type="button"
-              className="sc__copy-trigger-btn"
-              onClick={() => {
-                setModalCopyFrom(selectedDate);
-                setIsCopyModalOpen(true);
-              }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="sc__copy-trigger-icon">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-              </svg>
-              Copy Schedule
-            </button>
-            <button
-              type="button"
-              className={`sc__save-btn${saved ? ' sc__save-btn--saved' : ''}`}
-              onClick={handleSave}
-            >
-              {saved ? '✓ Saved' : 'Save Changes'}
-            </button>
-          </div>
+        </div>
+        <div className="sc__hero-actions">
+          <button
+            type="button"
+            className="sc__copy-trigger-btn"
+            onClick={() => {
+              setModalCopyFrom(selectedDate);
+              setIsCopyModalOpen(true);
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="sc__copy-trigger-icon">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            Copy Schedule
+          </button>
+          <button
+            type="button"
+            className={`sc__save-btn${saved ? ' sc__save-btn--saved' : ''}`}
+            onClick={handleSave}
+          >
+            {saved ? '✓ Saved' : 'Save Changes'}
+          </button>
         </div>
       </div>
 
@@ -279,11 +379,63 @@ function ScheduleConfig() {
         </button>
         <button
           type="button"
-          className={`sc__today-btn${isToday ? ' sc__today-btn--active' : ''}`}
-          onClick={() => setSelectedDate(todayString())}
+          className={`sc__today-btn${isToday && viewMode === 'day' ? ' sc__today-btn--active' : ''}`}
+          onClick={handleTodayClick}
         >
           Today
         </button>
+        <button
+          type="button"
+          className={`sc__today-btn${activeRangeType === 'thisWeek' ? ' sc__today-btn--active' : ''}`}
+          onClick={() => showWeekTable(0, 'thisWeek')}
+        >
+          This Week
+        </button>
+        <button
+          type="button"
+          className={`sc__today-btn${activeRangeType === 'nextWeek' ? ' sc__today-btn--active' : ''}`}
+          onClick={() => showWeekTable(1, 'nextWeek')}
+        >
+          Next Week
+        </button>
+        <div className="sc__range-btn-wrap">
+          <button
+            type="button"
+            className={`sc__today-btn${activeRangeType === 'custom' ? ' sc__today-btn--active' : ''}`}
+            onClick={() => setIsRangePickerOpen(v => !v)}
+          >
+            Select Range
+          </button>
+          {isRangePickerOpen && (
+            <>
+              <div className="sc__hour-menu-overlay" onClick={() => setIsRangePickerOpen(false)} />
+              <div className="sc__range-popover">
+                <div className="sc__range-popover-row">
+                  <label className="sc__range-popover-label">Start Date</label>
+                  <input
+                    type="date"
+                    value={rangeStart}
+                    onChange={(e) => setRangeStart(e.target.value)}
+                    className="sc__range-popover-input"
+                  />
+                </div>
+                <div className="sc__range-popover-row">
+                  <label className="sc__range-popover-label">End Date</label>
+                  <input
+                    type="date"
+                    value={rangeEnd}
+                    min={rangeStart}
+                    onChange={(e) => setRangeEnd(e.target.value)}
+                    className="sc__range-popover-input"
+                  />
+                </div>
+                <button type="button" className="sc__range-popover-apply" onClick={handleApplyCustomRange}>
+                  Show Config
+                </button>
+              </div>
+            </>
+          )}
+        </div>
         <input
           ref={dateInputRef}
           type="date"
@@ -294,58 +446,61 @@ function ScheduleConfig() {
         />
       </div>
 
-      {/* ── Day tiles (upcoming 7 days) ─────────────────────── */}
-      <div className="sc__week-block">
-        <div className="sc__week-header">
-          <div>
-            <span className="sc__week-label">Upcoming week</span>
-            <p className="sc__week-range">{formatUpcomingRange()}</p>
+      {/* ── Summary (Day / Week / Range) ─────────────────────── */}
+      {viewMode === 'day' ? (
+        <div className="sc__week-block">
+          <div className="sc__week-header">
+            <div>
+              <span className="sc__week-label">Day Summary</span>
+              <p className="sc__week-range">{formatDateDisplay(selectedDate)}</p>
+            </div>
+          </div>
+          <div className="sc__hour-summary">
+            <div className="sc__hour-summary-item">
+              <span className="sc__hour-summary-label">Total Slots</span>
+              <span className="sc__hour-summary-val">{daySummary.total}</span>
+            </div>
+            <div className="sc__hour-summary-sep" />
+            <div className="sc__hour-summary-item">
+              <span className="sc__hour-summary-label">Assigned</span>
+              <span className="sc__hour-summary-val sc__hour-summary-val--used">{daySummary.assigned}</span>
+            </div>
+            <div className="sc__hour-summary-sep" />
+            <div className="sc__hour-summary-item">
+              <span className="sc__hour-summary-label">Available</span>
+              <span className="sc__hour-summary-val sc__hour-summary-val--avail">{daySummary.total - daySummary.assigned}</span>
+            </div>
           </div>
         </div>
-        <div className="sc__week-tiles">
-          {upcomingTileDates.map((date) => {
-            const isSelected = date === selectedDate;
-            const config = getConfigForDate(date);
-            const summary = getSlotsSummary(config);
-            return (
-              <button
-                key={date}
-                type="button"
-                className={`sc__day-tile${isSelected ? ' sc__day-tile--active' : ''}`}
-                onClick={() => setSelectedDate(date)}
-                aria-pressed={isSelected}
-                aria-label={`${formatDayShort(date)} ${formatDateDisplay(date)}`}
-              >
-                <span className="sc__day-tile-name">{formatDayShort(date)}</span>
-                <span className="sc__day-tile-month">{formatDayMonthShort(date)}</span>
-                <span className="sc__day-tile-num">{formatDayNum(date)}</span>
-                {isSelected ? (
-                  <div className="sc__day-tile-stats">
-                    <div className="sc__day-tile-stat-item">
-                      <span className="sc__day-tile-status-dot sc__day-tile-status-dot--total" />
-                      <span className="sc__day-tile-stat-val">{summary.total}</span>
-                    </div>
-                    <div className="sc__day-tile-stat-item">
-                      <span className="sc__day-tile-status-dot sc__day-tile-status-dot--assigned" />
-                      <span className="sc__day-tile-stat-val">{summary.assigned}</span>
-                    </div>
-                    <div className="sc__day-tile-stat-item">
-                      <span className="sc__day-tile-status-dot sc__day-tile-status-dot--available" />
-                      <span className="sc__day-tile-stat-val">{summary.total - summary.assigned}</span>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="sc__day-tile-status">
-                    <span className="sc__day-tile-status-dot sc__day-tile-status-dot--available" />
-                    <span className="sc__day-tile-status-text">{summary.total - summary.assigned}</span>
-                  </div>
-                )}
-              </button>
-            );
-          })}
+      ) : (
+        <div className="sc__week-block">
+          <div className="sc__week-header">
+            <div>
+              <span className="sc__week-label">{rangeSummaryTitle}</span>
+              <p className="sc__week-range">{rangeSummarySubtitle}</p>
+            </div>
+          </div>
+          <div className="sc__hour-summary">
+            <div className="sc__hour-summary-item">
+              <span className="sc__hour-summary-label">Days</span>
+              <span className="sc__hour-summary-val">{weekTableDates.length}</span>
+            </div>
+            <div className="sc__hour-summary-sep" />
+            <div className="sc__hour-summary-item">
+              <span className="sc__hour-summary-label">Total Slots</span>
+              <span className="sc__hour-summary-val sc__hour-summary-val--used">{rangeTotalSlots}</span>
+            </div>
+            <div className="sc__hour-summary-sep" />
+            <div className="sc__hour-summary-item">
+              <span className="sc__hour-summary-label">Assigned</span>
+              <span className="sc__hour-summary-val sc__hour-summary-val--avail">{rangeAssignedSlots}</span>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
 
+      {viewMode === 'day' && (
+      <>
       {/* ── Total Slot Capacity ──────────────────────────────── */}
       <section className="sc__section">
         <div className="sc__section-header">
@@ -374,25 +529,6 @@ function ScheduleConfig() {
         <div className="sc__section-header">
           <h2 className="sc__section-title">Per-Hour Delivery Limits</h2>
           {/* <p className="sc__section-desc">Set a max delivery count per hour. 0 = no limit for that hour.</p> */}
-        </div>
-
-        <div className="sc__hour-summary">
-          <div className="sc__hour-summary-item">
-            <span className="sc__hour-summary-label">Total Capacity</span>
-            <span className="sc__hour-summary-val">{totalCapacity}</span>
-          </div>
-          <div className="sc__hour-summary-sep" />
-          <div className="sc__hour-summary-item">
-            <span className="sc__hour-summary-label">Assigned to Hours</span>
-            <span className="sc__hour-summary-val sc__hour-summary-val--used">{allocatedToHours}</span>
-          </div>
-          <div className="sc__hour-summary-sep" />
-          <div className="sc__hour-summary-item">
-            <span className="sc__hour-summary-label">Available</span>
-            <span className={`sc__hour-summary-val${unallocated === 0 ? ' sc__hour-summary-val--warn' : ' sc__hour-summary-val--avail'}`}>
-              {unallocated}
-            </span>
-          </div>
         </div>
 
         {openHourMenu !== null && (
@@ -467,6 +603,74 @@ function ScheduleConfig() {
           ))}
         </div>
       </section>
+      </>
+      )}
+
+      {viewMode === 'range' && (
+      <section className="sc__section">
+        <div className="sc__week-table-header">
+          <div className="sc__total-slot-left">
+            <div className="sc__total-slot-icon"><TotalSlotsIcon /></div>
+            <div>
+              <span className="sc__total-slot-label">Delivery Slots</span>
+              <span className="sc__total-slot-desc">Per-hour limits across the selected dates</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="sc__week-table-wrap">
+          <table className="sc__week-table">
+            <thead>
+              <tr>
+                <th className="sc__week-table-time-col">Time</th>
+                {weekTableDates.map((date) => (
+                  <th key={date}>{formatDayShort(date)} {formatDayNum(date)} {formatDayMonthShort(date)}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {WEEK_TABLE_HOUR_GROUPS.map((group, gi) => (
+                <Fragment key={group.label}>
+                  <tr className="sc__week-table-group-row" onClick={() => toggleWeekTableGroup(gi)}>
+                    <td colSpan={weekTableDates.length + 1}>
+                      <div className="sc__week-table-group-inner">
+                        <span className={`sc__week-table-group-chevron${expandedGroups[gi] ? '' : ' sc__week-table-group-chevron--collapsed'}`}>▾</span>
+                        <span className="sc__week-table-group-label">{group.label}</span>
+                        <span className="sc__week-table-group-count">{group.hours.length} hourly slots</span>
+                      </div>
+                    </td>
+                  </tr>
+                  {expandedGroups[gi] && group.hours.map((h) => (
+                    <tr key={h} className="sc__week-table-row">
+                      <td className="sc__week-table-time-col">{formatHour(h)} – {formatHour((h + 1) % 24)}</td>
+                      {weekTableDates.map((date) => {
+                        const val = getMockHourValue(date, h);
+                        return (
+                          <td key={date}>
+                            <span className={`sc__week-table-cell${val === 0 ? ' sc__week-table-cell--empty' : ''}`}>{val}</span>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </Fragment>
+              ))}
+              <tr className="sc__week-table-total-row">
+                <td className="sc__week-table-time-col">Daily Total</td>
+                {weekTableDates.map((date) => (
+                  <td key={date}>{getMockDailyTotal(date)}</td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p className="sc__week-table-footnote">
+          <span className="sc__week-table-footnote-icon">ⓘ</span>
+          Hours are grouped into two 12-hour sections: 00:00–11:00 and 12:00–23:00. All 24 hours are included in totals.
+        </p>
+      </section>
+      )}
 
       {isCopyModalOpen && (
         <div className="sc-modal-backdrop" onClick={() => setIsCopyModalOpen(false)}>
@@ -575,7 +779,7 @@ function ScheduleConfig() {
                   </svg>
                 </span>
                 <span className="sc-modal__info-text">
-                  This will copy the configuration from 2 July to 6 selected dates.
+                  This will copy the configuration from {formatDateDisplay(modalCopyFrom)} to {copyToDatesCount} selected {copyToDatesCount === 1 ? 'date' : 'dates'}.
                 </span>
               </div>
             </div>

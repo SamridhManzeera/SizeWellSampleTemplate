@@ -1,14 +1,14 @@
-$navy:      #1a3a6b;
-$teal:      #26a69a;
-$border:    #e8ecf4;
-$bg-page:   #f8f9fc;
+$navy: #1a3a6b;
+$teal: #26a69a;
+$border: #e8ecf4;
+$bg-page: #f8f9fc;
 $text-dark: #111827;
-$text-mid:  #374151;
-$text-muted:#9ca3af;
-$green:     #16a34a;
-$red:       #dc2626;
-$blue:      #2563eb;
-$radius:    14px;
+$text-mid: #374151;
+$text-muted: #9ca3af;
+$green: #16a34a;
+$red: #dc2626;
+$blue: #2563eb;
+$radius: 14px;
 
 .sc {
   flex: 1;
@@ -17,20 +17,53 @@ $radius:    14px;
   background: $bg-page;
   min-height: 100vh;
 
-  // ── Page title ────────────────────────────────────────────
-  &__page-title {
-    padding: 24px 36px 0;
-  }
-
-  &__page-title-row {
+  // ── Hero ──────────────────────────────────────────────────
+  &__hero {
+    background: linear-gradient(135deg, #122a52 0%, #1a3a6b 60%, #1e4a8a 100%);
+    padding: 32px 36px 28px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
-    margin-bottom: 16px;
+    column-gap: 24px;
+    row-gap: 20px;
+    flex-wrap: wrap;
   }
 
-  &__page-title-actions {
+  &__hero-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  &__hero-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.85);
+    flex-shrink: 0;
+  }
+
+  &__hero-title {
+    margin: 0 0 4px;
+    font-size: 26px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.4px;
+  }
+
+  &__hero-sub {
+    margin: 0;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 500;
+  }
+
+  &__hero-actions {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -43,20 +76,20 @@ $radius:    14px;
     gap: 8px;
     padding: 10px 18px;
     border-radius: 10px;
-    border: 1.5px solid $border;
-    background: #fff;
-    color: $navy;
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     font-family: inherit;
     transition: background 0.15s, border-color 0.15s, transform 0.1s;
-    
+
     &:hover {
-      background: $bg-page;
-      border-color: darken($border, 10%);
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.3);
     }
-    
+
     &:active {
       transform: scale(0.97);
     }
@@ -65,39 +98,37 @@ $radius:    14px;
   &__copy-trigger-icon {
     display: flex;
     align-items: center;
-    color: $navy;
-  }
-
-  &__title {
-    margin: 0 0 2px;
-    font-size: 24px;
-    font-weight: 800;
-    color: $navy;
-    letter-spacing: -0.4px;
-  }
-
-  &__subtitle {
-    margin: 0;
-    font-size: 13px;
-    color: $text-muted;
-    font-weight: 500;
+    color: #fff;
   }
 
   &__save-btn {
     padding: 10px 24px;
     border-radius: 10px;
     border: none;
-    background: $navy;
+    background: $teal;
     color: #fff;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
     font-family: inherit;
     transition: background 0.15s, transform 0.1s;
     flex-shrink: 0;
-    &:hover  { background: lighten($navy, 8%); }
-    &:active { transform: scale(0.97); }
-    &--saved { background: $green; &:hover { background: darken($green, 5%); } }
+
+    &:hover {
+      background: darken($teal, 6%);
+    }
+
+    &:active {
+      transform: scale(0.97);
+    }
+
+    &--saved {
+      background: $green;
+
+      &:hover {
+        background: darken($green, 5%);
+      }
+    }
   }
 
   // ── Date toolbar ──────────────────────────────────────────
@@ -105,7 +136,7 @@ $radius:    14px;
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 0 36px 20px;
+    padding: 20px 36px 20px;
   }
 
   &__date-pill {
@@ -122,12 +153,26 @@ $radius:    14px;
     cursor: pointer;
     font-family: inherit;
     transition: border-color 0.15s, box-shadow 0.15s;
-    &:hover { border-color: darken($border, 10%); box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+
+    &:hover {
+      border-color: darken($border, 10%);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    }
   }
 
-  &__cal-icon  { font-size: 15px; }
-  &__date-label { font-weight: 600; }
-  &__chevron   { font-size: 11px; color: $text-muted; margin-left: 2px; }
+  &__cal-icon {
+    font-size: 15px;
+  }
+
+  &__date-label {
+    font-weight: 600;
+  }
+
+  &__chevron {
+    font-size: 11px;
+    color: $text-muted;
+    margin-left: 2px;
+  }
 
   &__today-btn {
     padding: 8px 16px;
@@ -140,8 +185,20 @@ $radius:    14px;
     cursor: pointer;
     font-family: inherit;
     transition: background 0.15s;
-    &:hover { background: $bg-page; }
-    &--active { background: $navy; color: #fff; border-color: $navy; &:hover { background: lighten($navy, 6%); } }
+
+    &:hover {
+      background: $bg-page;
+    }
+
+    &--active {
+      background: $navy;
+      color: #fff;
+      border-color: $navy;
+
+      &:hover {
+        background: lighten($navy, 6%);
+      }
+    }
   }
 
   &__date-hidden {
@@ -150,6 +207,72 @@ $radius:    14px;
     pointer-events: none;
     width: 0;
     height: 0;
+  }
+
+  // ── Custom date-range popover ─────────────────────────────
+  &__range-btn-wrap {
+    position: relative;
+  }
+
+  &__range-popover {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 100;
+    background: #fff;
+    border: 1.5px solid $border;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 220px;
+  }
+
+  &__range-popover-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__range-popover-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__range-popover-input {
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1.5px solid $border;
+    font-size: 13px;
+    font-family: inherit;
+    color: $text-dark;
+    outline: none;
+
+    &:focus {
+      border-color: $teal;
+    }
+  }
+
+  &__range-popover-apply {
+    padding: 9px 14px;
+    border-radius: 8px;
+    border: none;
+    background: $navy;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+
+    &:hover {
+      background: lighten($navy, 8%);
+    }
   }
 
   // ── Week day tiles ────────────────────────────────────────
@@ -201,11 +324,20 @@ $radius:    14px;
     align-items: center;
     justify-content: center;
     transition: background 0.12s, border-color 0.12s;
-    &:hover { background: $bg-page; border-color: darken($border, 8%); }
+
+    &:hover {
+      background: $bg-page;
+      border-color: darken($border, 8%);
+    }
+
     &:disabled {
       opacity: 0.35;
       cursor: not-allowed;
-      &:hover { background: #fff; border-color: $border; }
+
+      &:hover {
+        background: #fff;
+        border-color: $border;
+      }
     }
   }
 
@@ -305,9 +437,17 @@ $radius:    14px;
     border-radius: 50%;
     flex-shrink: 0;
 
-    &--total { background: $blue; }
-    &--assigned { background: #f59e0b; }
-    &--available { background: $green; }
+    &--total {
+      background: $blue;
+    }
+
+    &--assigned {
+      background: #f59e0b;
+    }
+
+    &--available {
+      background: $green;
+    }
   }
 
   &__day-tile-status-text {
@@ -394,19 +534,29 @@ $radius:    14px;
     flex-shrink: 0;
     transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
     box-shadow: 0 2px 6px rgba($teal, 0.25);
-    
-    &:hover:not(:disabled) { 
-      background: darken($teal, 6%); 
+
+    &:hover:not(:disabled) {
+      background: darken($teal, 6%);
       box-shadow: 0 4px 10px rgba($teal, 0.35);
       transform: translateY(-1px);
     }
-    &:active:not(:disabled) { transform: translateY(0); }
-    &:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
-    &--done { 
-      background: $green; 
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    &--done {
+      background: $green;
       box-shadow: 0 2px 6px rgba($green, 0.25);
-      &:hover { 
-        background: darken($green, 5%); 
+
+      &:hover {
+        background: darken($green, 5%);
         box-shadow: 0 4px 10px rgba($green, 0.35);
       }
     }
@@ -515,8 +665,15 @@ $radius:    14px;
     justify-content: center;
     flex-shrink: 0;
     font-family: inherit;
-    &:hover:not(:disabled) { background: darken($bg-page, 4%); }
-    &:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    &:hover:not(:disabled) {
+      background: darken($bg-page, 4%);
+    }
+
+    &:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
   }
 
   &__counter-input {
@@ -533,9 +690,16 @@ $radius:    14px;
     font-family: inherit;
     background: #fff;
     min-width: 0;
-    &:disabled { color: $text-muted; background: $bg-page; }
+
+    &:disabled {
+      color: $text-muted;
+      background: $bg-page;
+    }
+
     &::-webkit-inner-spin-button,
-    &::-webkit-outer-spin-button { -webkit-appearance: none; }
+    &::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+    }
   }
 
   // ── Summary bar ───────────────────────────────────────────
@@ -560,14 +724,14 @@ $radius:    14px;
   &__hour-summary-sep {
     width: 1px;
     height: 32px;
-    background: rgba(255,255,255,0.15);
+    background: rgba(255, 255, 255, 0.15);
     flex-shrink: 0;
   }
 
   &__hour-summary-label {
     font-size: 10px;
     font-weight: 600;
-    color: rgba(255,255,255,0.55);
+    color: rgba(255, 255, 255, 0.55);
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
@@ -576,9 +740,18 @@ $radius:    14px;
     font-size: 22px;
     font-weight: 800;
     color: #fff;
-    &--used  { color: #fbbf24; }
-    &--avail { color: #6ee7b7; }
-    &--warn  { color: #f87171; }
+
+    &--used {
+      color: #fbbf24;
+    }
+
+    &--avail {
+      color: #6ee7b7;
+    }
+
+    &--warn {
+      color: #f87171;
+    }
   }
 
   // ── Hour grid ─────────────────────────────────────────────
@@ -632,13 +805,18 @@ $radius:    14px;
     font-family: inherit;
     white-space: nowrap;
     transition: border-color 0.12s, color 0.12s, background 0.12s;
-    &:hover { border-color: darken($border, 10%); color: $text-mid; }
+
+    &:hover {
+      border-color: darken($border, 10%);
+      color: $text-mid;
+    }
 
     &--peak {
       border-color: rgba(234, 88, 12, 0.4);
       color: #ea580c;
       background: rgba(234, 88, 12, 0.05);
     }
+
     &--shoulder {
       border-color: rgba(161, 98, 7, 0.4);
       color: #a16207;
@@ -659,7 +837,7 @@ $radius:    14px;
     background: #fff;
     border: 1.5px solid $border;
     border-radius: 10px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
     min-width: 140px;
     overflow: hidden;
   }
@@ -677,10 +855,18 @@ $radius:    14px;
     cursor: pointer;
     font-family: inherit;
     transition: background 0.1s;
-    &:hover { background: $bg-page; }
 
-    &--peak    { color: #ea580c; }
-    &--shoulder { color: #a16207; }
+    &:hover {
+      background: $bg-page;
+    }
+
+    &--peak {
+      color: #ea580c;
+    }
+
+    &--shoulder {
+      color: #a16207;
+    }
   }
 
   &__hour-menu-overlay {
@@ -696,7 +882,9 @@ $radius:    14px;
     flex-shrink: 0;
     min-width: 80px;
 
-    svg { flex-shrink: 0; }
+    svg {
+      flex-shrink: 0;
+    }
   }
 
   &__hour-time-wrap {
@@ -711,7 +899,9 @@ $radius:    14px;
     color: $text-dark;
     line-height: 1.2;
 
-    &--blocked { color: $red; }
+    &--blocked {
+      color: $red;
+    }
   }
 
   &__hour-state {
@@ -719,7 +909,9 @@ $radius:    14px;
     font-weight: 600;
     line-height: 1.2;
 
-    &--blocked { color: $red; }
+    &--blocked {
+      color: $red;
+    }
   }
 
   // Compact counter inside hour rows — pushed to the right
@@ -767,7 +959,11 @@ $radius:    14px;
       border: 1.5px solid rgba($red, 0.35);
       background: #fff;
       color: $red;
-      &:hover { background: rgba($red, 0.06); }
+
+      &:hover {
+        background: rgba($red, 0.06);
+      }
+
       &.sc__hour-btn--active {
         background: rgba($red, 0.1);
         border-color: rgba($red, 0.5);
@@ -776,6 +972,206 @@ $radius:    14px;
       }
     }
 
+  }
+
+  // ── Week / date-range table ────────────────────────────────
+  $week-table-tint: mix($navy, #fff, 6%);
+  $week-table-tint-hover: mix($navy, #fff, 10%);
+  $week-table-stripe: mix($bg-page, #fff, 55%);
+
+  &__week-table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  &__week-table-wrap {
+    overflow-x: auto;
+    border: 1.5px solid $border;
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(17, 24, 39, 0.04);
+  }
+
+  &__week-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+
+    th,
+    td {
+      padding: 13px 18px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    thead th {
+      background: $bg-page;
+      font-size: 11px;
+      font-weight: 700;
+      color: $text-mid;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      border-bottom: 1.5px solid $border;
+      position: sticky;
+      top: 0;
+      z-index: 3;
+    }
+
+    th.sc__week-table-time-col,
+    td.sc__week-table-time-col {
+      text-align: left;
+      font-weight: 700;
+      color: $text-dark;
+    }
+
+    // Time column stays fixed while the table scrolls horizontally
+    th.sc__week-table-time-col,
+    td.sc__week-table-time-col {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      box-shadow: 2px 0 4px rgba(17, 24, 39, 0.05);
+    }
+
+    th.sc__week-table-time-col {
+      z-index: 4;
+      background: $bg-page;
+    }
+
+    tbody tr.sc__week-table-row td.sc__week-table-time-col {
+      background: #fff;
+    }
+
+    tbody tr.sc__week-table-row:nth-child(even) td.sc__week-table-time-col {
+      background: $week-table-stripe;
+    }
+  }
+
+  &__week-table-group-row {
+    cursor: pointer;
+    background: $week-table-tint;
+    transition: background 0.12s;
+
+    td {
+      text-align: left;
+      padding: 0;
+    }
+
+    &:hover {
+      background: $week-table-tint-hover;
+
+      .sc__week-table-group-inner {
+        background: $week-table-tint-hover;
+      }
+    }
+  }
+
+  // Stays pinned to the left edge while the table scrolls horizontally,
+  // mirroring the sticky Time column so the section label never scrolls out of view.
+  &__week-table-group-inner {
+    position: sticky;
+    left: 0;
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 18px;
+    background: $week-table-tint;
+    transition: background 0.12s;
+  }
+
+  &__week-table-group-chevron {
+    display: inline-block;
+    width: 18px;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+    color: $navy;
+    transition: transform 0.15s;
+
+    &--collapsed {
+      transform: rotate(-90deg);
+    }
+  }
+
+  &__week-table-group-label {
+    margin-left: 6px;
+    font-weight: 700;
+    color: $navy;
+    font-size: 13px;
+  }
+
+  &__week-table-group-count {
+    margin-left: 10px;
+    font-weight: 500;
+    color: $text-muted;
+    font-size: 12px;
+  }
+
+  &__week-table-row {
+    border-bottom: 1px solid $border;
+    transition: background 0.12s;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:nth-child(even) {
+      background: $week-table-stripe;
+    }
+
+    &:hover {
+      background: rgba($teal, 0.05);
+    }
+
+    &:hover td.sc__week-table-time-col {
+      background: rgba($teal, 0.05);
+    }
+  }
+
+  &__week-table-cell {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 52px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    border: 1.5px solid $border;
+    font-weight: 700;
+    color: $navy;
+    background: #fff;
+
+    &--empty {
+      background: $bg-page;
+      color: $text-muted;
+      border-color: $border;
+      font-weight: 500;
+    }
+  }
+
+  &__week-table-total-row {
+    background: $week-table-tint;
+
+    td {
+      font-weight: 800;
+      color: $navy;
+      border-top: 1.5px solid $border;
+    }
+
+    td.sc__week-table-time-col {
+      background: $week-table-tint;
+    }
+  }
+
+  &__week-table-footnote {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 16px 0 0;
+    font-size: 12px;
+    color: $text-muted;
   }
 }
 
@@ -830,6 +1226,7 @@ $radius:    14px;
     border-radius: 8px;
     line-height: 1;
     transition: background 0.12s, color 0.12s;
+
     &:hover {
       background: #f3f4f6;
       color: #111827;
@@ -876,9 +1273,10 @@ $radius:    14px;
     color: #111827;
     transition: border-color 0.15s, box-shadow 0.15s;
     position: relative;
+
     &:hover {
       border-color: #cbd5e1;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
     }
   }
 
@@ -922,10 +1320,10 @@ $radius:    14px;
     position: relative;
     min-width: 0;
     transition: border-color 0.15s, box-shadow 0.15s;
-    
+
     &:hover {
       border-color: #cbd5e1;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
     }
   }
 
@@ -1008,6 +1406,7 @@ $radius:    14px;
     transition: background 0.15s, border-color 0.15s, transform 0.1s;
     border: none;
     outline: none;
+
     &:active {
       transform: scale(0.97);
     }
@@ -1016,6 +1415,7 @@ $radius:    14px;
       background: #fff;
       border: 1.5px solid #e8ecf4;
       color: #374151;
+
       &:hover {
         background: #f3f4f6;
         border-color: #cbd5e1;
@@ -1025,6 +1425,7 @@ $radius:    14px;
     &--copy {
       background: #1a3a6b;
       color: #fff;
+
       &:hover {
         background: lighten(#1a3a6b, 8%);
       }
@@ -1033,12 +1434,23 @@ $radius:    14px;
 }
 
 @keyframes scModalFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes scModalPopUp {
-  from { transform: translateY(12px) scale(0.97); opacity: 0; }
-  to { transform: translateY(0) scale(1); opacity: 1; }
-}
+  from {
+    transform: translateY(12px) scale(0.97);
+    opacity: 0;
+  }
 
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
