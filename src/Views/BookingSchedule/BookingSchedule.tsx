@@ -7,7 +7,7 @@ interface ConfirmData {
   notes: string;
 }
 import { MOCK_ALLOCATIONS, MOCK_COMPANIES, buildSlotKey } from './mockData';
-import ScheduleGrid from './components/ScheduleGrid/ScheduleGrid';
+import ScheduleGrid, { TruckIcon, CalendarIcon } from './components/ScheduleGrid/ScheduleGrid';
 import AllocationModal from './components/AllocationModal/AllocationModal';
 import DetailDrawer from './components/DetailDrawer/DetailDrawer';
 import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
@@ -73,7 +73,7 @@ export default function BookingSchedule() {
   const { getConfigForDate } = useScheduleConfig();
 
   const [selectedDate, setSelectedDate] = useState(getTodayString());
-  const [viewMode, setViewMode] = useState<'allocated' | 'booked'>('allocated');
+  const [viewMode, setViewMode] = useState<'allocated' | 'booked' | 'combined'>('allocated');
 
   const dayConfig = getConfigForDate(selectedDate);
   const TOTAL_SLOT_CAPACITY    = dayConfig.totalCapacity;
@@ -325,6 +325,13 @@ export default function BookingSchedule() {
             >
               Booked
             </button>
+            <button
+              type="button"
+              className={`bs__view-btn${viewMode === 'combined' ? ' bs__view-btn--active' : ''}`}
+              onClick={() => setViewMode('combined')}
+            >
+              Combined
+            </button>
           </div>
         </div>
       </div>
@@ -333,10 +340,23 @@ export default function BookingSchedule() {
       <div className="bs__legend-panel">
         <span className="bs__legend-panel-title">Legend</span>
         <div className="bs__legend-divider-v" />
-        <span className="bs__legend-item">
-          <span className="bs__legend-dot bs__legend-dot--occupied" />
-          {viewMode === 'booked' ? 'Booked' : 'Allocated'}
-        </span>
+        {viewMode === 'combined' ? (
+          <>
+            <span className="bs__legend-item">
+              <span className="bs__legend-swatch bs__legend-swatch--alloc"><TruckIcon /></span>
+              Allocated
+            </span>
+            <span className="bs__legend-item">
+              <span className="bs__legend-swatch bs__legend-swatch--booked"><CalendarIcon /></span>
+              Booked
+            </span>
+          </>
+        ) : (
+          <span className="bs__legend-item">
+            <span className="bs__legend-dot bs__legend-dot--occupied" />
+            {viewMode === 'booked' ? 'Booked' : 'Allocated'}
+          </span>
+        )}
         <span className="bs__legend-item">
           <span className="bs__legend-dot bs__legend-dot--available" />
           Available

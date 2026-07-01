@@ -14,6 +14,7 @@ $col-company:    210px;
 $col-stat:       145px;
 $left-assigned:  $col-company;                 // 210px
 $left-allocated: $col-company + $col-stat;     // 325px
+$left-booked:    $col-company + $col-stat * 2; // 470px (combined view only)
 
 .sg-wrapper {
   overflow: auto;
@@ -89,6 +90,22 @@ $left-allocated: $col-company + $col-stat;     // 325px
       box-shadow: $sticky-shadow;
     }
 
+    &--booked {
+      color: $text-dark;
+      left: $left-booked;
+      z-index: 39;
+      background: $header-bg;
+      border-right: 2px solid darken($border, 8%);
+      box-shadow: $sticky-shadow;
+    }
+
+    // When a Booked column follows (combined view), the Allocated
+    // column is no longer the last sticky column — drop its heavy edge.
+    &--mid {
+      border-right: 1px solid $border;
+      box-shadow: none;
+    }
+
     &--hour {
       text-align: center;
       border-right: 1px solid $border;
@@ -145,6 +162,21 @@ $left-allocated: $col-company + $col-stat;     // 325px
       width: $col-stat;
       min-width: $col-stat;
       max-width: $col-stat;
+    }
+
+    &--booked {
+      position: sticky;
+      top: 0;
+      left: $left-booked;
+      z-index: 39;
+      border-right: 2px solid rgba(255, 255, 255, 0.2);
+      width: $col-stat;
+      min-width: $col-stat;
+      max-width: $col-stat;
+    }
+
+    &--mid {
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
     }
   }
 
@@ -263,6 +295,29 @@ $left-allocated: $col-company + $col-stat;     // 325px
       max-width: $col-stat;
     }
 
+    // When a Booked column follows (combined view), col 3 is no
+    // longer the last sticky column — drop its heavy edge.
+    &--stat-mid {
+      border-right: 1px solid $border;
+      box-shadow: none;
+    }
+
+    // ── Booked (sticky col 4, combined view only) ──────────
+    &--stat-3 {
+      position: sticky;
+      left: $left-booked;
+      z-index: 17;
+      background: #fff;
+      text-align: center;
+      padding: 8px 8px;
+      border-right: 2px solid darken($border, 8%);
+      box-shadow: $sticky-shadow;
+      vertical-align: middle;
+      width: $col-stat;
+      min-width: $col-stat;
+      max-width: $col-stat;
+    }
+
     // ── Time-slot cells (non-sticky) ───────────────────────
     &--slot {
       padding: 3px;
@@ -278,7 +333,8 @@ $left-allocated: $col-company + $col-stat;     // 325px
   // Sticky body cells: follow row hover colour
   &__row:hover &__td--company,
   &__row:hover &__td--stat-1,
-  &__row:hover &__td--stat-2 {
+  &__row:hover &__td--stat-2,
+  &__row:hover &__td--stat-3 {
     background: #f9fafb;
   }
 
@@ -404,6 +460,14 @@ $left-allocated: $col-company + $col-stat;     // 325px
       &:hover {
         background: $navy-hover;
         box-shadow: 0 4px 14px rgba(26, 58, 107, 0.32);
+      }
+    }
+
+    &--combined {
+      background: #eef2fb;
+      border: 1.5px solid #dbe4f5;
+      &:hover {
+        background: #e2e9f8;
       }
     }
 
@@ -536,6 +600,72 @@ $left-allocated: $col-company + $col-stat;     // 325px
       background: rgba(124, 58, 237, 0.18);
       border: 1px solid rgba(124, 58, 237, 0.4);
       color: #c4b5fd;
+    }
+
+    &--alloc {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: rgba(96, 165, 250, 0.2);
+      border: 1px solid rgba(96, 165, 250, 0.45);
+      color: #93c5fd;
+    }
+
+    &--booked {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: rgba(74, 222, 128, 0.18);
+      border: 1px solid rgba(74, 222, 128, 0.45);
+      color: #86efac;
+    }
+  }
+
+  // ── Combined-view totals (truck + calendar chip pair) ──────
+  &__totals-combo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  // ── Combined-view slot badges ───────────────────────────────
+  &__slot-combo {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    pointer-events: none;
+  }
+
+  &__combo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 9px;
+    border-radius: 7px;
+    font-size: 16px;
+    font-weight: 800;
+    white-space: nowrap;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    &--alloc {
+      background: rgba(37, 99, 235, 0.12);
+      border: 1px solid rgba(37, 99, 235, 0.35);
+      color: #2563eb;
+    }
+
+    &--booked {
+      background: rgba(22, 163, 74, 0.12);
+      border: 1px solid rgba(22, 163, 74, 0.35);
+      color: #16a34a;
     }
   }
 
