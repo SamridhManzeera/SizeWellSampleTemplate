@@ -28,16 +28,28 @@ export const ROUTE_TYPE_LABELS: Record<RouteType, string> = {
   twoWay:   '↕ Two Way',
 };
 
+export interface DaySlotCounts {
+  inbound: number;
+  outbound: number;
+  twoWay: number;
+}
+
 export interface DeliveryRequest {
   id: string;
   kind: RequestKind;
-  deliveryDate: string;
-  inboundCount: number;
-  outboundCount: number;
-  twoWayCount: number;
+  startDate: string;
+  endDate: string;
+  dailySlots: Record<string, DaySlotCounts>;
   vehicleType: VehicleType;
   driverRoute: DriverRoute;
   notes: string;
   status: RequestStatus;
   submittedAt: string;
+}
+
+export function totalSlotsForRequest(req: DeliveryRequest): number {
+  return Object.values(req.dailySlots).reduce(
+    (sum, c) => sum + c.inbound + c.outbound + c.twoWay * 2,
+    0,
+  );
 }

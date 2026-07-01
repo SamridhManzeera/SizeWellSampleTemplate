@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
 import { useRequests } from './RequestsContext';
-import { RequestStatus } from './requestTypes';
+import { RequestStatus, totalSlotsForRequest } from './requestTypes';
 import './Requests.scss';
 
 // ── Icons ─────────────────────────────────────────────────────────
@@ -38,6 +38,10 @@ function formatDate(dateStr: string) {
   return new Date(y, m - 1, d).toLocaleDateString('en-GB', {
     day: 'numeric', month: 'short', year: 'numeric',
   });
+}
+
+function formatDateRange(startDate: string, endDate: string) {
+  return startDate === endDate ? formatDate(startDate) : `${formatDate(startDate)} – ${formatDate(endDate)}`;
 }
 
 function formatSubmitted(iso: string) {
@@ -147,9 +151,9 @@ export default function Requests() {
                       {req.kind === 'emergency' ? '⚡ Emergency' : 'Normal'}
                     </span>
                   </td>
-                  <td>{formatDate(req.deliveryDate)}</td>
+                  <td>{formatDateRange(req.startDate, req.endDate)}</td>
                   <td>
-                    <span className="rq__slot-total">{req.inboundCount + req.outboundCount + req.twoWayCount * 2}</span>
+                    <span className="rq__slot-total">{totalSlotsForRequest(req)}</span>
                   </td>
                   <td className="rq__submitted">{formatSubmitted(req.submittedAt)}</td>
                   <td>
