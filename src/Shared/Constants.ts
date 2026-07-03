@@ -11,6 +11,7 @@ const ROUTES = {
   REQUESTS: '/requests',
   REQUESTS_APPLY: '/requests/apply',
   REQUESTS_VIEW: '/requests/:id',
+  LIVE_TRACKING: '/live-tracking',
 };
 
 const WILDCARD_ROUTES = {
@@ -54,6 +55,10 @@ const ROUTES_CONFIG = {
   REQUESTS_VIEW: {
     path: ROUTES.REQUESTS_VIEW,
     title: 'View Request',
+  },
+  LIVE_TRACKING: {
+    path: ROUTES.LIVE_TRACKING,
+    title: 'Live Tracking',
   },
 };
 

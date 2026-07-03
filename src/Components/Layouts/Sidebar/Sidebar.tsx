@@ -84,6 +84,7 @@ const NAV_GROUPS = [
     items: [
       { to: '/', label: 'Full Schedule', icon: <CalendarIcon />, end: true },
       { to: '/schedule-config', label: 'Schedule Config', icon: <SettingsIcon />, end: false },
+      { to: '/live-tracking', label: 'Live Tracking', icon: <RequestsIcon />, end: false },
     ],
   },
   {

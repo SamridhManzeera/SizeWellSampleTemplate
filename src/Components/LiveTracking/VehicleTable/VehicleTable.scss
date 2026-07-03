@@ -1,0 +1,194 @@
+$border:    #e8ecf4;
+$navy:      #1a3a6b;
+$text-dark: #111827;
+$text-muted:#9ca3af;
+$radius:    14px;
+
+.lt-table-wrap {
+  background: #fff;
+  border: 1.5px solid $border;
+  border-radius: $radius;
+  overflow: auto;
+  flex: 1;
+  min-height: 0;
+  box-shadow: 0 1px 6px rgba(17, 24, 39, 0.04);
+  margin-top: 24px;
+}
+
+.lt-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  text-align: left;
+
+  thead tr {
+    background: #f0f3f8;
+  }
+
+  th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #f0f3f8;
+    padding: 14px 18px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 2px solid #c8d0e0;
+    border-right: 1px solid #d4dae8;
+    white-space: nowrap;
+    
+    &:last-child { border-right: none; }
+  }
+
+  td {
+    padding: 14px 18px;
+    border-bottom: 1px solid $border;
+    border-right: 1px solid $border;
+    color: #334155;
+    vertical-align: middle;
+
+    &:last-child { border-right: none; }
+  }
+
+  &__row {
+    cursor: pointer;
+    transition: background 0.15s;
+
+    &:hover td {
+      background: #f8fafc;
+    }
+    
+    &:last-child td {
+      border-bottom: none;
+    }
+  }
+
+  &__empty {
+    text-align: center !important;
+    padding: 32px !important;
+    color: $text-muted;
+    font-weight: 500;
+  }
+
+  &__cell-vehicle {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__vehicle-id {
+    font-size: 12px;
+    font-weight: 700;
+    color: $navy;
+    background: rgba($navy, 0.07);
+    padding: 2px 6px;
+    border-radius: 4px;
+    align-self: flex-start;
+  }
+
+  &__vehicle-name {
+    font-weight: 600;
+    color: $text-dark;
+  }
+
+  &__type-badge {
+    display: inline-flex;
+    padding: 3px 8px;
+    background: #f1f5f9;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #475569;
+  }
+
+  &__cell-route {
+    max-width: 250px;
+  }
+
+  &__route-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  &__route-loc {
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &--start {
+      color: $text-dark;
+      font-weight: 600;
+    }
+
+    &--end {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: $text-muted;
+    }
+  }
+
+  &__route-arrow {
+    color: #94a3b8;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  &__route-stationary {
+    color: #94a3b8;
+    font-style: italic;
+    font-size: 12px;
+  }
+
+  &__status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+
+    &::before {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    &--on-route {
+      background: #e6faf8;
+      color: #0f766e;
+    }
+
+    &--off-route {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    &--idle {
+      background: #fef9c3;
+      color: #a16207;
+    }
+  }
+
+  &__speed-val {
+    font-weight: 700;
+    color: $text-dark;
+  }
+
+  &__time-val {
+    font-variant-numeric: tabular-nums;
+  }
+}

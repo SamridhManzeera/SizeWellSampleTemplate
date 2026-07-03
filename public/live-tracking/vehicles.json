@@ -1,0 +1,57 @@
+[
+  {
+    "id": "VEH-001",
+    "name": "Truck 1",
+    "type": "Truck",
+    "speedMph": 20,
+    "status": "Off Route",
+    "gpxPath": "/live-tracking/gpx/incorrect/incorrect_20.gpx",
+    "plannedGpxPath": "/live-tracking/gpx/correct/correct_60.gpx",
+    "csvType": "incorrect",
+    "csvRowIndex": 0
+  },
+  {
+    "id": "VEH-002",
+    "name": "Truck 2",
+    "type": "Truck",
+    "speedMph": 30,
+    "status": "On Route",
+    "gpxPath": "/live-tracking/gpx/correct/correct_30.gpx",
+    "plannedGpxPath": "/live-tracking/gpx/correct/correct_60.gpx",
+    "csvType": "correct",
+    "csvRowIndex": 1
+  },
+  {
+    "id": "VEH-003",
+    "name": "Truck 3",
+    "type": "Truck",
+    "speedMph": 40,
+    "status": "Off Route",
+    "gpxPath": "/live-tracking/gpx/incorrect/incorrect_40_alt.gpx",
+    "plannedGpxPath": "/live-tracking/gpx/correct/correct_60.gpx",
+    "csvType": "incorrect",
+    "csvRowIndex": 2
+  },
+  {
+    "id": "VEH-004",
+    "name": "Van 4",
+    "type": "Van",
+    "speedMph": 50,
+    "status": "On Route",
+    "gpxPath": "/live-tracking/gpx/correct/correct_50.gpx",
+    "plannedGpxPath": "/live-tracking/gpx/correct/correct_60.gpx",
+    "csvType": "correct",
+    "csvRowIndex": 3
+  },
+  {
+    "id": "VEH-005",
+    "name": "Van 5",
+    "type": "Van",
+    "speedMph": 60,
+    "status": "Off Route",
+    "gpxPath": "/live-tracking/gpx/incorrect/incorrect_60_alt.gpx",
+    "plannedGpxPath": "/live-tracking/gpx/correct/correct_60.gpx",
+    "csvType": "incorrect",
+    "csvRowIndex": 4
+  }
+]

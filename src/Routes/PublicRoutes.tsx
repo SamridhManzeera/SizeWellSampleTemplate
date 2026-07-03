@@ -4,6 +4,7 @@ import BookingSchedule from '../Views/BookingSchedule';
 import ScheduleConfig from '../Views/ScheduleConfig/ScheduleConfig';
 import Requests from '../Views/Requests/Requests';
 import RequestForm from '../Views/Requests/RequestForm';
+import LiveTracking from '../Views/LiveTracking/LiveTracking';
 import LoginV1 from '../Views/Login/LoginV1';
 import LoginV2 from '../Views/Login/LoginV2';
 import LoginV3 from '../Views/Login/LoginV3';
@@ -28,6 +29,11 @@ export const PUBLIC_ROUTES: Array<CustomRouter> = [
     path: ROUTES_CONFIG.REQUESTS.path,
     element: <Requests />,
     title: ROUTES_CONFIG.REQUESTS.title,
+  },
+  {
+    path: ROUTES_CONFIG.LIVE_TRACKING.path,
+    element: <LiveTracking />,
+    title: ROUTES_CONFIG.LIVE_TRACKING.title,
   },
   // /requests/apply must come before /requests/:id so it isn't caught by the param route
   {

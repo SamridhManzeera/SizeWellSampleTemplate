@@ -1,0 +1,111 @@
+$border:    #e8ecf4;
+$navy:      #1a3a6b;
+$text-dark: #111827;
+$text-muted:#9ca3af;
+$radius:    9px;
+
+.lt-filters {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  background: #fff;
+  border: 1.5px solid $border;
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 4px rgba(17, 24, 39, 0.04);
+  flex-wrap: wrap;
+
+  &__grid {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    flex: 1;
+    min-width: 280px;
+    flex-wrap: wrap;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 180px;
+  }
+
+  &__label {
+    font-size: 11px;
+    font-weight: 700;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__select, &__input {
+    padding: 10px 14px;
+    border: 1.5px solid $border;
+    border-radius: $radius;
+    font-size: 13.5px;
+    color: $text-dark;
+    background: #fff;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    height: 42px;
+    width: 100%;
+    box-sizing: border-box;
+
+    &:focus {
+      border-color: $navy;
+      box-shadow: 0 0 0 3px rgba($navy, 0.08);
+    }
+  }
+
+  &__select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 14px;
+    padding-right: 36px;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  &__btn {
+    padding: 10px 20px;
+    border-radius: $radius;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    border: none;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 42px;
+    box-sizing: border-box;
+
+    &--refresh {
+      background: $navy;
+      color: #fff;
+      &:hover { background: lighten($navy, 8%); }
+    }
+
+    &--reset {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1.5px solid $border;
+      &:hover { background: #e2e8f0; }
+    }
+  }
+}
