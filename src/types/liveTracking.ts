@@ -3,9 +3,10 @@ export interface Vehicle {
   name: string;
   type: 'Truck' | 'Van';
   speedMph: number;
-  status: 'On Route' | 'Off Route';
+  status: 'On Route' | 'Off Route' | 'Monitoring Not Started';
   gpxPath: string | null;
   plannedGpxPath: string | null;
+  simulatedProgress?: number;
   csvType: 'correct' | 'incorrect' | null;
   csvRowIndex: number | null;
 }
@@ -52,6 +53,8 @@ export interface EnhancedVehicle extends Vehicle {
   summary: JourneySummary | null;
   trackPoints: TrackPoint[];
   plannedTrackPoints: TrackPoint[];
+  correctTrackPoints: TrackPoint[];
+  incorrectTrackPoints: TrackPoint[];
   currentCoords: { lat: number; lon: number };
   lastUpdated: string;
   progress: number;
@@ -66,3 +69,11 @@ export interface LiveTrackingFilters {
   vehicleId: string;
   status: string;
 }
+
+export interface GeoFence {
+  id: string;
+  name: string;
+  description: string;
+  coordinates: number[][][];
+}
+

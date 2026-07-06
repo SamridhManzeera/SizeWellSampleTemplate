@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { EnhancedVehicle } from '../../../types/liveTracking';
+import { EnhancedVehicle, GeoFence } from '../../../types/liveTracking';
 import Legend from '../Legend/Legend';
 import './LiveTrackingMap.scss';
 
@@ -17,6 +17,7 @@ interface LiveTrackingMapProps {
   selectedVehicleId: string | null;
   filterVehicleId: string; // The filter dropdown selected vehicle ID
   onSelectVehicle: (id: string) => void;
+  geofences: GeoFence[];
 }
 
 export default function LiveTrackingMap({
@@ -25,6 +26,7 @@ export default function LiveTrackingMap({
   selectedVehicleId,
   filterVehicleId,
   onSelectVehicle,
+  geofences,
 }: LiveTrackingMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -48,8 +50,10 @@ export default function LiveTrackingMap({
     mapRef.current = map;
 
     map.on('load', () => {
-      setMapLoaded(true);
-      map.resize();
+      setTimeout(() => {
+        setMapLoaded(true);
+        map.resize();
+      }, 100);
     });
 
     return () => {
@@ -69,22 +73,95 @@ export default function LiveTrackingMap({
     markersRef.current.forEach(marker => marker.remove());
     markersRef.current = [];
 
-    // 2. Clean up existing route sources and layers dynamically from the active style
+    // 2. Clean up existing route, geofence and deviation layers and sources dynamically from the style
     if (map.getStyle()) {
       const layers = map.getStyle().layers || [];
       layers.forEach(layer => {
         if (
           layer.id.startsWith('layer-actual-') ||
-          layer.id.startsWith('layer-planned-')
+          layer.id.startsWith('layer-planned-') ||
+          layer.id.startsWith('layer-geofence-') ||
+          layer.id.startsWith('layer-deviation-')
         ) {
           map.removeLayer(layer.id);
-          const sourceId = layer.id.replace('layer-', 'source-');
+        }
+      });
+
+      const sources = map.getStyle().sources || {};
+      Object.keys(sources).forEach(sourceId => {
+        if (
+          sourceId.startsWith('source-actual-') ||
+          sourceId.startsWith('source-planned-') ||
+          sourceId.startsWith('source-geofence-') ||
+          sourceId.startsWith('source-deviation-')
+        ) {
           if (map.getSource(sourceId)) {
             map.removeSource(sourceId);
           }
         }
       });
     }
+
+    // 3. Draw approved geofence corridors
+    geofences.forEach(gf => {
+      const sourceId = `source-geofence-${gf.id}`;
+      const fillLayerId = `layer-geofence-fill-${gf.id}`;
+      const strokeLayerId = `layer-geofence-stroke-${gf.id}`;
+
+      map.addSource(sourceId, {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          properties: {
+            name: gf.name,
+            description: gf.description,
+          },
+          geometry: {
+            type: 'Polygon',
+            coordinates: gf.coordinates,
+          },
+        },
+      });
+
+      // Semi-transparent indigo/violet corridor fill
+      map.addLayer({
+        id: fillLayerId,
+        type: 'fill',
+        source: sourceId,
+        paint: {
+          'fill-color': '#6366f1',
+          'fill-opacity': 0.15,
+        },
+      });
+
+      // Indigo/violet border outline
+      map.addLayer({
+        id: strokeLayerId,
+        type: 'line',
+        source: sourceId,
+        paint: {
+          'line-color': '#6366f1',
+          'line-width': 2.0,
+          'line-opacity': 0.7,
+          'line-dasharray': [2, 2],
+        },
+      });
+
+      // Click event for details popup
+      map.on('click', fillLayerId, (e) => {
+        new mapboxgl.Popup({ offset: 10 })
+          .setLngLat(e.lngLat)
+          .setHTML(`<div class="lt-map-popup"><strong>${gf.name}</strong><br/>${gf.description}</div>`)
+          .addTo(map);
+      });
+
+      map.on('mouseenter', fillLayerId, () => {
+        map.getCanvas().style.cursor = 'pointer';
+      });
+      map.on('mouseleave', fillLayerId, () => {
+        map.getCanvas().style.cursor = '';
+      });
+    });
 
 
 
@@ -138,12 +215,16 @@ export default function LiveTrackingMap({
         });
       }
 
-      if (trackPoints.length > 0) {
-        const sourceId = `source-actual-${activeVehicle.id}`;
-        const layerId = `layer-actual-${activeVehicle.id}`;
-        const coordinates = trackPoints.map((pt: any) => [pt.lon, pt.lat]);
+      const correctPoints = (activeVehicle as any).correctTrackPoints || [];
+      const incorrectPoints = (activeVehicle as any).incorrectTrackPoints || [];
 
-        map.addSource(sourceId, {
+      // Draw correct segment of actual route (Green)
+      if (correctPoints.length > 0) {
+        const correctSourceId = `source-actual-correct-${activeVehicle.id}`;
+        const correctLayerId = `layer-actual-correct-${activeVehicle.id}`;
+        const coordinates = correctPoints.map((pt: any) => [pt.lon, pt.lat]);
+
+        map.addSource(correctSourceId, {
           type: 'geojson',
           data: {
             type: 'Feature',
@@ -155,40 +236,72 @@ export default function LiveTrackingMap({
           },
         });
 
-        const isDotted = showPlannedRoute && activeVehicle.status === 'Off Route';
-
         map.addLayer({
-          id: layerId,
+          id: correctLayerId,
           type: 'line',
-          source: sourceId,
+          source: correctSourceId,
           layout: {
             'line-join': 'round',
             'line-cap': 'round',
           },
           paint: {
-            'line-color': activeVehicle.status === 'On Route' ? '#16a34a' : '#dc2626',
-            'line-width': isDotted ? 3.0 : 4.5,      // thinner red dots
-            'line-opacity': isDotted ? 0.70 : 0.85, // less visible red dots
+            'line-color': '#16a34a', // Green
+            'line-width': 4.5,
+            'line-opacity': 0.85,
+          },
+        });
+      }
+
+      // Draw incorrect segment of actual route (Red)
+      if (incorrectPoints.length > 0) {
+        const incorrectSourceId = `source-actual-incorrect-${activeVehicle.id}`;
+        const incorrectLayerId = `layer-actual-incorrect-${activeVehicle.id}`;
+        const coordinates = incorrectPoints.map((pt: any) => [pt.lon, pt.lat]);
+
+        map.addSource(incorrectSourceId, {
+          type: 'geojson',
+          data: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'LineString',
+              coordinates,
+            },
+          },
+        });
+
+        const isDotted = showPlannedRoute;
+
+        map.addLayer({
+          id: incorrectLayerId,
+          type: 'line',
+          source: incorrectSourceId,
+          layout: {
+            'line-join': 'round',
+            'line-cap': 'round',
+          },
+          paint: {
+            'line-color': '#dc2626', // Red
+            'line-width': isDotted ? 3.0 : 4.5,
+            'line-opacity': isDotted ? 0.70 : 0.85,
             ...(isDotted ? { 'line-dasharray': [1.5, 1.5] } : {}),
           },
         });
 
-        // Add interactive tooltip popup when clicking the actual route line if deviated
-        if (activeVehicle.status === 'Off Route') {
-          map.on('click', layerId, (e) => {
-            new mapboxgl.Popup()
-              .setLngLat(e.lngLat)
-              .setHTML(`<div class="lt-map-popup"><strong>Route Deviation</strong><br/>${activeVehicle.name} went off route here.</div>`)
-              .addTo(map);
-          });
+        // Add interactive tooltip popup when clicking the incorrect path
+        map.on('click', incorrectLayerId, (e) => {
+          new mapboxgl.Popup()
+            .setLngLat(e.lngLat)
+            .setHTML(`<div class="lt-map-popup"><strong>Route Deviation</strong><br/>${activeVehicle.name} went off route here.</div>`)
+            .addTo(map);
+        });
 
-          map.on('mouseenter', layerId, () => {
-            map.getCanvas().style.cursor = 'pointer';
-          });
-          map.on('mouseleave', layerId, () => {
-            map.getCanvas().style.cursor = '';
-          });
-        }
+        map.on('mouseenter', incorrectLayerId, () => {
+          map.getCanvas().style.cursor = 'pointer';
+        });
+        map.on('mouseleave', incorrectLayerId, () => {
+          map.getCanvas().style.cursor = '';
+        });
       }
 
       // C. Draw Vehicle Marker
@@ -212,8 +325,11 @@ export default function LiveTrackingMap({
       });
 
       const activeStatusClass = activeVehicle.status.toLowerCase().replace(' ', '-');
+      const activeStatusLabel = 
+        activeVehicle.status === 'On Route' ? 'Correct' : 
+        activeVehicle.status === 'Off Route' ? 'Incorrect' : 'Pending Validation';
       const popup = new mapboxgl.Popup({ offset: 12, closeButton: false })
-        .setHTML(`<div class="lt-map-popup"><strong>${activeVehicle.name}</strong> (${activeVehicle.id})<br/><span class="lt-map-popup__status lt-map-popup__status--${activeStatusClass}">${activeVehicle.status}</span></div>`);
+        .setHTML(`<div class="lt-map-popup"><strong>${activeVehicle.name}</strong> (${activeVehicle.id})<br/><span class="lt-map-popup__status lt-map-popup__status--${activeStatusClass}">${activeStatusLabel}</span></div>`);
 
       const vehicleMarker = new mapboxgl.Marker({ element: markerEl, anchor: 'center' })
         .setLngLat([activeVehicle.currentCoords.lon, activeVehicle.currentCoords.lat])
@@ -250,6 +366,50 @@ export default function LiveTrackingMap({
           .setPopup(endPopup)
           .addTo(map);
         markersRef.current.push(endMarker);
+      }
+
+      // Draw Deviation Marker if vehicle is off-route and showPlannedRoute is checked (Compare Mode)
+      if (activeVehicle.status === 'Off Route' && activeVehicle.deviationPoint && showPlannedRoute) {
+        const devSourceId = 'source-deviation-point';
+        const devLayerId = 'layer-deviation-point';
+
+        map.addSource(devSourceId, {
+          type: 'geojson',
+          data: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'Point',
+              coordinates: [activeVehicle.deviationPoint.lon, activeVehicle.deviationPoint.lat],
+            },
+          },
+        });
+
+        map.addLayer({
+          id: devLayerId,
+          type: 'symbol',
+          source: devSourceId,
+          layout: {
+            'text-field': '⚠️',
+            'text-size': 22,
+            'text-allow-overlap': true,
+          },
+        });
+
+        // Add interactive popup on click
+        map.on('click', devLayerId, (e) => {
+          new mapboxgl.Popup({ offset: 10 })
+            .setLngLat(e.lngLat)
+            .setHTML(`<div class="lt-map-popup"><strong>Deviation Point</strong><br/>Vehicle left approved corridor here.</div>`)
+            .addTo(map);
+        });
+
+        map.on('mouseenter', devLayerId, () => {
+          map.getCanvas().style.cursor = 'pointer';
+        });
+        map.on('mouseleave', devLayerId, () => {
+          map.getCanvas().style.cursor = '';
+        });
       }
 
       // D. Draw bounds and focus map
@@ -303,54 +463,88 @@ export default function LiveTrackingMap({
 
       // Draw routes for all active vehicles
       filteredVehicles.forEach(v => {
-        const trackPoints = (v as any).trackPoints || [];
-        if (trackPoints.length === 0) return;
+        const correctPoints = (v as any).correctTrackPoints || [];
+        const incorrectPoints = (v as any).incorrectTrackPoints || [];
 
-        const sourceId = `source-actual-${v.id}`;
-        const layerId = `layer-actual-${v.id}`;
-        const coordinates = trackPoints.map((pt: any) => [pt.lon, pt.lat]);
-        const color = v.status === 'On Route' ? '#16a34a' : '#dc2626';
+        // Draw correct segment of actual route (Green)
+        if (correctPoints.length > 0) {
+          const correctSourceId = `source-actual-correct-${v.id}`;
+          const correctLayerId = `layer-actual-correct-${v.id}`;
+          const coordinates = correctPoints.map((pt: any) => [pt.lon, pt.lat]);
 
-        map.addSource(sourceId, {
-          type: 'geojson',
-          data: {
-            type: 'Feature',
-            properties: {},
-            geometry: {
-              type: 'LineString',
-              coordinates,
+          map.addSource(correctSourceId, {
+            type: 'geojson',
+            data: {
+              type: 'Feature',
+              properties: {},
+              geometry: {
+                type: 'LineString',
+                coordinates,
+              },
             },
-          },
-        });
+          });
 
-        map.addLayer({
-          id: layerId,
-          type: 'line',
-          source: sourceId,
-          layout: {
-            'line-join': 'round',
-            'line-cap': 'round',
-          },
-          paint: {
-            'line-color': color,
-            'line-width': v.id === selectedVehicleId ? 5.5 : 3.5,
-            'line-opacity': 0.85,
-          },
-        });
+          map.addLayer({
+            id: correctLayerId,
+            type: 'line',
+            source: correctSourceId,
+            layout: {
+              'line-join': 'round',
+              'line-cap': 'round',
+            },
+            paint: {
+              'line-color': '#16a34a', // Green
+              'line-width': v.id === selectedVehicleId ? 5.5 : 3.5,
+              'line-opacity': 0.85,
+            },
+          });
+        }
 
-        // Add interactive tooltip popup when clicking the deviation path
-        if (v.status === 'Off Route') {
-          map.on('click', layerId, (e) => {
+        // Draw incorrect segment of actual route (Red)
+        if (incorrectPoints.length > 0) {
+          const incorrectSourceId = `source-actual-incorrect-${v.id}`;
+          const incorrectLayerId = `layer-actual-incorrect-${v.id}`;
+          const coordinates = incorrectPoints.map((pt: any) => [pt.lon, pt.lat]);
+
+          map.addSource(incorrectSourceId, {
+            type: 'geojson',
+            data: {
+              type: 'Feature',
+              properties: {},
+              geometry: {
+                type: 'LineString',
+                coordinates,
+              },
+            },
+          });
+
+          map.addLayer({
+            id: incorrectLayerId,
+            type: 'line',
+            source: incorrectSourceId,
+            layout: {
+              'line-join': 'round',
+              'line-cap': 'round',
+            },
+            paint: {
+              'line-color': '#dc2626', // Red
+              'line-width': v.id === selectedVehicleId ? 5.5 : 3.5,
+              'line-opacity': 0.85,
+            },
+          });
+
+          // Add interactive tooltip popup when clicking the incorrect path
+          map.on('click', incorrectLayerId, (e) => {
             new mapboxgl.Popup()
               .setLngLat(e.lngLat)
               .setHTML(`<div class="lt-map-popup"><strong>Route Deviation</strong><br/>${v.name} went off route here.</div>`)
               .addTo(map);
           });
 
-          map.on('mouseenter', layerId, () => {
+          map.on('mouseenter', incorrectLayerId, () => {
             map.getCanvas().style.cursor = 'pointer';
           });
-          map.on('mouseleave', layerId, () => {
+          map.on('mouseleave', incorrectLayerId, () => {
             map.getCanvas().style.cursor = '';
           });
         }
@@ -365,7 +559,9 @@ export default function LiveTrackingMap({
         if (trackPoints.length === 0) return;
 
         const firstPt = trackPoints[0];
-        const lastPt = trackPoints[trackPoints.length - 1];
+        const lastPt = (v as any).plannedTrackPoints && (v as any).plannedTrackPoints.length > 0
+          ? (v as any).plannedTrackPoints[(v as any).plannedTrackPoints.length - 1]
+          : trackPoints[trackPoints.length - 1];
 
         if (firstPt && lastPt) {
           const startKey = `${firstPt.lon.toFixed(5)},${firstPt.lat.toFixed(5)}`;
@@ -424,8 +620,11 @@ export default function LiveTrackingMap({
           onSelectVehicle(v.id);
         });
 
+        const statusLabel = 
+          v.status === 'On Route' ? 'Correct' : 
+          v.status === 'Off Route' ? 'Incorrect' : 'Pending Validation';
         const popup = new mapboxgl.Popup({ offset: 12, closeButton: false })
-          .setHTML(`<div class="lt-map-popup"><strong>${v.name}</strong> (${v.id})<br/><span class="lt-map-popup__status lt-map-popup__status--${statusClass}">${v.status}</span></div>`);
+          .setHTML(`<div class="lt-map-popup"><strong>${v.name}</strong> (${v.id})<br/><span class="lt-map-popup__status lt-map-popup__status--${statusClass}">${statusLabel}</span></div>`);
 
         // Apply a small offset to prevent markers from stacking directly on top of each other on shared route geometry
         let lng = v.currentCoords.lon;

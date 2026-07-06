@@ -15,7 +15,11 @@ export default function Legend() {
         </li>
         <li className="lt-legend__item">
           <span className="lt-legend__icon">🚚</span>
-          <span className="lt-legend__text">Current Position</span>
+          <span className="lt-legend__text">Vehicle</span>
+        </li>
+        <li className="lt-legend__item">
+          <span className="lt-legend__color lt-legend__color--geofence" />
+          <span className="lt-legend__text">Approved GeoFence Corridor</span>
         </li>
       </ul>
     </div>

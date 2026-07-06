@@ -111,6 +111,14 @@ $border:    #e8ecf4;
       color: #a16207;
     }
   }
+
+  &--monitoring-not-started {
+    border-color: #cbd5e1;
+    &:hover { border-color: #94a3b8; }
+    .lt-marker__icon {
+      color: #64748b;
+    }
+  }
 }
 
 // ── Deviation Warning Marker ───────────────────────────────────
@@ -226,6 +234,10 @@ $border:    #e8ecf4;
     &--idle {
       background: #fef9c3;
       color: #a16207;
+    }
+    &--monitoring-not-started {
+      background: #f1f5f9;
+      color: #64748b;
     }
   }
 }

@@ -4,9 +4,10 @@ import './VehicleTable.scss';
 interface VehicleTableProps {
   vehicles: EnhancedVehicle[];
   onSelectVehicle: (id: string) => void;
+  onViewOnMap: (id: string) => void;
 }
 
-export default function VehicleTable({ vehicles, onSelectVehicle }: VehicleTableProps) {
+export default function VehicleTable({ vehicles, onSelectVehicle, onViewOnMap }: VehicleTableProps) {
   const formatDateTime = (timeStr: string | undefined | null) => {
     if (!timeStr) return '--';
     try {
@@ -36,12 +37,13 @@ export default function VehicleTable({ vehicles, onSelectVehicle }: VehicleTable
             <th>Duration</th>
             <th>Started At</th>
             <th>Last Updated</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {vehicles.length === 0 ? (
             <tr>
-              <td colSpan={9} className="lt-table__empty">
+              <td colSpan={10} className="lt-table__empty">
                 No vehicles match the active filters.
               </td>
             </tr>
@@ -84,7 +86,8 @@ export default function VehicleTable({ vehicles, onSelectVehicle }: VehicleTable
                   </td>
                   <td>
                     <span className={`lt-table__status-badge lt-table__status-badge--${statusClass}`}>
-                      {v.status}
+                      {v.status === 'On Route' ? 'Correct' : 
+                       v.status === 'Off Route' ? 'Incorrect' : 'Pending Validation'}
                     </span>
                   </td>
                   <td className="lt-table__speed-val">{speedText}</td>
@@ -92,6 +95,18 @@ export default function VehicleTable({ vehicles, onSelectVehicle }: VehicleTable
                   <td>{durationText}</td>
                   <td className="lt-table__time-val">{formatDateTime(v.summary?.startTime)}</td>
                   <td className="lt-table__time-val">{formatDateTime(v.lastUpdated)}</td>
+                  <td className="lt-table__cell-actions">
+                    <button
+                      type="button"
+                      className="lt-table__action-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onViewOnMap(v.id);
+                      }}
+                    >
+                      View
+                    </button>
+                  </td>
                 </tr>
               );
             })

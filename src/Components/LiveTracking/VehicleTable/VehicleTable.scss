@@ -191,4 +191,35 @@ $radius:    14px;
   &__time-val {
     font-variant-numeric: tabular-nums;
   }
+
+  &__cell-actions {
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  &__action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 16px;
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+
+    &:hover {
+      background: #2563eb;
+      color: #fff;
+      border-color: #2563eb;
+      box-shadow: 0 4px 6px rgba(37, 99, 235, 0.15);
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }
 }

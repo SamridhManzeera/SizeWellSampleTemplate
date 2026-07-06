@@ -41,7 +41,8 @@ export default function VehicleModal({ open, vehicle, onClose }: VehicleModalPro
         <div className="vm__header">
           <div className="vm__header-left">
             <span className={`vm__status-tag vm__status-tag--${statusClass}`}>
-              {vehicle.status}
+              {vehicle.status === 'On Route' ? 'Correct' : 
+               vehicle.status === 'Off Route' ? 'Incorrect' : 'Pending Validation'}
             </span>
             <div>
               <h2 className="vm__title">{vehicle.name} Details</h2>
@@ -72,7 +73,8 @@ export default function VehicleModal({ open, vehicle, onClose }: VehicleModalPro
             <div className="vm__field vm__field--full">
               <span className="vm__label">Route Status</span>
               <span className={`vm__value vm__value--status-${statusClass}`}>
-                {vehicle.status}
+                {vehicle.status === 'On Route' ? 'Correct' : 
+                 vehicle.status === 'Off Route' ? 'Incorrect' : 'Pending Validation'}
               </span>
             </div>
             <div className="vm__field">

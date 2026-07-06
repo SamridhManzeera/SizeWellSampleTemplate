@@ -21,6 +21,7 @@ export default function LiveTracking() {
     vehicles,
     filteredVehiclesMap,
     filteredVehiclesListing,
+    geofences,
     metrics,
     mapFilters,
     listingFilters,
@@ -38,6 +39,12 @@ export default function LiveTracking() {
   } = useLiveTracking();
 
   const [activeTab, setActiveTab] = useState<'listing' | 'map'>('listing');
+
+  const handleViewVehicleOnMap = (id: string) => {
+    setActiveTab('map');
+    handleMapFilterChange('vehicleId', id);
+    handleSelectVehicle(id);
+  };
 
   return (
     <div className="lt">
@@ -120,11 +127,13 @@ export default function LiveTracking() {
                   selectedVehicleId={selectedVehicle ? selectedVehicle.id : null}
                   filterVehicleId={mapFilters.vehicleId}
                   onSelectVehicle={handleSelectVehicle}
+                  geofences={geofences}
                 />
               ) : (
                 <VehicleTable
                   vehicles={filteredVehiclesListing}
                   onSelectVehicle={handleSelectVehicle}
+                  onViewOnMap={handleViewVehicleOnMap}
                 />
               )}
             </div>

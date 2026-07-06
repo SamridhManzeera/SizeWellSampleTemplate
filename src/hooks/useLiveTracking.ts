@@ -1,12 +1,14 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Vehicle, GPXData, JourneySummary, LiveTrackingFilters, TrackPoint, EnhancedVehicle } from '../types/liveTracking';
-import { fetchAndParseGPX, findDeviationPoint } from '../utils/gpxParser';
+import { Vehicle, GPXData, JourneySummary, LiveTrackingFilters, TrackPoint, EnhancedVehicle, GeoFence } from '../types/liveTracking';
+import { fetchAndParseGPX, findDeviationPoint, isPointInPolygon } from '../utils/gpxParser';
 import { fetchCorrectSummary, fetchIncorrectSummary } from '../utils/csvParser';
+
 
 export function useLiveTracking() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [correctSummaries, setCorrectSummaries] = useState<JourneySummary[]>([]);
   const [incorrectSummaries, setIncorrectSummaries] = useState<JourneySummary[]>([]);
+  const [geofences, setGeofences] = useState<GeoFence[]>([]);
   
   // Cache for parsed GPX files: key is gpxPath
   const [gpxCache, setGpxCache] = useState<Record<string, GPXData>>({});
@@ -37,6 +39,14 @@ export function useLiveTracking() {
         throw new Error('Failed to load vehicles configuration.');
       }
       const vehData: Vehicle[] = await vehResponse.json();
+
+      // Fetch Geofences
+      const gfResponse = await fetch('/live-tracking/geofences.json');
+      if (!gfResponse.ok) {
+        throw new Error('Failed to load geofences configuration.');
+      }
+      const gfData: GeoFence[] = await gfResponse.json();
+      setGeofences(gfData);
 
       // Fetch CSV summaries
       const correctCsv = await fetchCorrectSummary('/live-tracking/csv/correct_summary.csv');
@@ -96,30 +106,99 @@ export function useLiveTracking() {
       const gpx = getGpxData(v.gpxPath);
       const plannedGpx = getGpxData(v.plannedGpxPath);
 
-      // Determine simulated progress: distribute vehicles at different sections along the route
-      let progress = 0.85;
-      if (v.id === 'VEH-001') progress = 0.35;      // Near Woodbridge deviation point (incorrect path)
-      else if (v.id === 'VEH-002') progress = 0.50; // At midpoint
-      else if (v.id === 'VEH-003') progress = 0.95; // Near destination target
-      else if (v.id === 'VEH-004') progress = 0.15; // Near starting point
-      else if (v.id === 'VEH-005') progress = 0.75; // At three-quarter marker
+      // Determine simulated progress: distribute vehicles dynamically based on configuration
+      const progress = v.simulatedProgress ?? 0.85;
 
       let currentCoords: { lat: number; lon: number } = { lat: 52.02628, lon: 1.22374 }; // Default to Orwell Logistics Park
       let lastUpdated: string = summary?.endTime ?? new Date().toISOString();
       let currentSpeedMph = v.speedMph;
+      let travelledPoints: TrackPoint[] = [];
 
-      if (gpx && gpx.trackPoints.length > 0) {
-        const index = Math.floor(gpx.trackPoints.length * progress);
-        const pt = gpx.trackPoints[index] ?? gpx.trackPoints[gpx.trackPoints.length - 1];
+      const rawTrackPoints = gpx ? gpx.trackPoints : [];
+      const snappedPlannedPoints = plannedGpx ? plannedGpx.trackPoints : [];
+
+      if (rawTrackPoints.length > 0) {
+        const index = Math.floor(rawTrackPoints.length * progress);
+        travelledPoints = rawTrackPoints.slice(0, index + 1);
+        const pt = rawTrackPoints[index] ?? rawTrackPoints[rawTrackPoints.length - 1];
         currentCoords = { lat: pt.lat, lon: pt.lon };
         lastUpdated = pt.time ?? summary?.endTime ?? new Date().toISOString();
         currentSpeedMph = pt.speedMph > 0 ? pt.speedMph : v.speedMph;
       }
 
-      // Calculate deviation point if applicable
+      // Determine compliance status dynamically based on geofence entry and route deviation.
+      let complianceStatus: 'On Route' | 'Off Route' | 'Monitoring Not Started' = 'Monitoring Not Started';
+      let enteredGF1 = false;
+      let firstGF1Index = -1;
+      let enteredGF2 = false;
+
+      const gf1 = geofences.find(gf => gf.id === 'geofence-1');
+      const gf2 = geofences.find(gf => gf.id === 'geofence-2');
+
+      // Check geofence entries in travelledPoints
+      if (gf1 && gf1.coordinates && gf1.coordinates.length > 0) {
+        const poly = gf1.coordinates[0];
+        for (let i = 0; i < travelledPoints.length; i++) {
+          const pt = travelledPoints[i];
+          if (isPointInPolygon(pt.lat, pt.lon, poly)) {
+            enteredGF1 = true;
+            if (firstGF1Index === -1) {
+              firstGF1Index = i;
+            }
+          }
+        }
+      }
+
+      if (gf2 && gf2.coordinates && gf2.coordinates.length > 0) {
+        const poly = gf2.coordinates[0];
+        enteredGF2 = travelledPoints.some(pt => isPointInPolygon(pt.lat, pt.lon, poly));
+      }
+
+      // Compliance Logic:
+      // - If enteredGF1 is false, monitoring has NOT started yet. Status = 'Monitoring Not Started'.
+      // - If enteredGF1 is true, monitoring has started:
+      //   - We check if any points after firstGF1Index deviate from the planned path.
+      //   - If progress >= 90% (passed Critical Area end progress), it must have entered GeoFence 2.
       let deviationPoint: TrackPoint | null = null;
-      if (v.status === 'Off Route' && gpx && plannedGpx) {
-        deviationPoint = findDeviationPoint(plannedGpx.trackPoints, gpx.trackPoints, 120);
+      let hasDeviated = false;
+
+      if (enteredGF1 && firstGF1Index !== -1) {
+        const monitoredPoints = travelledPoints.slice(firstGF1Index);
+        
+        // Find if there is a deviation in monitored points
+        deviationPoint = findDeviationPoint(snappedPlannedPoints, monitoredPoints, 120);
+        if (deviationPoint) {
+          hasDeviated = true;
+        }
+
+        // Check if it bypassed GeoFence 2 when it should have entered
+        const hasPassedGF2 = progress >= 0.90;
+        if (hasPassedGF2 && !enteredGF2) {
+          hasDeviated = true;
+          // Set deviation point at the end of the traveled path if not already found
+          if (!deviationPoint && travelledPoints.length > 0) {
+            deviationPoint = travelledPoints[travelledPoints.length - 1];
+          }
+        }
+
+        complianceStatus = hasDeviated ? 'Off Route' : 'On Route';
+      } else {
+        complianceStatus = 'Monitoring Not Started';
+      }
+
+      // Segment actual path into correct (green) and incorrect (red) portions
+      let correctTrackPoints: TrackPoint[] = travelledPoints;
+      let incorrectTrackPoints: TrackPoint[] = [];
+
+      if (complianceStatus === 'Off Route' && deviationPoint) {
+        const dp = deviationPoint;
+        const devIndex = travelledPoints.findIndex(
+          pt => pt.lat === dp.lat && pt.lon === dp.lon
+        );
+        if (devIndex !== -1) {
+          correctTrackPoints = travelledPoints.slice(0, devIndex + 1);
+          incorrectTrackPoints = travelledPoints.slice(devIndex);
+        }
       }
 
       let startLocation = 'Orwell Logistics Park';
@@ -130,15 +209,18 @@ export function useLiveTracking() {
       }
 
       let routeTitle = `${startLocation.replace(' Logistics Park', '')} to ${endLocation}`;
-      if (v.status === 'Off Route') {
+      if (complianceStatus === 'Off Route') {
         routeTitle += ' (Deviated)';
       }
 
       return {
         ...v,
+        status: complianceStatus, // Override status dynamically based on geofence compliance!
         summary,
-        trackPoints: gpx?.trackPoints ?? [],
-        plannedTrackPoints: plannedGpx?.trackPoints ?? [],
+        trackPoints: travelledPoints, // Only show the path travelled so far!
+        plannedTrackPoints: snappedPlannedPoints,
+        correctTrackPoints,
+        incorrectTrackPoints,
         currentCoords,
         lastUpdated,
         progress,
@@ -149,15 +231,16 @@ export function useLiveTracking() {
         endLocation,
       };
     });
-  }, [vehicles, correctSummaries, incorrectSummaries, gpxCache]);
+  }, [vehicles, correctSummaries, incorrectSummaries, gpxCache, geofences]);
 
   // 3. Compute Metrics
   const metrics = useMemo(() => {
     const total = enhancedVehicles.length;
     const onRoute = enhancedVehicles.filter(v => v.status === 'On Route').length;
     const offRoute = enhancedVehicles.filter(v => v.status === 'Off Route').length;
+    const monitoringNotStarted = enhancedVehicles.filter(v => v.status === 'Monitoring Not Started').length;
 
-    return { total, onRoute, offRoute };
+    return { total, onRoute, offRoute, monitoringNotStarted };
   }, [enhancedVehicles]);
 
   // 4. Apply Filters separately for Map and Listing views
@@ -227,6 +310,7 @@ export function useLiveTracking() {
     vehicles: enhancedVehicles,
     filteredVehiclesMap,
     filteredVehiclesListing,
+    geofences,
     metrics,
     mapFilters,
     listingFilters,

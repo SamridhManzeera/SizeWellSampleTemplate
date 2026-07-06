@@ -53,8 +53,9 @@ export default function VehicleFilters({
             onChange={e => onFilterChange('status', e.target.value)}
           >
             <option value="">All Statuses</option>
-            <option value="On Route">On Route</option>
-            <option value="Off Route">Off Route</option>
+            <option value="On Route">Correct</option>
+            <option value="Off Route">Incorrect</option>
+            <option value="Monitoring Not Started">Pending Validation</option>
           </select>
         </div>
       </div>

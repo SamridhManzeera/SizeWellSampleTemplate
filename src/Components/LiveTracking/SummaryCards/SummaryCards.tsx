@@ -44,6 +44,7 @@ interface SummaryCardsProps {
     total: number;
     onRoute: number;
     offRoute: number;
+    monitoringNotStarted: number;
   };
   activeStatusFilter: string;
   onStatusFilterChange: (status: string) => void;
@@ -64,17 +65,24 @@ export default function SummaryCards({
     },
     {
       key: 'On Route',
-      label: 'On Route',
+      label: 'Correct',
       value: metrics.onRoute,
       icon: <OnRouteIcon />,
       colorClass: 'on-route',
     },
     {
       key: 'Off Route',
-      label: 'Off Route',
+      label: 'Incorrect',
       value: metrics.offRoute,
       icon: <OffRouteIcon />,
       colorClass: 'off-route',
+    },
+    {
+      key: 'Monitoring Not Started',
+      label: 'Pending Validation',
+      value: metrics.monitoringNotStarted,
+      icon: <IdleIcon />,
+      colorClass: 'idle',
     },
   ];
 
