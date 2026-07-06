@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Vehicle, GPXData, JourneySummary, LiveTrackingFilters, TrackPoint, EnhancedVehicle, GeoFence } from '../types/liveTracking';
-import { fetchAndParseGPX, findDeviationPoint, isPointInPolygon } from '../utils/gpxParser';
+import { fetchAndParseGPX, isPointInPolygon } from '../utils/gpxParser';
 import { fetchCorrectSummary, fetchIncorrectSummary } from '../utils/csvParser';
 
 
@@ -157,31 +157,24 @@ export function useLiveTracking() {
       // Compliance Logic:
       // - If enteredGF1 is false, monitoring has NOT started yet. Status = 'Monitoring Not Started'.
       // - If enteredGF1 is true, monitoring has started:
-      //   - We check if any points after firstGF1Index deviate from the planned path.
-      //   - If progress >= 90% (passed Critical Area end progress), it must have entered GeoFence 2.
+      //   - A vehicle is On Route (Correct) between GeoFence 1 and GeoFence 2. Detours are permitted.
+      //   - It is only Off Route (Incorrect) if it passes GeoFence 2's checkpoint range (progress >= 90%)
+      //     but has NOT entered the GeoFence 2 polygon.
       let deviationPoint: TrackPoint | null = null;
-      let hasDeviated = false;
 
       if (enteredGF1 && firstGF1Index !== -1) {
-        const monitoredPoints = travelledPoints.slice(firstGF1Index);
-        
-        // Find if there is a deviation in monitored points
-        deviationPoint = findDeviationPoint(snappedPlannedPoints, monitoredPoints, 120);
-        if (deviationPoint) {
-          hasDeviated = true;
-        }
-
-        // Check if it bypassed GeoFence 2 when it should have entered
         const hasPassedGF2 = progress >= 0.90;
         if (hasPassedGF2 && !enteredGF2) {
-          hasDeviated = true;
-          // Set deviation point at the end of the traveled path if not already found
+          complianceStatus = 'Off Route';
+          // Since detours between GF1 and GF2 are allowed, the path only becomes wrong
+          // once it enters the final Leiston/Sizewell zone (latitude >= 52.21) having bypassed GeoFence 2.
+          deviationPoint = travelledPoints.find(pt => pt.lat >= 52.21) || null;
           if (!deviationPoint && travelledPoints.length > 0) {
             deviationPoint = travelledPoints[travelledPoints.length - 1];
           }
+        } else {
+          complianceStatus = 'On Route';
         }
-
-        complianceStatus = hasDeviated ? 'Off Route' : 'On Route';
       } else {
         complianceStatus = 'Monitoring Not Started';
       }

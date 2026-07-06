@@ -425,41 +425,7 @@ export default function LiveTrackingMap({
       }
     } else {
       // --- FLEET OVERVIEW MODE ---
-      // A. Draw the unified planned path in Fleet Overview Mode from start to end (uncropped)
-      const representativeVehicle = vehicles.find(v => (v as any).plannedTrackPoints && (v as any).plannedTrackPoints.length > 0);
-      if (representativeVehicle) {
-        const plannedPoints = (representativeVehicle as any).plannedTrackPoints;
-        const sourceId = 'source-planned-fleet';
-        const layerId = 'layer-planned-fleet';
-        const coordinates = plannedPoints.map((pt: any) => [pt.lon, pt.lat]);
 
-        map.addSource(sourceId, {
-          type: 'geojson',
-          data: {
-            type: 'Feature',
-            properties: {},
-            geometry: {
-              type: 'LineString',
-              coordinates,
-            },
-          },
-        });
-
-        map.addLayer({
-          id: layerId,
-          type: 'line',
-          source: sourceId,
-          layout: {
-            'line-join': 'round',
-            'line-cap': 'round',
-          },
-          paint: {
-            'line-color': '#16a34a', // prominent Green
-            'line-width': 7.0,
-            'line-opacity': 0.85,
-          },
-        });
-      }
 
       // Draw routes for all active vehicles
       filteredVehicles.forEach(v => {
