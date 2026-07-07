@@ -156,7 +156,12 @@ export default function LiveTrackingMap({
 
       // Click event for details popup containing geofence metadata
       map.on('click', fillLayerId, (e) => {
-        new mapboxgl.Popup({ offset: 10 })
+        // Prevent click from bubbling to the map canvas
+        if (e.originalEvent) {
+          e.originalEvent.stopPropagation();
+        }
+
+        const popup = new mapboxgl.Popup({ offset: 10 })
           .setLngLat(e.lngLat)
           .setHTML(`
             <div class="lt-map-popup" style="font-family: inherit; padding: 4px;">
@@ -166,8 +171,10 @@ export default function LiveTrackingMap({
                 <span style="color: #64748b;">Type:</span>
                 <span style="color: ${isGo ? '#6366f1' : '#ef4444'}; font-weight: 600;">${typeLabel}</span>
                 
-                <span style="color: #64748b;">Mandatory:</span>
-                <span style="color: #1e293b; font-weight: 600;">${mandatoryLabel}</span>
+                ${isGo ? `
+                  <span style="color: #64748b;">Mandatory:</span>
+                  <span style="color: #1e293b; font-weight: 600;">${mandatoryLabel}</span>
+                ` : ''}
                 
                 <span style="color: #64748b;">Priority:</span>
                 <span style="color: ${gf.priority === 'P1' ? '#dc2626' : gf.priority === 'P2' ? '#d97706' : '#2563eb'}; font-weight: 600;">${gf.priority}</span>
@@ -175,6 +182,13 @@ export default function LiveTrackingMap({
             </div>
           `)
           .addTo(map);
+
+        const popupEl = popup.getElement();
+        if (popupEl) {
+          popupEl.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+          });
+        }
       });
 
       map.on('mouseenter', fillLayerId, () => {
@@ -420,10 +434,20 @@ export default function LiveTrackingMap({
 
         // Add interactive popup on click
         map.on('click', devLayerId, (e) => {
-          new mapboxgl.Popup({ offset: 10 })
+          if (e.originalEvent) {
+            e.originalEvent.stopPropagation();
+          }
+          const popup = new mapboxgl.Popup({ offset: 10 })
             .setLngLat(e.lngLat)
             .setHTML(`<div class="lt-map-popup"><strong>Deviation Point</strong><br/>Vehicle left approved corridor here.</div>`)
             .addTo(map);
+
+          const popupEl = popup.getElement();
+          if (popupEl) {
+            popupEl.addEventListener('click', (ev) => {
+              ev.stopPropagation();
+            });
+          }
         });
 
         map.on('mouseenter', devLayerId, () => {
@@ -523,10 +547,20 @@ export default function LiveTrackingMap({
 
           // Add interactive tooltip popup when clicking the incorrect path
           map.on('click', incorrectLayerId, (e) => {
-            new mapboxgl.Popup()
+            if (e.originalEvent) {
+              e.originalEvent.stopPropagation();
+            }
+            const popup = new mapboxgl.Popup()
               .setLngLat(e.lngLat)
               .setHTML(`<div class="lt-map-popup"><strong>Route Deviation</strong><br/>${v.name} went off route here.</div>`)
               .addTo(map);
+
+            const popupEl = popup.getElement();
+            if (popupEl) {
+              popupEl.addEventListener('click', (ev) => {
+                ev.stopPropagation();
+              });
+            }
           });
 
           map.on('mouseenter', incorrectLayerId, () => {
