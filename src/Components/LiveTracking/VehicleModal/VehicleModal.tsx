@@ -11,8 +11,8 @@ export default function VehicleModal({ open, vehicle, onClose }: VehicleModalPro
   if (!open || !vehicle) return null;
 
   const statusClass = 
-    vehicle.status === 'On Route' ? 'on-route' :
-    vehicle.status === 'Off Route' ? 'off-route' : 'idle';
+    vehicle.status === 'Correct' ? 'on-route' :
+    vehicle.status === 'Incorrect' ? 'off-route' : 'idle';
 
   const formatDateTime = (timeStr?: string | null) => {
     if (!timeStr) return '--';
@@ -34,6 +34,16 @@ export default function VehicleModal({ open, vehicle, onClose }: VehicleModalPro
 
   const progressPercent = Math.round(vehicle.progress * 100);
 
+  const goZoneStates = vehicle.gfStates.filter(state => state.geofence.type === 'go');
+  const nogoZoneStates = vehicle.gfStates.filter(state => state.geofence.type === 'no-go');
+
+  const getPriorityLabel = (priority: 'P1' | 'P2' | 'P3') => {
+    if (priority === 'P1') return 'P1 • Critical';
+    if (priority === 'P2') return 'P2 • Warning';
+    return 'P3 • Information';
+  };
+
+
   return (
     <div className="vm-backdrop" onClick={onClose} role="presentation">
       <div className="vm" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true">
@@ -41,8 +51,8 @@ export default function VehicleModal({ open, vehicle, onClose }: VehicleModalPro
         <div className="vm__header">
           <div className="vm__header-left">
             <span className={`vm__status-tag vm__status-tag--${statusClass}`}>
-              {vehicle.status === 'On Route' ? 'Correct' : 
-               vehicle.status === 'Off Route' ? 'Incorrect' : 'Pending Validation'}
+              {vehicle.status === 'Correct' ? 'Correct' : 
+               vehicle.status === 'Incorrect' ? 'Incorrect' : 'Pending Validation'}
             </span>
             <div>
               <h2 className="vm__title">{vehicle.name} Details</h2>
@@ -73,8 +83,8 @@ export default function VehicleModal({ open, vehicle, onClose }: VehicleModalPro
             <div className="vm__field vm__field--full">
               <span className="vm__label">Route Status</span>
               <span className={`vm__value vm__value--status-${statusClass}`}>
-                {vehicle.status === 'On Route' ? 'Correct' : 
-                 vehicle.status === 'Off Route' ? 'Incorrect' : 'Pending Validation'}
+                {vehicle.status === 'Correct' ? 'Correct' : 
+                 vehicle.status === 'Incorrect' ? 'Incorrect' : 'Pending Validation'}
               </span>
             </div>
             <div className="vm__field">
@@ -137,7 +147,7 @@ export default function VehicleModal({ open, vehicle, onClose }: VehicleModalPro
             </div>
           </div>
 
-          {vehicle.status === 'Off Route' && (
+          {vehicle.status === 'Incorrect' && (
             <div className="vm__alert vm__alert--danger">
               <span className="vm__alert-icon">⚠️</span>
               <div className="vm__alert-content">
@@ -148,6 +158,112 @@ export default function VehicleModal({ open, vehicle, onClose }: VehicleModalPro
               </div>
             </div>
           )}
+
+          {/* Go Zones Compliance */}
+          <div className="vm__timeline-section">
+            <h3 className="vm__section-title">Go Zones Compliance</h3>
+            <div className="vm__timeline">
+              {goZoneStates.map((state, index) => {
+                let stepStatus: 'completed' | 'skipped' | 'pending' | 'bypassed' = 'pending';
+                if (state.entered) {
+                  stepStatus = 'completed';
+                } else if (state.bypassed) {
+                  stepStatus = state.geofence.mandatory ? 'bypassed' : 'skipped';
+                }
+                
+                const statusLabels = {
+                  completed: 'Entered',
+                  skipped: 'Skipped (Optional)',
+                  bypassed: 'Missed (Mandatory)',
+                  pending: 'Pending'
+                };
+                
+                const dotClass = `vm__timeline-dot vm__timeline-dot--${stepStatus}`;
+                const stepClass = `vm__timeline-item vm__timeline-item--${stepStatus}`;
+
+                return (
+                  <div key={state.geofence.id} className={stepClass}>
+                    <div className="vm__timeline-left">
+                      <div className={dotClass}>
+                        {stepStatus === 'completed' && '✓'}
+                        {stepStatus === 'bypassed' && '✗'}
+                        {stepStatus === 'skipped' && '○'}
+                        {stepStatus === 'pending' && '🕒'}
+                      </div>
+                      {index < goZoneStates.length - 1 && <div className="vm__timeline-line" />}
+                    </div>
+                    <div className="vm__timeline-content">
+                      <div className="vm__timeline-header">
+                        <span className="vm__timeline-name">{state.geofence.name}</span>
+                        <span className={`vm__timeline-badge vm__timeline-badge--${stepStatus}`}>
+                          {statusLabels[stepStatus]}
+                        </span>
+                      </div>
+                      <span className="vm__timeline-desc">{state.geofence.description}</span>
+                      
+                      {stepStatus === 'bypassed' && (
+                        <div className="vm__timeline-reason">
+                          <strong>Reason:</strong> Vehicle passed this section without entering the required checkpoint.
+                        </div>
+                      )}
+                      
+                      <div className="vm__timeline-meta">
+                        <span className="vm__timeline-meta-tag">{getPriorityLabel(state.geofence.priority)}</span>
+                        <span className="vm__timeline-meta-tag">
+                          {state.geofence.mandatory ? 'Mandatory Go' : 'Optional Go'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* No-Go Zones Compliance */}
+          <div className="vm__timeline-section">
+            <h3 className="vm__section-title">No-Go Zones Compliance</h3>
+            <div className="vm__timeline">
+              {nogoZoneStates.map((state, index) => {
+                const stepStatus = state.entered ? 'bypassed' : 'completed';
+                const badgeLabel = state.entered ? 'Violation' : 'Clear';
+                
+                const dotClass = `vm__timeline-dot vm__timeline-dot--${stepStatus === 'bypassed' ? 'bypassed' : 'completed'}`;
+                const stepClass = `vm__timeline-item vm__timeline-item--${stepStatus === 'bypassed' ? 'bypassed' : 'completed'}`;
+
+                return (
+                  <div key={state.geofence.id} className={stepClass}>
+                    <div className="vm__timeline-left">
+                      <div className={dotClass}>
+                        {state.entered ? '⚠️' : '✓'}
+                      </div>
+                      {index < nogoZoneStates.length - 1 && <div className="vm__timeline-line" />}
+                    </div>
+                    <div className="vm__timeline-content">
+                      <div className="vm__timeline-header">
+                        <span className="vm__timeline-name">{state.geofence.name}</span>
+                        <span className={`vm__timeline-badge vm__timeline-badge--${stepStatus}`}>
+                          {badgeLabel}
+                        </span>
+                      </div>
+                      <span className="vm__timeline-desc">{state.geofence.description}</span>
+                      
+                      {state.entered && (
+                        <div className="vm__timeline-reason">
+                          <strong>Reason:</strong> Vehicle entered a restricted area.
+                        </div>
+                      )}
+                      
+                      <div className="vm__timeline-meta">
+                        <span className="vm__timeline-meta-tag">{getPriorityLabel(state.geofence.priority)}</span>
+                        <span className="vm__timeline-meta-tag">No-Go Zone</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
         {/* Footer */}

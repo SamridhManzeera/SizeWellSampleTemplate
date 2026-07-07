@@ -123,35 +123,57 @@ export default function LiveTrackingMap({
         },
       });
 
-      // Semi-transparent indigo/violet corridor fill
+      const isGo = gf.type === 'go';
+      const typeLabel = isGo ? 'Go Zone' : 'No-Go Zone';
+      const mandatoryLabel = gf.mandatory ? 'Yes' : 'No';
+      const fillColor = isGo ? '#6366f1' : '#ef4444';
+      const strokeColor = isGo ? '#6366f1' : '#ef4444';
+      const fillOpacity = isGo ? 0.12 : 0.18;
+
+      // Semi-transparent fill
       map.addLayer({
         id: fillLayerId,
         type: 'fill',
         source: sourceId,
         paint: {
-          'fill-color': '#6366f1',
-          'fill-opacity': 0.15,
+          'fill-color': fillColor,
+          'fill-opacity': fillOpacity,
         },
       });
 
-      // Indigo/violet border outline
+      // Border outline
       map.addLayer({
         id: strokeLayerId,
         type: 'line',
         source: sourceId,
         paint: {
-          'line-color': '#6366f1',
+          'line-color': strokeColor,
           'line-width': 2.0,
           'line-opacity': 0.7,
           'line-dasharray': [2, 2],
         },
       });
 
-      // Click event for details popup
+      // Click event for details popup containing geofence metadata
       map.on('click', fillLayerId, (e) => {
         new mapboxgl.Popup({ offset: 10 })
           .setLngLat(e.lngLat)
-          .setHTML(`<div class="lt-map-popup"><strong>${gf.name}</strong><br/>${gf.description}</div>`)
+          .setHTML(`
+            <div class="lt-map-popup" style="font-family: inherit; padding: 4px;">
+              <strong style="font-size: 13px; display: block; margin-bottom: 4px; color: #1e293b;">${gf.name}</strong>
+              <p style="margin: 0 0 8px 0; font-size: 11px; color: #475569; line-height: 1.4;">${gf.description}</p>
+              <div style="display: grid; grid-template-columns: 80px auto; gap: 4px 8px; font-size: 11px; border-top: 1px solid #e2e8f0; padding-top: 6px; font-weight: 500;">
+                <span style="color: #64748b;">Type:</span>
+                <span style="color: ${isGo ? '#6366f1' : '#ef4444'}; font-weight: 600;">${typeLabel}</span>
+                
+                <span style="color: #64748b;">Mandatory:</span>
+                <span style="color: #1e293b; font-weight: 600;">${mandatoryLabel}</span>
+                
+                <span style="color: #64748b;">Priority:</span>
+                <span style="color: ${gf.priority === 'P1' ? '#dc2626' : gf.priority === 'P2' ? '#d97706' : '#2563eb'}; font-weight: 600;">${gf.priority}</span>
+              </div>
+            </div>
+          `)
           .addTo(map);
       });
 
@@ -307,7 +329,7 @@ export default function LiveTrackingMap({
       // C. Draw Vehicle Marker
       const isHighlighted = selectedVehicleId === activeVehicle.id;
       const markerEl = document.createElement('div');
-      markerEl.className = `lt-marker lt-marker--${activeVehicle.status.toLowerCase().replace(' ', '-')}${
+      markerEl.className = `lt-marker lt-marker--${activeVehicle.status.toLowerCase()}${
         isHighlighted ? ' lt-marker--highlighted' : ''
       }`;
       
@@ -324,10 +346,10 @@ export default function LiveTrackingMap({
         onSelectVehicle(activeVehicle.id);
       });
 
-      const activeStatusClass = activeVehicle.status.toLowerCase().replace(' ', '-');
+      const activeStatusClass = activeVehicle.status.toLowerCase();
       const activeStatusLabel = 
-        activeVehicle.status === 'On Route' ? 'Correct' : 
-        activeVehicle.status === 'Off Route' ? 'Incorrect' : 'Pending Validation';
+        activeVehicle.status === 'Correct' ? 'Correct' : 
+        activeVehicle.status === 'Incorrect' ? 'Incorrect' : 'Pending Validation';
       const popup = new mapboxgl.Popup({ offset: 12, closeButton: false })
         .setHTML(`<div class="lt-map-popup"><strong>${activeVehicle.name}</strong> (${activeVehicle.id})<br/><span class="lt-map-popup__status lt-map-popup__status--${activeStatusClass}">${activeStatusLabel}</span></div>`);
 
@@ -368,8 +390,8 @@ export default function LiveTrackingMap({
         markersRef.current.push(endMarker);
       }
 
-      // Draw Deviation Marker if vehicle is off-route and showPlannedRoute is checked (Compare Mode)
-      if (activeVehicle.status === 'Off Route' && activeVehicle.deviationPoint && showPlannedRoute) {
+      // Draw Deviation Marker if vehicle is incorrect and showPlannedRoute is checked (Compare Mode)
+      if (activeVehicle.status === 'Incorrect' && activeVehicle.deviationPoint && showPlannedRoute) {
         const devSourceId = 'source-deviation-point';
         const devLayerId = 'layer-deviation-point';
 
@@ -416,7 +438,7 @@ export default function LiveTrackingMap({
 
       // E. Fit Bounds to active track
       const pointsForBounds =
-        activeVehicle.status === 'Off Route' ? [...plannedPoints, ...trackPoints] : plannedPoints;
+        activeVehicle.status === 'Incorrect' ? [...plannedPoints, ...trackPoints] : plannedPoints;
 
       if (pointsForBounds.length > 0) {
         const bounds = new mapboxgl.LngLatBounds();
@@ -567,7 +589,7 @@ export default function LiveTrackingMap({
       filteredVehicles.forEach(v => {
         const isHighlighted = selectedVehicleId === v.id;
         const markerEl = document.createElement('div');
-        const statusClass = v.status.toLowerCase().replace(' ', '-');
+        const statusClass = v.status.toLowerCase();
         
         markerEl.className = `lt-marker lt-marker--${statusClass}${
           isHighlighted ? ' lt-marker--highlighted' : ''
@@ -587,8 +609,8 @@ export default function LiveTrackingMap({
         });
 
         const statusLabel = 
-          v.status === 'On Route' ? 'Correct' : 
-          v.status === 'Off Route' ? 'Incorrect' : 'Pending Validation';
+          v.status === 'Correct' ? 'Correct' : 
+          v.status === 'Incorrect' ? 'Incorrect' : 'Pending Validation';
         const popup = new mapboxgl.Popup({ offset: 12, closeButton: false })
           .setHTML(`<div class="lt-map-popup"><strong>${v.name}</strong> (${v.id})<br/><span class="lt-map-popup__status lt-map-popup__status--${statusClass}">${statusLabel}</span></div>`);
 
@@ -628,7 +650,7 @@ export default function LiveTrackingMap({
   return (
     <div className="lt-map-container">
       <div ref={mapContainerRef} className="lt-mapbox-map" />
-      {isAnalysisMode && activeVehicle && activeVehicle.status === 'Off Route' && (
+      {isAnalysisMode && activeVehicle && activeVehicle.status === 'Incorrect' && (
         <div className="lt-map-overlay">
           <label className="lt-map-overlay__checkbox-label">
             <input

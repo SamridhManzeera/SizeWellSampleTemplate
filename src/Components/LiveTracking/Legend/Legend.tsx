@@ -18,8 +18,12 @@ export default function Legend() {
           <span className="lt-legend__text">Vehicle</span>
         </li>
         <li className="lt-legend__item">
-          <span className="lt-legend__color lt-legend__color--geofence" />
-          <span className="lt-legend__text">Approved GeoFence Corridor</span>
+          <span className="lt-legend__color lt-legend__color--go-zone" />
+          <span className="lt-legend__text">Go Zone</span>
+        </li>
+        <li className="lt-legend__item">
+          <span className="lt-legend__color lt-legend__color--no-go-zone" />
+          <span className="lt-legend__text">No-Go Zone</span>
         </li>
       </ul>
     </div>

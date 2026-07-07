@@ -42,9 +42,9 @@ export function IdleIcon() {
 interface SummaryCardsProps {
   metrics: {
     total: number;
-    onRoute: number;
-    offRoute: number;
-    monitoringNotStarted: number;
+    correct: number;
+    incorrect: number;
+    pending: number;
   };
   activeStatusFilter: string;
   onStatusFilterChange: (status: string) => void;
@@ -64,23 +64,23 @@ export default function SummaryCards({
       colorClass: 'total',
     },
     {
-      key: 'On Route',
+      key: 'Correct',
       label: 'Correct',
-      value: metrics.onRoute,
+      value: metrics.correct,
       icon: <OnRouteIcon />,
       colorClass: 'on-route',
     },
     {
-      key: 'Off Route',
+      key: 'Incorrect',
       label: 'Incorrect',
-      value: metrics.offRoute,
+      value: metrics.incorrect,
       icon: <OffRouteIcon />,
       colorClass: 'off-route',
     },
     {
-      key: 'Monitoring Not Started',
+      key: 'Pending',
       label: 'Pending Validation',
-      value: metrics.monitoringNotStarted,
+      value: metrics.pending,
       icon: <IdleIcon />,
       colorClass: 'idle',
     },

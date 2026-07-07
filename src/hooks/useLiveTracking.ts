@@ -126,72 +126,101 @@ export function useLiveTracking() {
         currentSpeedMph = pt.speedMph > 0 ? pt.speedMph : v.speedMph;
       }
 
-      // Determine compliance status dynamically based on geofence entry and route deviation.
-      let complianceStatus: 'On Route' | 'Off Route' | 'Monitoring Not Started' = 'Monitoring Not Started';
-      let enteredGF1 = false;
-      let firstGF1Index = -1;
-      let enteredGF2 = false;
+      // Determine compliance status dynamically based on Go Zones and No-Go Zones.
+      let complianceStatus: 'Correct' | 'Incorrect' | 'Pending' = 'Pending';
+      let deviationPoint: TrackPoint | null = null;
+      let firstViolationIndex = -1;
 
-      const gf1 = geofences.find(gf => gf.id === 'geofence-1');
-      const gf2 = geofences.find(gf => gf.id === 'geofence-2');
+      // Map geofence entry and exit states
+      const gfStates = geofences.map(gf => {
+        let entered = false;
+        let firstEntryIndex = -1;
 
-      // Check geofence entries in travelledPoints
-      if (gf1 && gf1.coordinates && gf1.coordinates.length > 0) {
-        const poly = gf1.coordinates[0];
-        for (let i = 0; i < travelledPoints.length; i++) {
-          const pt = travelledPoints[i];
-          if (isPointInPolygon(pt.lat, pt.lon, poly)) {
-            enteredGF1 = true;
-            if (firstGF1Index === -1) {
-              firstGF1Index = i;
+        if (gf.coordinates && gf.coordinates.length > 0) {
+          const poly = gf.coordinates[0];
+          for (let i = 0; i < travelledPoints.length; i++) {
+            const pt = travelledPoints[i];
+            if (isPointInPolygon(pt.lat, pt.lon, poly)) {
+              entered = true;
+              if (firstEntryIndex === -1) {
+                firstEntryIndex = i;
+              }
             }
           }
         }
-      }
 
-      if (gf2 && gf2.coordinates && gf2.coordinates.length > 0) {
-        const poly = gf2.coordinates[0];
-        enteredGF2 = travelledPoints.some(pt => isPointInPolygon(pt.lat, pt.lon, poly));
-      }
+        // Calculate progress levels along the planned route
+        let plannedEntryIndex = -1;
+        let plannedExitIndex = -1;
+        
+        if (gf.type === 'go' && gf.coordinates && gf.coordinates.length > 0) {
+          const poly = gf.coordinates[0];
+          const indices = snappedPlannedPoints
+            .map((pt, idx) => isPointInPolygon(pt.lat, pt.lon, poly) ? idx : -1)
+            .filter(idx => idx !== -1);
+          
+          if (indices.length > 0) {
+            plannedEntryIndex = indices[0];
+            plannedExitIndex = indices[indices.length - 1];
+          }
+        }
+
+        const entryProgress = plannedEntryIndex !== -1 ? (plannedEntryIndex / snappedPlannedPoints.length) : 0.0;
+        const exitProgress = plannedExitIndex !== -1 ? (plannedExitIndex / snappedPlannedPoints.length) : 0.0;
+        
+        // A Go Zone is bypassed if the vehicle's progress has passed the exit of the Go Zone
+        // but the vehicle never entered it
+        const bypassed = gf.type === 'go' && progress >= exitProgress && !entered && plannedExitIndex !== -1;
+
+        return {
+          geofence: gf,
+          entered,
+          firstEntryIndex,
+          bypassed,
+          entryProgress,
+          exitProgress,
+          plannedEntryIndex
+        };
+      });
 
       // Compliance Logic:
-      // - If enteredGF1 is false, monitoring has NOT started yet. Status = 'Monitoring Not Started'.
-      // - If enteredGF1 is true, monitoring has started:
-      //   - A vehicle is On Route (Correct) between GeoFence 1 and GeoFence 2. Detours are permitted.
-      //   - It is only Off Route (Incorrect) if it passes GeoFence 2's checkpoint range (progress >= 90%)
-      //     but has NOT entered the GeoFence 2 polygon.
-      let deviationPoint: TrackPoint | null = null;
+      // 1. Check No-Go violations (immediate violation if entered)
+      const violatedNoGo = gfStates.find(state => state.geofence.type === 'no-go' && state.entered);
+      
+      // 2. Check mandatory Go Zone bypasses
+      const bypassedMandatoryGo = gfStates.find(state => state.geofence.type === 'go' && state.geofence.mandatory && state.bypassed);
 
-      if (enteredGF1 && firstGF1Index !== -1) {
-        const hasPassedGF2 = progress >= 0.90;
-        if (hasPassedGF2 && !enteredGF2) {
-          complianceStatus = 'Off Route';
-          // Since detours between GF1 and GF2 are allowed, the path only becomes wrong
-          // once it enters the final Leiston/Sizewell zone (latitude >= 52.21) having bypassed GeoFence 2.
-          deviationPoint = travelledPoints.find(pt => pt.lat >= 52.21) || null;
-          if (!deviationPoint && travelledPoints.length > 0) {
-            deviationPoint = travelledPoints[travelledPoints.length - 1];
-          }
-        } else {
-          complianceStatus = 'On Route';
+      if (violatedNoGo) {
+        complianceStatus = 'Incorrect';
+        if (violatedNoGo.firstEntryIndex !== -1 && travelledPoints.length > 0) {
+          deviationPoint = travelledPoints[violatedNoGo.firstEntryIndex];
+          firstViolationIndex = violatedNoGo.firstEntryIndex;
+        }
+      } else if (bypassedMandatoryGo) {
+        complianceStatus = 'Incorrect';
+        if (travelledPoints.length > 0 && progress > 0) {
+          const ratio = bypassedMandatoryGo.entryProgress / progress;
+          firstViolationIndex = Math.min(Math.floor(travelledPoints.length * ratio), travelledPoints.length - 1);
+          deviationPoint = travelledPoints[firstViolationIndex] || travelledPoints[travelledPoints.length - 1];
         }
       } else {
-        complianceStatus = 'Monitoring Not Started';
+        // 3. Determine if we are still Pending (not yet entered any mandatory Go Zone, and haven't bypassed any yet)
+        const anyMandatoryGoEntered = gfStates.some(state => state.geofence.type === 'go' && state.geofence.mandatory && state.entered);
+        
+        if (!anyMandatoryGoEntered) {
+          complianceStatus = 'Pending';
+        } else {
+          complianceStatus = 'Correct';
+        }
       }
 
       // Segment actual path into correct (green) and incorrect (red) portions
       let correctTrackPoints: TrackPoint[] = travelledPoints;
       let incorrectTrackPoints: TrackPoint[] = [];
 
-      if (complianceStatus === 'Off Route' && deviationPoint) {
-        const dp = deviationPoint;
-        const devIndex = travelledPoints.findIndex(
-          pt => pt.lat === dp.lat && pt.lon === dp.lon
-        );
-        if (devIndex !== -1) {
-          correctTrackPoints = travelledPoints.slice(0, devIndex + 1);
-          incorrectTrackPoints = travelledPoints.slice(devIndex);
-        }
+      if (complianceStatus === 'Incorrect' && deviationPoint && firstViolationIndex !== -1) {
+        correctTrackPoints = travelledPoints.slice(0, firstViolationIndex + 1);
+        incorrectTrackPoints = travelledPoints.slice(firstViolationIndex);
       }
 
       let startLocation = 'Orwell Logistics Park';
@@ -202,7 +231,7 @@ export function useLiveTracking() {
       }
 
       let routeTitle = `${startLocation.replace(' Logistics Park', '')} to ${endLocation}`;
-      if (complianceStatus === 'Off Route') {
+      if (complianceStatus === 'Incorrect') {
         routeTitle += ' (Deviated)';
       }
 
@@ -222,6 +251,7 @@ export function useLiveTracking() {
         routeTitle,
         startLocation,
         endLocation,
+        gfStates,
       };
     });
   }, [vehicles, correctSummaries, incorrectSummaries, gpxCache, geofences]);
@@ -229,11 +259,11 @@ export function useLiveTracking() {
   // 3. Compute Metrics
   const metrics = useMemo(() => {
     const total = enhancedVehicles.length;
-    const onRoute = enhancedVehicles.filter(v => v.status === 'On Route').length;
-    const offRoute = enhancedVehicles.filter(v => v.status === 'Off Route').length;
-    const monitoringNotStarted = enhancedVehicles.filter(v => v.status === 'Monitoring Not Started').length;
+    const correct = enhancedVehicles.filter(v => v.status === 'Correct').length;
+    const incorrect = enhancedVehicles.filter(v => v.status === 'Incorrect').length;
+    const pending = enhancedVehicles.filter(v => v.status === 'Pending').length;
 
-    return { total, onRoute, offRoute, monitoringNotStarted };
+    return { total, correct, incorrect, pending };
   }, [enhancedVehicles]);
 
   // 4. Apply Filters separately for Map and Listing views
@@ -264,6 +294,8 @@ export function useLiveTracking() {
     setSelectedVehicleId(id);
     if (id) {
       setIsModalOpen(true);
+    } else {
+      setIsModalOpen(false);
     }
   };
 
