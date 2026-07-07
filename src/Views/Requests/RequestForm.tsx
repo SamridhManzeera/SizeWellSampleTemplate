@@ -1,13 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Tooltip } from 'react-tooltip';
-import 'react-tooltip/dist/react-tooltip.css';
 import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
 import { useRequests } from './RequestsContext';
-import {
-  VehicleType, DriverRoute, RequestKind, DaySlotCounts,
-  VEHICLE_TYPE_LABELS, DRIVER_ROUTE_LABELS, DRIVER_ROUTE_DESCRIPTIONS,
-} from './requestTypes';
+import { VehicleType, DriverRoute, RequestKind, DaySlotCounts } from './requestTypes';
 import './RequestForm.scss';
 
 // ── Icons ─────────────────────────────────────────────────────────
@@ -98,14 +93,6 @@ function formatDateRange(startDate: string, endDate: string) {
   return startDate === endDate ? formatDate(startDate) : `${formatDate(startDate)} – ${formatDate(endDate)}`;
 }
 
-const VEHICLE_OPTIONS: VehicleType[] = ['HDV_MDS', 'LGV_MDS', 'HGV_ACA_MDS'];
-
-const DRIVER_ROUTE_OPTIONS: Array<{ value: DriverRoute; label: string; description: string }> = [
-  { value: 'route1a', label: 'Route 1a', description: DRIVER_ROUTE_DESCRIPTIONS.route1a },
-  { value: 'route2a', label: 'Route 2a', description: DRIVER_ROUTE_DESCRIPTIONS.route2a },
-  { value: 'route3a', label: 'Route 3a', description: DRIVER_ROUTE_DESCRIPTIONS.route3a },
-];
-
 // ── Read-only field ───────────────────────────────────────────────
 
 function ReadField({ label, value }: { label: string; value: string }) {
@@ -153,8 +140,8 @@ export default function RequestForm() {
   const [startDate, setStartDate] = useState(existing?.startDate ?? todayString());
   const [endDate, setEndDate] = useState(existing?.endDate ?? todayString());
   const [dailySlots, setDailySlots] = useState<Record<string, DaySlotCounts>>(existing?.dailySlots ?? {});
-  const [vehicleType, setVehicleType] = useState<VehicleType>(existing?.vehicleType ?? 'HGV_ACA_MDS');
-  const [driverRoute, setDriverRoute] = useState<DriverRoute>(existing?.driverRoute ?? 'route1a');
+  const vehicleType: VehicleType = existing?.vehicleType ?? 'HGV_ACA_MDS';
+  const driverRoute: DriverRoute = existing?.driverRoute ?? 'route1a';
   const [notes, setNotes] = useState(existing?.notes ?? '');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
@@ -387,9 +374,9 @@ export default function RequestForm() {
               <thead>
                 <tr>
                   <th>Date</th>
+                  <th className="rf__ds-th--tw">↕ Two Way (x2)</th>
                   <th className="rf__ds-th--in">↑ Inbound</th>
                   <th className="rf__ds-th--out">↓ Outbound</th>
-                  <th className="rf__ds-th--tw">↕ Two Way (x2)</th>
                   <th>Total Slots</th>
                 </tr>
               </thead>
@@ -399,6 +386,17 @@ export default function RequestForm() {
                   return (
                     <tr key={date}>
                       <td>{formatDateShort(date)}</td>
+                      <td>
+                        {isView ? (
+                          <span className="rf__ds-view-num rf__ds-view-num--tw">{counts.twoWay}</span>
+                        ) : (
+                          <DaySlotCounter
+                            value={counts.twoWay} colorClass="tw"
+                            onDecrease={() => setDayCount(date, 'twoWay', counts.twoWay - 1)}
+                            onIncrease={() => setDayCount(date, 'twoWay', counts.twoWay + 1)}
+                          />
+                        )}
+                      </td>
                       <td>
                         {isView ? (
                           <span className="rf__ds-view-num rf__ds-view-num--in">{counts.inbound}</span>
@@ -421,17 +419,6 @@ export default function RequestForm() {
                           />
                         )}
                       </td>
-                      <td>
-                        {isView ? (
-                          <span className="rf__ds-view-num rf__ds-view-num--tw">{counts.twoWay}</span>
-                        ) : (
-                          <DaySlotCounter
-                            value={counts.twoWay} colorClass="tw"
-                            onDecrease={() => setDayCount(date, 'twoWay', counts.twoWay - 1)}
-                            onIncrease={() => setDayCount(date, 'twoWay', counts.twoWay + 1)}
-                          />
-                        )}
-                      </td>
                       <td className="rf__ds-row-total">{rowTotal(counts)}</td>
                     </tr>
                   );
@@ -440,9 +427,9 @@ export default function RequestForm() {
               <tfoot>
                 <tr className="rf__ds-total-row">
                   <td>Total Across All Days</td>
+                  <td className="rf__ds-th--tw">{totalTwoWay}</td>
                   <td className="rf__ds-th--in">{totalInbound}</td>
                   <td className="rf__ds-th--out">{totalOutbound}</td>
-                  <td className="rf__ds-th--tw">{totalTwoWay}</td>
                   <td>{totalSlots}</td>
                 </tr>
               </tfoot>
@@ -450,53 +437,7 @@ export default function RequestForm() {
           </div>
         </section>
 
-        {/* ── Section 3: Vehicle & Route ─────────────────── */}
-        <section className="rf__section">
-          <h2 className="rf__section-title" style={{ marginBottom: 16 }}>Vehicle & Route</h2>
-
-          {isView ? (
-            <div className="rf__row">
-              <ReadField label="Vehicle Type" value={VEHICLE_TYPE_LABELS[vehicleType]} />
-              <ReadField label="Route" value={DRIVER_ROUTE_LABELS[driverRoute]} />
-            </div>
-          ) : (
-            <>
-              <div className="rf__field rf__field--full" style={{ marginBottom: 16 }}>
-                <label className="rf__label">Vehicle Type</label>
-                <div className="rf__vehicle-group">
-                  {VEHICLE_OPTIONS.map(opt => (
-                    <button key={opt} type="button"
-                      className={`rf__vehicle-btn${vehicleType === opt ? ' rf__vehicle-btn--active' : ''}`}
-                      onClick={() => setVehicleType(opt)}>
-                      {VEHICLE_TYPE_LABELS[opt]}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="rf__field rf__field--full">
-                <label className="rf__label">
-                  Route <span className="rf__label-hint">Hover for route description</span>
-                </label>
-                <div className="rf__route-opt-group">
-                  {DRIVER_ROUTE_OPTIONS.map(opt => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      data-tooltip-id="route-tip"
-                      data-tooltip-content={opt.description}
-                      className={`rf__route-opt-btn${driverRoute === opt.value ? ' rf__route-opt-btn--active' : ''}`}
-                      onClick={() => setDriverRoute(opt.value)}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-        </section>
-
-        {/* ── Section 4: Notes ─────────────────────────────── */}
+        {/* ── Section 3: Notes ─────────────────────────────── */}
         <section className="rf__section">
           <h2 className="rf__section-title" style={{ marginBottom: 12 }}>Notes</h2>
           {isView ? (
@@ -618,12 +559,6 @@ export default function RequestForm() {
           </div>
         </div>
       )}
-
-      <Tooltip
-        id="route-tip"
-        place="top"
-        style={{ maxWidth: 300, fontSize: 12, lineHeight: 1.6, zIndex: 9999 }}
-      />
     </div>
   );
 }
