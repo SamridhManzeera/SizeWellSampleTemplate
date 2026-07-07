@@ -300,17 +300,29 @@ export function useLiveTracking() {
   };
 
   const handleMapFilterChange = (key: keyof LiveTrackingFilters, value: string) => {
-    setMapFilters(prev => ({
-      ...prev,
-      [key]: value,
-    }));
+    setMapFilters(prev => {
+      const next = { ...prev, [key]: value };
+      if (key === 'status' && prev.vehicleId) {
+        const selected = enhancedVehicles.find(v => v.id === prev.vehicleId);
+        if (selected && selected.status !== value && value !== '') {
+          next.vehicleId = '';
+        }
+      }
+      return next;
+    });
   };
 
   const handleListingFilterChange = (key: keyof LiveTrackingFilters, value: string) => {
-    setListingFilters(prev => ({
-      ...prev,
-      [key]: value,
-    }));
+    setListingFilters(prev => {
+      const next = { ...prev, [key]: value };
+      if (key === 'status' && prev.vehicleId) {
+        const selected = enhancedVehicles.find(v => v.id === prev.vehicleId);
+        if (selected && selected.status !== value && value !== '') {
+          next.vehicleId = '';
+        }
+      }
+      return next;
+    });
   };
 
   const resetMapFilters = () => {
