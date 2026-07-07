@@ -272,6 +272,157 @@ $radius:    16px;
       transform: scale(0.97);
     }
   }
+
+  &__timeline-section {
+    padding: 16px 24px;
+    border-top: 1px solid $border;
+    border-bottom: 1px solid $border;
+    background: #f8fafc;
+  }
+
+  &__section-title {
+    margin: 0 0 16px 0;
+    font-size: 12.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #475569;
+  }
+
+  &__timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  &__timeline-item {
+    display: flex;
+    gap: 16px;
+  }
+
+  &__timeline-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+
+  &__timeline-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    z-index: 2;
+    transition: all 0.2s;
+
+    &--completed {
+      background: #10b981;
+      color: #fff;
+    }
+
+    &--skipped {
+      background: #f1f5f9;
+      border: 1.5px solid #cbd5e1;
+      color: #94a3b8;
+    }
+
+    &--bypassed {
+      background: #ef4444;
+      color: #fff;
+    }
+
+    &--pending {
+      background: #fff;
+      border: 1.5px solid #cbd5e1;
+      color: #cbd5e1;
+    }
+  }
+
+  &__timeline-line {
+    position: absolute;
+    top: 22px;
+    bottom: -18px;
+    width: 0;
+    border-left: 2px dashed #cbd5e1;
+    z-index: 1;
+  }
+
+  &__timeline-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__timeline-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  &__timeline-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e293b;
+  }
+
+  &__timeline-badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+
+    &--completed {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    &--skipped {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    &--bypassed {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    &--pending {
+      background: #f8fafc;
+      color: #64748b;
+      border: 0.5px solid #cbd5e1;
+    }
+  }
+
+  &__timeline-desc {
+    font-size: 11px;
+    color: #64748b;
+    line-height: 1.4;
+  }
+
+  &__timeline-meta {
+    display: flex;
+    gap: 8px;
+    margin-top: 2px;
+  }
+
+  &__timeline-meta-tag {
+    font-size: 9px;
+    font-weight: 600;
+    color: #94a3b8;
+    background: #f1f5f9;
+    padding: 1px 5px;
+    border-radius: 3px;
+    border: 0.5px solid #e2e8f0;
+  }
 }
 
 @keyframes vmFadeIn {

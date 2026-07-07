@@ -10,7 +10,13 @@ import './LiveTracking.scss';
 
 function MapIcon() {
   return (
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <svg
+      width="48"
+      height="48"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
       <path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z" />
     </svg>
   );
@@ -27,7 +33,6 @@ export default function LiveTracking() {
     listingFilters,
     selectedVehicle,
     isModalOpen,
-    setIsModalOpen,
     loading,
     error,
     handleSelectVehicle,
@@ -38,7 +43,7 @@ export default function LiveTracking() {
     refreshData,
   } = useLiveTracking();
 
-  const [activeTab, setActiveTab] = useState<'listing' | 'map'>('listing');
+  const [activeTab, setActiveTab] = useState<'listing' | 'map'>('map');
 
   const handleViewVehicleOnMap = (id: string) => {
     setActiveTab('map');
@@ -59,7 +64,8 @@ export default function LiveTracking() {
           <div>
             <h1 className="lt__hero-title">Live Tracking</h1>
             <p className="lt__hero-sub">
-              Monitor active vehicles and visualize route compliance in real time.
+              Monitor active vehicles and visualize route compliance in real
+              time.
             </p>
           </div>
         </div>
@@ -67,14 +73,18 @@ export default function LiveTracking() {
           <div className="lt__tabs">
             <button
               type="button"
-              className={`lt__tab-btn ${activeTab === 'listing' ? 'lt__tab-btn--active' : ''}`}
+              className={`lt__tab-btn ${
+                activeTab === 'listing' ? 'lt__tab-btn--active' : ''
+              }`}
               onClick={() => setActiveTab('listing')}
             >
               📋 Listing View
             </button>
             <button
               type="button"
-              className={`lt__tab-btn ${activeTab === 'map' ? 'lt__tab-btn--active' : ''}`}
+              className={`lt__tab-btn ${
+                activeTab === 'map' ? 'lt__tab-btn--active' : ''
+              }`}
               onClick={() => setActiveTab('map')}
             >
               🗺️ Map View
@@ -87,14 +97,24 @@ export default function LiveTracking() {
       <div className="lt__content">
         <SummaryCards
           metrics={metrics}
-          activeStatusFilter={activeTab === 'map' ? mapFilters.status : listingFilters.status}
-          onStatusFilterChange={status => activeTab === 'map' ? handleMapFilterChange('status', status) : handleListingFilterChange('status', status)}
+          activeStatusFilter={
+            activeTab === 'map' ? mapFilters.status : listingFilters.status
+          }
+          onStatusFilterChange={(status) =>
+            activeTab === 'map'
+              ? handleMapFilterChange('status', status)
+              : handleListingFilterChange('status', status)
+          }
         />
 
         <VehicleFilters
           vehicles={vehicles}
           filters={activeTab === 'map' ? mapFilters : listingFilters}
-          onFilterChange={activeTab === 'map' ? handleMapFilterChange : handleListingFilterChange}
+          onFilterChange={
+            activeTab === 'map'
+              ? handleMapFilterChange
+              : handleListingFilterChange
+          }
           onReset={activeTab === 'map' ? resetMapFilters : resetListingFilters}
           onRefresh={refreshData}
         />
@@ -106,7 +126,11 @@ export default function LiveTracking() {
               <h4>Initialization Error</h4>
               <p>{error}</p>
             </div>
-            <button type="button" className="lt__error-alert-retry" onClick={refreshData}>
+            <button
+              type="button"
+              className="lt__error-alert-retry"
+              onClick={refreshData}
+            >
               Retry
             </button>
           </div>
@@ -115,7 +139,9 @@ export default function LiveTracking() {
         {loading ? (
           <div className="lt__loading-placeholder">
             <div className="lt__spinner" />
-            <span className="lt__loading-text">Loading tracking data and GPX geometry...</span>
+            <span className="lt__loading-text">
+              Loading tracking data and GPX geometry...
+            </span>
           </div>
         ) : (
           !error && (
@@ -124,7 +150,9 @@ export default function LiveTracking() {
                 <LiveTrackingMap
                   vehicles={vehicles}
                   filteredVehicles={filteredVehiclesMap}
-                  selectedVehicleId={selectedVehicle ? selectedVehicle.id : null}
+                  selectedVehicleId={
+                    selectedVehicle ? selectedVehicle.id : null
+                  }
                   filterVehicleId={mapFilters.vehicleId}
                   onSelectVehicle={handleSelectVehicle}
                   geofences={geofences}
@@ -144,7 +172,7 @@ export default function LiveTracking() {
       <VehicleModal
         open={isModalOpen}
         vehicle={selectedVehicle}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => handleSelectVehicle(null)}
       />
     </div>
   );

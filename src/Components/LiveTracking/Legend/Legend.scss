@@ -9,7 +9,7 @@
   padding: 12px 14px;
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
   z-index: 10;
-  width: 170px;
+  width: 180px;
   pointer-events: auto;
 
   &__title {
@@ -49,9 +49,15 @@
 
     &--green { background: #16a34a; }
     &--red { background: #dc2626; }
-    &--geofence {
+    &--go-zone {
       background: rgba(99, 102, 241, 0.15);
       border: 1px dashed #6366f1;
+      height: 10px;
+      border-radius: 2px;
+    }
+    &--no-go-zone {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px dashed #ef4444;
       height: 10px;
       border-radius: 2px;
     }

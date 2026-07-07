@@ -88,7 +88,7 @@ $border:    #e8ecf4;
     }
   }
 
-  &--on-route {
+  &--correct {
     border-color: $teal;
     &:hover { border-color: darken($teal, 8%); }
     .lt-marker__icon {
@@ -96,7 +96,7 @@ $border:    #e8ecf4;
     }
   }
 
-  &--off-route {
+  &--incorrect {
     border-color: $red;
     &:hover { border-color: darken($red, 8%); }
     .lt-marker__icon {
@@ -104,15 +104,7 @@ $border:    #e8ecf4;
     }
   }
 
-  &--idle {
-    border-color: $yellow;
-    &:hover { border-color: darken($yellow, 8%); }
-    .lt-marker__icon {
-      color: #a16207;
-    }
-  }
-
-  &--monitoring-not-started {
+  &--pending {
     border-color: #cbd5e1;
     &:hover { border-color: #94a3b8; }
     .lt-marker__icon {
@@ -223,19 +215,15 @@ $border:    #e8ecf4;
       background: currentColor;
     }
 
-    &--on-route {
+    &--correct {
       background: #e6faf8;
       color: #0f766e;
     }
-    &--off-route {
+    &--incorrect {
       background: #fee2e2;
       color: #b91c1c;
     }
-    &--idle {
-      background: #fef9c3;
-      color: #a16207;
-    }
-    &--monitoring-not-started {
+    &--pending {
       background: #f1f5f9;
       color: #64748b;
     }

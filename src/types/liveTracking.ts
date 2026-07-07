@@ -3,7 +3,7 @@ export interface Vehicle {
   name: string;
   type: 'Truck' | 'Van';
   speedMph: number;
-  status: 'On Route' | 'Off Route' | 'Monitoring Not Started';
+  status: 'Correct' | 'Incorrect' | 'Pending';
   gpxPath: string | null;
   plannedGpxPath: string | null;
   simulatedProgress?: number;
@@ -63,6 +63,17 @@ export interface EnhancedVehicle extends Vehicle {
   routeTitle: string;
   startLocation: string;
   endLocation: string;
+  gfStates: GeoFenceState[];
+}
+
+export interface GeoFenceState {
+  geofence: GeoFence;
+  entered: boolean;
+  firstEntryIndex: number;
+  bypassed: boolean;
+  entryProgress: number;
+  exitProgress: number;
+  plannedEntryIndex: number;
 }
 
 export interface LiveTrackingFilters {
@@ -74,6 +85,9 @@ export interface GeoFence {
   id: string;
   name: string;
   description: string;
+  type: 'go' | 'no-go';
+  mandatory: boolean;
+  priority: 'P1' | 'P2' | 'P3';
   coordinates: number[][][];
 }
 

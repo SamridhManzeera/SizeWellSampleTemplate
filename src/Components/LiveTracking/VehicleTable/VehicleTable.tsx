@@ -50,8 +50,8 @@ export default function VehicleTable({ vehicles, onSelectVehicle, onViewOnMap }:
           ) : (
             vehicles.map(v => {
               const statusClass = 
-                v.status === 'On Route' ? 'on-route' :
-                v.status === 'Off Route' ? 'off-route' : 'idle';
+                v.status === 'Correct' ? 'on-route' :
+                v.status === 'Incorrect' ? 'off-route' : 'idle';
 
               const distanceText = v.summary 
                 ? `${v.summary.distanceKm.toFixed(2)} km` 
@@ -86,8 +86,8 @@ export default function VehicleTable({ vehicles, onSelectVehicle, onViewOnMap }:
                   </td>
                   <td>
                     <span className={`lt-table__status-badge lt-table__status-badge--${statusClass}`}>
-                      {v.status === 'On Route' ? 'Correct' : 
-                       v.status === 'Off Route' ? 'Incorrect' : 'Pending Validation'}
+                      {v.status === 'Correct' ? 'Correct' : 
+                       v.status === 'Incorrect' ? 'Incorrect' : 'Pending Validation'}
                     </span>
                   </td>
                   <td className="lt-table__speed-val">{speedText}</td>
