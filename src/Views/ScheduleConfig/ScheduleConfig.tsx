@@ -69,8 +69,20 @@ function dateToString(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
+function addDays(dateStr: string, days: number): string {
+  const d = parseDate(dateStr);
+  d.setDate(d.getDate() + days);
+  return dateToString(d);
+}
+
 /** Upcoming 7 days shown in tiles (today excluded) */
 const UPCOMING_PLANNING_DAYS = 7;
+
+/** Default "repeat until" horizon for the weekly pattern copy: 12 weeks out. */
+const PATTERN_DEFAULT_LOOKAHEAD_DAYS = 12 * 7;
+
+/** Quick-pick horizons offered in the pattern copy tab. */
+const PATTERN_QUICK_WEEKS = [4, 8, 12, 26];
 
 function getUpcomingTileDates(): string[] {
   const start = parseDate(todayString());
@@ -211,6 +223,8 @@ function ScheduleConfig() {
   const modalCopyFromRef = useRef<HTMLInputElement>(null);
   const modalCopyToStartRef = useRef<HTMLInputElement>(null);
   const modalCopyToEndRef = useRef<HTMLInputElement>(null);
+  const modalPatternWeekRef = useRef<HTMLInputElement>(null);
+  const modalPatternUntilRef = useRef<HTMLInputElement>(null);
 
   const [selectedDate, setSelectedDate] = useState(() => todayString());
   const [draft, setDraft] = useState<DayConfig>(() => getConfigForDate(todayString()));
@@ -228,6 +242,7 @@ function ScheduleConfig() {
 
   // Copy configuration modal states
   const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
+  const [copyModalTab, setCopyModalTab] = useState<'single' | 'pattern'>('single');
   const [modalCopyFrom, setModalCopyFrom] = useState(() => todayString());
   const [modalCopyToStart, setModalCopyToStart] = useState(() => {
     const upcoming = getUpcomingTileDates();
@@ -237,6 +252,10 @@ function ScheduleConfig() {
     const upcoming = getUpcomingTileDates();
     return upcoming[upcoming.length - 1] ?? todayString();
   });
+
+  // Pattern (week → upcoming weeks) copy modal states
+  const [modalPatternWeek, setModalPatternWeek] = useState(() => todayString());
+  const [modalPatternUntil, setModalPatternUntil] = useState(() => addDays(todayString(), PATTERN_DEFAULT_LOOKAHEAD_DAYS));
 
   // Explicit type label per hour — independent of the slot value
   const defaultHourTypes = (): Record<number, 'peak' | 'shoulder' | null> =>
@@ -258,10 +277,55 @@ function ScheduleConfig() {
     const upcoming = getUpcomingTileDates();
     setModalCopyToStart(upcoming[0] ?? todayString());
     setModalCopyToEnd(upcoming[upcoming.length - 1] ?? todayString());
+
+    // Pattern tab defaults: the week containing selectedDate, repeated for the next 12 weeks.
+    const weekEnd = getWeekDates(selectedDate, 0)[6];
+    setModalPatternWeek(selectedDate);
+    setModalPatternUntil(addDays(weekEnd, PATTERN_DEFAULT_LOOKAHEAD_DAYS));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDate]);
 
+  /** Applies each date→config pair, keeping the open-day draft in sync if it was overwritten. */
+  function applyConfigCopies(pairs: { date: string; config: DayConfig }[]) {
+    pairs.forEach(({ date, config }) => updateConfigForDate(date, config));
+    const selfPair = pairs.find(p => p.date === selectedDate);
+    if (selfPair) {
+      setDraft(selfPair.config);
+      setSaved(false);
+    }
+  }
+
+  function resolveConfig(date: string): DayConfig {
+    return date === selectedDate ? draft : getConfigForDate(date);
+  }
+
   function handleModalApplyCopy() {
+    const sourceConfig = resolveConfig(modalCopyFrom);
+    const targetDates = getDatesInRange(modalCopyToStart, modalCopyToEnd);
+    applyConfigCopies(targetDates.map(date => ({ date, config: sourceConfig })));
+    setIsCopyModalOpen(false);
+  }
+
+  const patternWeekDates = getWeekDates(modalPatternWeek, 0);
+  const patternWeekEnd = patternWeekDates[6];
+  const patternMinUntil = addDays(patternWeekEnd, 1);
+  const patternTargetDates = getDatesInRange(patternMinUntil, modalPatternUntil);
+
+  /** Keeps "repeat until" from landing on/before the selected week's own end date. */
+  function handlePatternWeekChange(value: string) {
+    setModalPatternWeek(value);
+    const newWeekEnd = getWeekDates(value, 0)[6];
+    if (modalPatternUntil <= newWeekEnd) {
+      setModalPatternUntil(addDays(newWeekEnd, PATTERN_DEFAULT_LOOKAHEAD_DAYS));
+    }
+  }
+
+  function handleApplyPatternCopy() {
+    const pairs = patternTargetDates.map((date, i) => ({
+      date,
+      config: resolveConfig(patternWeekDates[i % patternWeekDates.length]),
+    }));
+    applyConfigCopies(pairs);
     setIsCopyModalOpen(false);
   }
 
@@ -277,6 +341,9 @@ function ScheduleConfig() {
     : '';
 
   const copyToDatesCount = getDatesInRange(modalCopyToStart, modalCopyToEnd).length;
+  const patternTargetCount = patternTargetDates.length;
+  const patternFullWeeks = Math.floor(patternTargetCount / 7);
+  const patternLeftoverDays = patternTargetCount % 7;
 
   function setHourLimit(h: number, v: number) {
     setDraft(prev => ({ ...prev, hourLimits: { ...prev.hourLimits, [h]: v } }));
@@ -688,100 +755,199 @@ function ScheduleConfig() {
               </button>
             </div>
 
+            {/* Tabs */}
+            <div className="sc-modal__tabs">
+              <button
+                type="button"
+                className={`sc-modal__tab${copyModalTab === 'single' ? ' sc-modal__tab--active' : ''}`}
+                onClick={() => setCopyModalTab('single')}
+              >
+                Single Day
+              </button>
+              <button
+                type="button"
+                className={`sc-modal__tab${copyModalTab === 'pattern' ? ' sc-modal__tab--active' : ''}`}
+                onClick={() => setCopyModalTab('pattern')}
+              >
+                Repeat Pattern
+              </button>
+            </div>
+
             {/* Body */}
             <div className="sc-modal__body">
-              {/* Step 1: Copy From */}
-              <div className="sc-modal__step">
-                <span className="sc-modal__step-num-title">1. Copy From</span>
-                <div
-                  className="sc-modal__date-selector"
-                  onClick={() => modalCopyFromRef.current?.showPicker()}
-                >
-                  <span className="sc-modal__date-icon">📅</span>
-                  <span className="sc-modal__date-text">{formatDateDisplay(modalCopyFrom)}</span>
-                  <span className="sc-modal__chevron">▾</span>
-                  <input
-                    ref={modalCopyFromRef}
-                    type="date"
-                    value={modalCopyFrom}
-                    onChange={(e) => setModalCopyFrom(e.target.value)}
-                    className="sc-modal__date-hidden"
-                    aria-label="Copy config from date"
-                  />
-                </div>
-              </div>
-
-              {/* Step 2: Copy To */}
-              <div className="sc-modal__step">
-                <span className="sc-modal__step-num-title">2. Copy To</span>
-                <span className="sc-modal__step-subtitle">Select Date Range</span>
-                
-                <div className="sc-modal__range-row">
-                  <div
-                    className="sc-modal__range-box"
-                    onClick={() => modalCopyToStartRef.current?.showPicker()}
-                  >
-                    <span className="sc-modal__range-label">Start Date</span>
-                    <span className="sc-modal__range-val">{formatDateDisplay(modalCopyToStart)}</span>
-                    <span className="sc-modal__range-icon">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="16" y1="2" x2="16" y2="6"></line>
-                        <line x1="8" y1="2" x2="8" y2="6"></line>
-                        <line x1="3" y1="10" x2="21" y2="10"></line>
-                      </svg>
-                    </span>
-                    <input
-                      ref={modalCopyToStartRef}
-                      type="date"
-                      value={modalCopyToStart}
-                      onChange={(e) => setModalCopyToStart(e.target.value)}
-                      className="sc-modal__date-hidden"
-                      aria-label="Copy to start date"
-                    />
+              {copyModalTab === 'single' ? (
+                <>
+                  {/* Step 1: Copy From */}
+                  <div className="sc-modal__step">
+                    <span className="sc-modal__step-num-title">1. Copy From</span>
+                    <div
+                      className="sc-modal__date-selector"
+                      onClick={() => modalCopyFromRef.current?.showPicker()}
+                    >
+                      <span className="sc-modal__date-icon">📅</span>
+                      <span className="sc-modal__date-text">{formatDateDisplay(modalCopyFrom)}</span>
+                      <span className="sc-modal__chevron">▾</span>
+                      <input
+                        ref={modalCopyFromRef}
+                        type="date"
+                        value={modalCopyFrom}
+                        onChange={(e) => setModalCopyFrom(e.target.value)}
+                        className="sc-modal__date-hidden"
+                        aria-label="Copy config from date"
+                      />
+                    </div>
                   </div>
 
-                  <span className="sc-modal__range-arrow">→</span>
+                  {/* Step 2: Copy To */}
+                  <div className="sc-modal__step">
+                    <span className="sc-modal__step-num-title">2. Copy To</span>
+                    <span className="sc-modal__step-subtitle">Select Date Range</span>
 
-                  <div
-                    className="sc-modal__range-box"
-                    onClick={() => modalCopyToEndRef.current?.showPicker()}
-                  >
-                    <span className="sc-modal__range-label">End Date</span>
-                    <span className="sc-modal__range-val">{formatDateDisplay(modalCopyToEnd)}</span>
-                    <span className="sc-modal__range-icon">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="16" y1="2" x2="16" y2="6"></line>
-                        <line x1="8" y1="2" x2="8" y2="6"></line>
-                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    <div className="sc-modal__range-row">
+                      <div
+                        className="sc-modal__range-box"
+                        onClick={() => modalCopyToStartRef.current?.showPicker()}
+                      >
+                        <span className="sc-modal__range-label">Start Date</span>
+                        <span className="sc-modal__range-val">{formatDateDisplay(modalCopyToStart)}</span>
+                        <span className="sc-modal__range-icon">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                          </svg>
+                        </span>
+                        <input
+                          ref={modalCopyToStartRef}
+                          type="date"
+                          value={modalCopyToStart}
+                          onChange={(e) => setModalCopyToStart(e.target.value)}
+                          className="sc-modal__date-hidden"
+                          aria-label="Copy to start date"
+                        />
+                      </div>
+
+                      <span className="sc-modal__range-arrow">→</span>
+
+                      <div
+                        className="sc-modal__range-box"
+                        onClick={() => modalCopyToEndRef.current?.showPicker()}
+                      >
+                        <span className="sc-modal__range-label">End Date</span>
+                        <span className="sc-modal__range-val">{formatDateDisplay(modalCopyToEnd)}</span>
+                        <span className="sc-modal__range-icon">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                          </svg>
+                        </span>
+                        <input
+                          ref={modalCopyToEndRef}
+                          type="date"
+                          value={modalCopyToEnd}
+                          onChange={(e) => setModalCopyToEnd(e.target.value)}
+                          className="sc-modal__date-hidden"
+                          aria-label="Copy to end date"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Information Alert Box */}
+                  <div className="sc-modal__info-box">
+                    <span className="sc-modal__info-icon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
                       </svg>
                     </span>
-                    <input
-                      ref={modalCopyToEndRef}
-                      type="date"
-                      value={modalCopyToEnd}
-                      onChange={(e) => setModalCopyToEnd(e.target.value)}
-                      className="sc-modal__date-hidden"
-                      aria-label="Copy to end date"
-                    />
+                    <span className="sc-modal__info-text">
+                      This will copy the configuration from {formatDateDisplay(modalCopyFrom)} to {copyToDatesCount} selected {copyToDatesCount === 1 ? 'date' : 'dates'}.
+                    </span>
                   </div>
-                </div>
-              </div>
+                </>
+              ) : (
+                <>
+                  {/* Step 1: Which week to copy */}
+                  <div className="sc-modal__step">
+                    <span className="sc-modal__step-num-title">1. Select Week to Copy</span>
+                    <span className="sc-modal__step-subtitle">Pick any date — its full Mon–Sun week is used</span>
+                    <div
+                      className="sc-modal__date-selector"
+                      onClick={() => modalPatternWeekRef.current?.showPicker()}
+                    >
+                      <span className="sc-modal__date-icon">📅</span>
+                      <span className="sc-modal__date-text">
+                        {formatDateDisplay(patternWeekDates[0])} – {formatDateDisplay(patternWeekEnd)}
+                      </span>
+                      <span className="sc-modal__chevron">▾</span>
+                      <input
+                        ref={modalPatternWeekRef}
+                        type="date"
+                        value={modalPatternWeek}
+                        onChange={(e) => handlePatternWeekChange(e.target.value)}
+                        className="sc-modal__date-hidden"
+                        aria-label="Pattern week anchor date"
+                      />
+                    </div>
+                  </div>
 
-              {/* Information Alert Box */}
-              <div className="sc-modal__info-box">
-                <span className="sc-modal__info-icon">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="16" x2="12" y2="12"></line>
-                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                  </svg>
-                </span>
-                <span className="sc-modal__info-text">
-                  This will copy the configuration from {formatDateDisplay(modalCopyFrom)} to {copyToDatesCount} selected {copyToDatesCount === 1 ? 'date' : 'dates'}.
-                </span>
-              </div>
+                  {/* Step 2: Repeat until */}
+                  <div className="sc-modal__step">
+                    <span className="sc-modal__step-num-title">2. Repeat Until</span>
+                    <span className="sc-modal__step-subtitle">Apply this week&apos;s pattern to every upcoming week through:</span>
+                    <div
+                      className="sc-modal__date-selector"
+                      onClick={() => modalPatternUntilRef.current?.showPicker()}
+                    >
+                      <span className="sc-modal__date-icon">📅</span>
+                      <span className="sc-modal__date-text">{formatDateDisplay(modalPatternUntil)}</span>
+                      <span className="sc-modal__chevron">▾</span>
+                      <input
+                        ref={modalPatternUntilRef}
+                        type="date"
+                        value={modalPatternUntil}
+                        min={patternMinUntil}
+                        onChange={(e) => setModalPatternUntil(e.target.value)}
+                        className="sc-modal__date-hidden"
+                        aria-label="Repeat pattern until date"
+                      />
+                    </div>
+
+                    <div className="sc-modal__quick-weeks">
+                      {PATTERN_QUICK_WEEKS.map((weeks) => (
+                        <button
+                          key={weeks}
+                          type="button"
+                          className="sc-modal__quick-week-btn"
+                          onClick={() => setModalPatternUntil(addDays(patternWeekEnd, weeks * 7))}
+                        >
+                          {weeks} weeks
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Information Alert Box */}
+                  <div className="sc-modal__info-box">
+                    <span className="sc-modal__info-icon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                      </svg>
+                    </span>
+                    <span className="sc-modal__info-text">
+                      This will repeat the week of {formatDateDisplay(patternWeekDates[0])} across the next {patternTargetCount} {patternTargetCount === 1 ? 'day' : 'days'}
+                      {patternFullWeeks > 0 ? ` (${patternFullWeeks} full ${patternFullWeeks === 1 ? 'week' : 'weeks'}${patternLeftoverDays > 0 ? ` + ${patternLeftoverDays} ${patternLeftoverDays === 1 ? 'day' : 'days'}` : ''})` : ''}.
+                    </span>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Footer */}
@@ -796,7 +962,7 @@ function ScheduleConfig() {
               <button
                 type="button"
                 className="sc-modal__btn sc-modal__btn--copy"
-                onClick={handleModalApplyCopy}
+                onClick={copyModalTab === 'single' ? handleModalApplyCopy : handleApplyPatternCopy}
               >
                 Copy Configuration
               </button>
