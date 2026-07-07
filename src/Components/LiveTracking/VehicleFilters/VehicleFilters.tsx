@@ -16,7 +16,9 @@ export default function VehicleFilters({
   onReset,
   onRefresh,
 }: VehicleFiltersProps) {
-  const activeVehicles = vehicles;
+  const activeVehicles = filters.status
+    ? vehicles.filter(v => v.status === filters.status)
+    : vehicles;
 
   return (
     <div className="lt-filters">

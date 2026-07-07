@@ -47,6 +47,10 @@ export default function LiveTracking() {
 
   const handleViewVehicleOnMap = (id: string) => {
     setActiveTab('map');
+    const selected = vehicles.find(v => v.id === id);
+    if (selected) {
+      handleMapFilterChange('status', selected.status);
+    }
     handleMapFilterChange('vehicleId', id);
     handleSelectVehicle(id);
   };
