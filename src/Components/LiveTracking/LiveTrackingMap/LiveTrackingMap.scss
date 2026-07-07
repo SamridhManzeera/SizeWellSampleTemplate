@@ -231,6 +231,10 @@ $border:    #e8ecf4;
 }
 
 // Override Mapbox default popup padding styles
+.mapboxgl-popup {
+  z-index: 1000 !important;
+}
+
 .mapboxgl-popup-content {
   padding: 10px 14px;
   border-radius: 8px;
