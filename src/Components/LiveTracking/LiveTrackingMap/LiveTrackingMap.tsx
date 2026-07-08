@@ -11,6 +11,27 @@ mapboxgl.accessToken =
   import.meta.env.VITE_MAPBOX_TOKEN ||
   '';
 
+const MAP_STYLES = [
+  {
+    id: 'light-v10',
+    name: 'Default View',
+    url: 'mapbox://styles/mapbox/light-v10',
+    icon: '🗺️',
+  },
+  {
+    id: 'streets',
+    name: 'Road View',
+    url: 'mapbox://styles/mapbox/streets-v12',
+    icon: '🛣️',
+  },
+  {
+    id: 'satellite',
+    name: 'Satellite',
+    url: 'mapbox://styles/mapbox/satellite-streets-v12',
+    icon: '🛰️',
+  },
+];
+
 interface LiveTrackingMapProps {
   vehicles: EnhancedVehicle[];
   filteredVehicles: EnhancedVehicle[];
@@ -31,6 +52,7 @@ export default function LiveTrackingMap({
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
+  const [activeStyle, setActiveStyle] = useState('mapbox://styles/mapbox/light-v10');
   const [mapLoaded, setMapLoaded] = useState(false);
   const [showPlannedRoute, setShowPlannedRoute] = useState(true);
 
@@ -40,7 +62,7 @@ export default function LiveTrackingMap({
 
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
-      style: 'mapbox://styles/mapbox/light-v10', // clean professional light style
+      style: activeStyle,
       center: [1.42, 52.12], // Suffolk center
       zoom: 9.8,
       attributionControl: false,
@@ -49,18 +71,24 @@ export default function LiveTrackingMap({
     map.addControl(new mapboxgl.NavigationControl(), 'top-left');
     mapRef.current = map;
 
-    map.on('load', () => {
-      setTimeout(() => {
-        setMapLoaded(true);
-        map.resize();
-      }, 100);
+    // Listen to style.load to ensure layers are drawn initially and on style changes
+    map.on('style.load', () => {
+      setMapLoaded(true);
+      map.resize();
     });
 
     return () => {
       map.remove();
       mapRef.current = null;
     };
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleStyleChange = (styleUrl: string) => {
+    if (!mapRef.current || styleUrl === activeStyle) return;
+    setMapLoaded(false);
+    setActiveStyle(styleUrl);
+    mapRef.current.setStyle(styleUrl);
+  };
 
   // Update layers and markers
   useEffect(() => {
@@ -684,6 +712,25 @@ export default function LiveTrackingMap({
   return (
     <div className="lt-map-container">
       <div ref={mapContainerRef} className="lt-mapbox-map" />
+      
+      {/* Map Style Switcher overlay */}
+      <div className="lt-map-style-switcher">
+        {MAP_STYLES.map(style => (
+          <button
+            key={style.id}
+            type="button"
+            className={`lt-map-style-switcher__btn ${
+              activeStyle === style.url ? 'lt-map-style-switcher__btn--active' : ''
+            }`}
+            onClick={() => handleStyleChange(style.url)}
+            title={style.name}
+          >
+            <span className="lt-map-style-switcher__icon">{style.icon}</span>
+            <span className="lt-map-style-switcher__label">{style.name}</span>
+          </button>
+        ))}
+      </div>
+
       {isAnalysisMode && activeVehicle && activeVehicle.status === 'Incorrect' && (
         <div className="lt-map-overlay">
           <label className="lt-map-overlay__checkbox-label">

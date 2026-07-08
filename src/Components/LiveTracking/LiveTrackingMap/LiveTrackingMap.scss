@@ -275,3 +275,89 @@ $border:    #e8ecf4;
   }
 }
 
+// ── Map Style Switcher ──────────────────────────────────────────
+.lt-map-style-switcher {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
+  z-index: 10;
+  display: flex;
+  gap: 4px;
+  pointer-events: auto;
+  transition: all 0.25s ease;
+
+  &__btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+
+    &:hover {
+      background: rgba(15, 23, 42, 0.05);
+      color: #1e293b;
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    &--active {
+      background: #1e293b;
+      color: #ffffff !important;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.2);
+
+      &:hover {
+        background: #1e293b;
+        color: #ffffff !important;
+        transform: none;
+      }
+    }
+  }
+
+  &__icon {
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  &__label {
+    font-family: inherit;
+  }
+}
+
+// Responsive adjustments for style switcher
+@media (max-width: 768px) {
+  .lt-map-style-switcher {
+    bottom: 12px;
+    left: 12px;
+    padding: 4px;
+    gap: 2px;
+
+    &__btn {
+      padding: 5px 8px;
+      font-size: 11px;
+      gap: 4px;
+    }
+
+    &__label {
+      display: none; // hide label on mobile to save space
+    }
+  }
+}
+
+
