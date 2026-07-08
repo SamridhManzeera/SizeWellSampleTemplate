@@ -36,14 +36,31 @@ export default function ExceptionModal({
   const [validUntil, setValidUntil] = useState(getTodayDateTimeString(1));
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
+  const resetFormFields = () => {
+    setSelectedVehicleIds([]);
+    setSelectedSupplier('');
+    setSelectedSupplierVehicleIds([]);
+    setSelectedGeofenceIds([]);
+    setDescription('');
+    setValidFrom(getTodayDateTimeString(0));
+    setValidUntil(getTodayDateTimeString(1));
+    setFormErrors({});
+  };
+
   // Extract unique supplier names from the vehicles list
   const suppliers = Array.from(
     new Set(vehicles.map(v => v.supplier).filter(Boolean))
   ) as string[];
 
   const handleSupplierChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedSupplier(e.target.value);
-    setSelectedSupplierVehicleIds([]);
+    const supplier = e.target.value;
+    setSelectedSupplier(supplier);
+    if (supplier) {
+      const supplierVehicles = vehicles.filter(v => v.supplier === supplier);
+      setSelectedSupplierVehicleIds(supplierVehicles.map(v => v.id));
+    } else {
+      setSelectedSupplierVehicleIds([]);
+    }
   };
 
   const handleToggleSupplierVehicle = (id: string) => {
@@ -162,13 +179,7 @@ export default function ExceptionModal({
     }
     
     // Reset state
-    setSelectedVehicleIds([]);
-    setSelectedSupplier('');
-    setSelectedSupplierVehicleIds([]);
-    setSelectedGeofenceIds([]);
-    setDescription('');
-    setValidFrom(getTodayDateTimeString(0));
-    setValidUntil(getTodayDateTimeString(1));
+    resetFormFields();
     setExceptionScope('vehicle');
     onClose();
   };
@@ -198,7 +209,7 @@ export default function ExceptionModal({
                     checked={exceptionScope === 'vehicle'}
                     onChange={() => {
                       setExceptionScope('vehicle');
-                      setFormErrors({});
+                      resetFormFields();
                     }}
                     className="ex-modal__radio"
                   />
@@ -212,7 +223,7 @@ export default function ExceptionModal({
                     checked={exceptionScope === 'supplier'}
                     onChange={() => {
                       setExceptionScope('supplier');
-                      setFormErrors({});
+                      resetFormFields();
                     }}
                     className="ex-modal__radio"
                   />
