@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Vehicle, GPXData, JourneySummary, LiveTrackingFilters, TrackPoint, EnhancedVehicle, GeoFence } from '../types/liveTracking';
+import { Vehicle, GPXData, JourneySummary, LiveTrackingFilters, TrackPoint, EnhancedVehicle, GeoFence, RouteException, GeoFenceState } from '../types/liveTracking';
 import { fetchAndParseGPX, isPointInPolygon } from '../utils/gpxParser';
 import { fetchCorrectSummary, fetchIncorrectSummary } from '../utils/csvParser';
 
@@ -9,6 +9,7 @@ export function useLiveTracking() {
   const [correctSummaries, setCorrectSummaries] = useState<JourneySummary[]>([]);
   const [incorrectSummaries, setIncorrectSummaries] = useState<JourneySummary[]>([]);
   const [geofences, setGeofences] = useState<GeoFence[]>([]);
+  const [exceptions, setExceptions] = useState<RouteException[]>([]);
   
   // Cache for parsed GPX files: key is gpxPath
   const [gpxCache, setGpxCache] = useState<Record<string, GPXData>>({});
@@ -16,11 +17,13 @@ export function useLiveTracking() {
   const [mapFilters, setMapFilters] = useState<LiveTrackingFilters>({
     vehicleId: '',
     status: '',
+    exception: '',
   });
 
   const [listingFilters, setListingFilters] = useState<LiveTrackingFilters>({
     vehicleId: '',
     status: '',
+    exception: '',
   });
   
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
@@ -131,8 +134,28 @@ export function useLiveTracking() {
       let deviationPoint: TrackPoint | null = null;
       let firstViolationIndex = -1;
 
+      // Find active exceptions for this vehicle
+      const activeExceptions = exceptions.filter(exc => {
+        if (exc.vehicleId !== v.id && exc.vehicleId !== 'all') return false;
+        
+        const from = new Date(exc.validFrom).getTime();
+        const until = new Date(exc.validUntil).getTime();
+        
+        // 1. Check system time
+        const now = Date.now();
+        if (now >= from && now <= until) return true;
+        
+        // 2. Check simulation time if available
+        if (lastUpdated) {
+          const simTime = new Date(lastUpdated).getTime();
+          if (!isNaN(simTime) && simTime >= from && simTime <= until) return true;
+        }
+        
+        return false;
+      });
+
       // Map geofence entry and exit states
-      const gfStates = geofences.map(gf => {
+      const gfStates: GeoFenceState[] = geofences.map(gf => {
         let entered = false;
         let firstEntryIndex = -1;
 
@@ -172,6 +195,11 @@ export function useLiveTracking() {
         // but the vehicle never entered it
         const bypassed = gf.type === 'go' && progress >= exitProgress && !entered && plannedExitIndex !== -1;
 
+        // Find matching active exception for this geofence
+        const appliedException = activeExceptions.find(exc => {
+          return exc.geofenceIds.includes(gf.id);
+        }) ?? null;
+
         return {
           geofence: gf,
           entered,
@@ -179,16 +207,17 @@ export function useLiveTracking() {
           bypassed,
           entryProgress,
           exitProgress,
-          plannedEntryIndex
+          plannedEntryIndex,
+          appliedException
         };
       });
 
       // Compliance Logic:
-      // 1. Check No-Go violations (immediate violation if entered)
-      const violatedNoGo = gfStates.find(state => state.geofence.type === 'no-go' && state.entered);
+      // 1. Check No-Go violations (immediate violation if entered and no exception applies)
+      const violatedNoGo = gfStates.find(state => state.geofence.type === 'no-go' && state.entered && !state.appliedException);
       
-      // 2. Check mandatory Go Zone bypasses
-      const bypassedMandatoryGo = gfStates.find(state => state.geofence.type === 'go' && state.geofence.mandatory && state.bypassed);
+      // 2. Check mandatory Go Zone bypasses (violation if bypassed and no exception applies)
+      const bypassedMandatoryGo = gfStates.find(state => state.geofence.type === 'go' && state.geofence.mandatory && state.bypassed && !state.appliedException);
 
       if (violatedNoGo) {
         complianceStatus = 'Incorrect';
@@ -252,9 +281,10 @@ export function useLiveTracking() {
         startLocation,
         endLocation,
         gfStates,
+        hasException: gfStates.some(state => state.appliedException !== null),
       };
     });
-  }, [vehicles, correctSummaries, incorrectSummaries, gpxCache, geofences]);
+  }, [vehicles, correctSummaries, incorrectSummaries, gpxCache, geofences, exceptions]);
 
   // 3. Compute Metrics
   const metrics = useMemo(() => {
@@ -271,6 +301,10 @@ export function useLiveTracking() {
     return enhancedVehicles.filter(v => {
       if (mapFilters.vehicleId && v.id !== mapFilters.vehicleId) return false;
       if (mapFilters.status && v.status !== mapFilters.status) return false;
+      if (mapFilters.exception) {
+        const wantsException = mapFilters.exception === 'applied';
+        if (v.hasException !== wantsException) return false;
+      }
       return true;
     });
   }, [enhancedVehicles, mapFilters]);
@@ -279,6 +313,10 @@ export function useLiveTracking() {
     return enhancedVehicles.filter(v => {
       if (listingFilters.vehicleId && v.id !== listingFilters.vehicleId) return false;
       if (listingFilters.status && v.status !== listingFilters.status) return false;
+      if (listingFilters.exception) {
+        const wantsException = listingFilters.exception === 'applied';
+        if (v.hasException !== wantsException) return false;
+      }
       return true;
     });
   }, [enhancedVehicles, listingFilters]);
@@ -329,6 +367,7 @@ export function useLiveTracking() {
     setMapFilters({
       vehicleId: '',
       status: '',
+      exception: '',
     });
   };
 
@@ -336,11 +375,20 @@ export function useLiveTracking() {
     setListingFilters({
       vehicleId: '',
       status: '',
+      exception: '',
     });
   };
 
   const refreshData = () => {
     loadData();
+  };
+
+  const addException = (exc: RouteException) => {
+    setExceptions(prev => [...prev, exc]);
+  };
+
+  const removeException = (id: string) => {
+    setExceptions(prev => prev.filter(exc => exc.id !== id));
   };
 
   return {
@@ -362,5 +410,8 @@ export function useLiveTracking() {
     resetMapFilters,
     resetListingFilters,
     refreshData,
+    exceptions,
+    addException,
+    removeException,
   };
 }

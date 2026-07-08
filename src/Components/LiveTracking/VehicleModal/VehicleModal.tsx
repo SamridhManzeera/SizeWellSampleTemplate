@@ -43,23 +43,39 @@ export default function VehicleModal({ open, vehicle, onClose }: VehicleModalPro
     return 'P3 • Information';
   };
 
+  const formatExceptionDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    const day = d.getDate();
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[d.getMonth()];
+    const year = d.getFullYear();
+    return `${day} ${month} ${year}`;
+  };
+
 
   return (
     <div className="vm-backdrop" onClick={onClose} role="presentation">
       <div className="vm" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true">
         {/* Header */}
         <div className="vm__header">
-          <div className="vm__header-left">
-            <span className={`vm__status-tag vm__status-tag--${statusClass}`}>
-              {vehicle.status === 'Correct' ? 'Correct' : 
-               vehicle.status === 'Incorrect' ? 'Incorrect' : 'Pending Validation'}
-            </span>
-            <div>
+          <div className="vm__header-main">
+            <div className="vm__header-title-row">
               <h2 className="vm__title">{vehicle.name} Details</h2>
-              <p className="vm__subtitle">Vehicle Monitoring & Compliance Log</p>
+              <button type="button" className="vm__close" onClick={onClose} aria-label="Close">✕</button>
+            </div>
+            <p className="vm__subtitle">Vehicle Monitoring & Compliance Log</p>
+            <div className="vm__header-badges">
+              <span className={`vm__status-tag vm__status-tag--${statusClass}`}>
+                {vehicle.status === 'Correct' ? 'Correct' : 
+                 vehicle.status === 'Incorrect' ? 'Incorrect' : 'Pending Validation'}
+              </span>
+              {vehicle.hasException && (
+                <span className="vm__status-tag vm__status-tag--exception">
+                  Exception Applied
+                </span>
+              )}
             </div>
           </div>
-          <button type="button" className="vm__close" onClick={onClose} aria-label="Close">✕</button>
         </div>
 
         {/* Modal Content */}
@@ -164,8 +180,10 @@ export default function VehicleModal({ open, vehicle, onClose }: VehicleModalPro
             <h3 className="vm__section-title">Go Zones Compliance</h3>
             <div className="vm__timeline">
               {goZoneStates.map((state, index) => {
-                let stepStatus: 'completed' | 'skipped' | 'pending' | 'bypassed' = 'pending';
-                if (state.entered) {
+                let stepStatus: 'completed' | 'skipped' | 'pending' | 'bypassed' | 'exception' = 'pending';
+                if (state.appliedException) {
+                  stepStatus = 'exception';
+                } else if (state.entered) {
                   stepStatus = 'completed';
                 } else if (state.bypassed) {
                   stepStatus = state.geofence.mandatory ? 'bypassed' : 'skipped';
@@ -175,7 +193,8 @@ export default function VehicleModal({ open, vehicle, onClose }: VehicleModalPro
                   completed: 'Entered',
                   skipped: 'Skipped (Optional)',
                   bypassed: 'Missed (Mandatory)',
-                  pending: 'Pending'
+                  pending: 'Pending',
+                  exception: 'Approved Exception'
                 };
                 
                 const dotClass = `vm__timeline-dot vm__timeline-dot--${stepStatus}`;
@@ -189,6 +208,7 @@ export default function VehicleModal({ open, vehicle, onClose }: VehicleModalPro
                         {stepStatus === 'bypassed' && '✗'}
                         {stepStatus === 'skipped' && '○'}
                         {stepStatus === 'pending' && '🕒'}
+                        {stepStatus === 'exception' && '🛡️'}
                       </div>
                       {index < goZoneStates.length - 1 && <div className="vm__timeline-line" />}
                     </div>
@@ -203,7 +223,16 @@ export default function VehicleModal({ open, vehicle, onClose }: VehicleModalPro
                       
                       {stepStatus === 'bypassed' && (
                         <div className="vm__timeline-reason">
-                          <strong>Reason:</strong> Vehicle passed this section without entering the required checkpoint.
+                          <strong>Reason:</strong> Vehicle skipped this section without entering the required checkpoint.
+                        </div>
+                      )}
+
+                      {stepStatus === 'exception' && state.appliedException && (
+                        <div className="vm__timeline-reason vm__timeline-reason--exception">
+                          <div className="vm__timeline-exception-title">Approved Exception</div>
+                          <div><strong>Reason:</strong> {state.appliedException.reason}</div>
+                          <div><strong>Allowed:</strong> Skip {state.geofence.name}</div>
+                          <div><strong>Valid:</strong> {formatExceptionDate(state.appliedException.validFrom)} – {formatExceptionDate(state.appliedException.validUntil)}</div>
                         </div>
                       )}
                       
@@ -225,17 +254,27 @@ export default function VehicleModal({ open, vehicle, onClose }: VehicleModalPro
             <h3 className="vm__section-title">No-Go Zones Compliance</h3>
             <div className="vm__timeline">
               {nogoZoneStates.map((state, index) => {
-                const stepStatus = state.entered ? 'bypassed' : 'completed';
-                const badgeLabel = state.entered ? 'Violation' : 'Clear';
+                let stepStatus: 'completed' | 'bypassed' | 'exception' = 'completed';
+                if (state.appliedException) {
+                  stepStatus = 'exception';
+                } else if (state.entered) {
+                  stepStatus = 'bypassed';
+                }
+
+                const badgeLabel = stepStatus === 'exception'
+                  ? 'Approved Exception'
+                  : (stepStatus === 'bypassed' ? 'Violation' : 'Clear');
                 
-                const dotClass = `vm__timeline-dot vm__timeline-dot--${stepStatus === 'bypassed' ? 'bypassed' : 'completed'}`;
-                const stepClass = `vm__timeline-item vm__timeline-item--${stepStatus === 'bypassed' ? 'bypassed' : 'completed'}`;
+                const dotClass = `vm__timeline-dot vm__timeline-dot--${stepStatus}`;
+                const stepClass = `vm__timeline-item vm__timeline-item--${stepStatus}`;
 
                 return (
                   <div key={state.geofence.id} className={stepClass}>
                     <div className="vm__timeline-left">
                       <div className={dotClass}>
-                        {state.entered ? '⚠️' : '✓'}
+                        {stepStatus === 'exception' && '🛡️'}
+                        {stepStatus === 'bypassed' && '⚠️'}
+                        {stepStatus === 'completed' && '✓'}
                       </div>
                       {index < nogoZoneStates.length - 1 && <div className="vm__timeline-line" />}
                     </div>
@@ -248,9 +287,18 @@ export default function VehicleModal({ open, vehicle, onClose }: VehicleModalPro
                       </div>
                       <span className="vm__timeline-desc">{state.geofence.description}</span>
                       
-                      {state.entered && (
+                      {stepStatus === 'bypassed' && (
                         <div className="vm__timeline-reason">
                           <strong>Reason:</strong> Vehicle entered a restricted area.
+                        </div>
+                      )}
+
+                      {stepStatus === 'exception' && state.appliedException && (
+                        <div className="vm__timeline-reason vm__timeline-reason--exception">
+                          <div className="vm__timeline-exception-title">Approved Exception</div>
+                          <div><strong>Reason:</strong> {state.appliedException.reason}</div>
+                          <div><strong>Allowed:</strong> Enter restricted area ({state.geofence.name})</div>
+                          <div><strong>Valid:</strong> {formatExceptionDate(state.appliedException.validFrom)} – {formatExceptionDate(state.appliedException.validUntil)}</div>
                         </div>
                       )}
                       

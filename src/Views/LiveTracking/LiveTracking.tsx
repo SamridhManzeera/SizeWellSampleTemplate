@@ -6,6 +6,9 @@ import VehicleFilters from '../../Components/LiveTracking/VehicleFilters/Vehicle
 import LiveTrackingMap from '../../Components/LiveTracking/LiveTrackingMap/LiveTrackingMap';
 import VehicleTable from '../../Components/LiveTracking/VehicleTable/VehicleTable';
 import VehicleModal from '../../Components/LiveTracking/VehicleModal/VehicleModal';
+import ExceptionModal from '../../Components/LiveTracking/ExceptionModal/ExceptionModal';
+import ConfirmModal from '../../Components/LiveTracking/ConfirmModal/ConfirmModal';
+import { RouteException } from '../../types/liveTracking';
 import './LiveTracking.scss';
 
 function MapIcon() {
@@ -41,9 +44,23 @@ export default function LiveTracking() {
     resetMapFilters,
     resetListingFilters,
     refreshData,
+    exceptions,
+    addException,
+    removeException,
   } = useLiveTracking();
 
   const [activeTab, setActiveTab] = useState<'listing' | 'map'>('map');
+  const [isExceptionModalOpen, setIsExceptionModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [exceptionToConfirm, setExceptionToConfirm] = useState<RouteException | null>(null);
+
+  const handleManageException = (vehicleId: string) => {
+    const exc = exceptions.find(e => e.vehicleId === vehicleId || e.vehicleId === 'all');
+    if (exc) {
+      setExceptionToConfirm(exc);
+      setIsConfirmModalOpen(true);
+    }
+  };
 
   const handleViewVehicleOnMap = (id: string) => {
     setActiveTab('map');
@@ -121,6 +138,7 @@ export default function LiveTracking() {
           }
           onReset={activeTab === 'map' ? resetMapFilters : resetListingFilters}
           onRefresh={refreshData}
+          onAddException={() => setIsExceptionModalOpen(true)}
         />
 
         {error && (
@@ -166,6 +184,7 @@ export default function LiveTracking() {
                   vehicles={filteredVehiclesListing}
                   onSelectVehicle={handleSelectVehicle}
                   onViewOnMap={handleViewVehicleOnMap}
+                  onManageException={handleManageException}
                 />
               )}
             </div>
@@ -177,6 +196,28 @@ export default function LiveTracking() {
         open={isModalOpen}
         vehicle={selectedVehicle}
         onClose={() => handleSelectVehicle(null)}
+      />
+
+      <ExceptionModal
+        open={isExceptionModalOpen}
+        vehicles={vehicles}
+        geofences={geofences}
+        onClose={() => setIsExceptionModalOpen(false)}
+        onSave={addException}
+      />
+
+      <ConfirmModal
+        open={isConfirmModalOpen}
+        exception={exceptionToConfirm}
+        geofences={geofences}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={() => {
+          if (exceptionToConfirm) {
+            removeException(exceptionToConfirm.id);
+          }
+          setIsConfirmModalOpen(false);
+          setExceptionToConfirm(null);
+        }}
       />
     </div>
   );

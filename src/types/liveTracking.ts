@@ -64,6 +64,7 @@ export interface EnhancedVehicle extends Vehicle {
   startLocation: string;
   endLocation: string;
   gfStates: GeoFenceState[];
+  hasException: boolean;
 }
 
 export interface GeoFenceState {
@@ -74,11 +75,25 @@ export interface GeoFenceState {
   entryProgress: number;
   exitProgress: number;
   plannedEntryIndex: number;
+  appliedException: RouteException | null;
+}
+
+export interface RouteException {
+  id: string;
+  vehicleId: string;
+  exceptionType: 'allow-missing-go' | 'allow-entering-no-go';
+  geofenceIds: string[];
+  reason: string;
+  customReason?: string;
+  description: string;
+  validFrom: string;
+  validUntil: string;
 }
 
 export interface LiveTrackingFilters {
   vehicleId: string;
   status: string;
+  exception: string;
 }
 
 export interface GeoFence {

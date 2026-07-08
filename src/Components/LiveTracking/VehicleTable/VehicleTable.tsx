@@ -5,9 +5,15 @@ interface VehicleTableProps {
   vehicles: EnhancedVehicle[];
   onSelectVehicle: (id: string) => void;
   onViewOnMap: (id: string) => void;
+  onManageException: (vehicleId: string) => void;
 }
 
-export default function VehicleTable({ vehicles, onSelectVehicle, onViewOnMap }: VehicleTableProps) {
+export default function VehicleTable({
+  vehicles,
+  onSelectVehicle,
+  onViewOnMap,
+  onManageException,
+}: VehicleTableProps) {
   const formatDateTime = (timeStr: string | undefined | null) => {
     if (!timeStr) return '--';
     try {
@@ -31,7 +37,8 @@ export default function VehicleTable({ vehicles, onSelectVehicle, onViewOnMap }:
             <th>Vehicle</th>
             <th>Vehicle Type</th>
             <th>Route</th>
-            <th>Status</th>
+            <th className="lt-table__cell-center">Status</th>
+            <th className="lt-table__cell-center">Exception</th>
             <th>Speed</th>
             <th>Distance</th>
             <th>Duration</th>
@@ -43,7 +50,7 @@ export default function VehicleTable({ vehicles, onSelectVehicle, onViewOnMap }:
         <tbody>
           {vehicles.length === 0 ? (
             <tr>
-              <td colSpan={10} className="lt-table__empty">
+              <td colSpan={11} className="lt-table__empty">
                 No vehicles match the active filters.
               </td>
             </tr>
@@ -84,11 +91,32 @@ export default function VehicleTable({ vehicles, onSelectVehicle, onViewOnMap }:
                       </div>
                     </div>
                   </td>
-                  <td>
+                  <td className="lt-table__cell-center">
                     <span className={`lt-table__status-badge lt-table__status-badge--${statusClass}`}>
                       {v.status === 'Correct' ? 'Correct' : 
                        v.status === 'Incorrect' ? 'Incorrect' : 'Pending Validation'}
                     </span>
+                  </td>
+                  <td className="lt-table__cell-center">
+                    {v.hasException ? (
+                      <span 
+                        className="lt-table__exception-pill lt-table__exception-pill--yes"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onManageException(v.id);
+                        }}
+                        title="Click to manage route exception"
+                      >
+                        Applied
+                      </span>
+                    ) : (
+                      <span 
+                        className="lt-table__exception-pill lt-table__exception-pill--no"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Not Applied
+                      </span>
+                    )}
                   </td>
                   <td className="lt-table__speed-val">{speedText}</td>
                   <td>{distanceText}</td>

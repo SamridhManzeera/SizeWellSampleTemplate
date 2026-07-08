@@ -107,5 +107,11 @@ $radius:    9px;
       border: 1.5px solid $border;
       &:hover { background: #e2e8f0; }
     }
+
+    &--exception {
+      background: $navy;
+      color: #fff;
+      &:hover { background: lighten($navy, 8%); }
+    }
   }
 }

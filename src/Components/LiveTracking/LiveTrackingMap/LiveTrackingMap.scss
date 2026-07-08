@@ -105,10 +105,10 @@ $border:    #e8ecf4;
   }
 
   &--pending {
-    border-color: #cbd5e1;
-    &:hover { border-color: #94a3b8; }
+    border-color: $teal;
+    &:hover { border-color: darken($teal, 8%); }
     .lt-marker__icon {
-      color: #64748b;
+      color: #0f766e;
     }
   }
 }
