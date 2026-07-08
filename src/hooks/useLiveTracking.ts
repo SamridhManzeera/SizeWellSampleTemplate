@@ -383,8 +383,12 @@ export function useLiveTracking() {
     loadData();
   };
 
-  const addException = (exc: RouteException) => {
-    setExceptions(prev => [...prev, exc]);
+  const addException = (exc: RouteException | RouteException[]) => {
+    if (Array.isArray(exc)) {
+      setExceptions(prev => [...prev, ...exc]);
+    } else {
+      setExceptions(prev => [...prev, exc]);
+    }
   };
 
   const removeException = (id: string) => {
