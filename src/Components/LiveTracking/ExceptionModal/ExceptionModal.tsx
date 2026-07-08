@@ -7,7 +7,7 @@ interface ExceptionModalProps {
   vehicles: Vehicle[];
   geofences: GeoFence[];
   onClose: () => void;
-  onSave: (exception: RouteException) => void;
+  onSave: (exception: RouteException | RouteException[]) => void;
 }
 
 export default function ExceptionModal({
@@ -17,7 +17,10 @@ export default function ExceptionModal({
   onClose,
   onSave,
 }: ExceptionModalProps) {
-  const [vehicleId, setVehicleId] = useState('');
+  const [exceptionScope, setExceptionScope] = useState<'vehicle' | 'supplier'>('vehicle');
+  const [selectedVehicleIds, setSelectedVehicleIds] = useState<string[]>([]);
+  const [selectedSupplier, setSelectedSupplier] = useState('');
+  const [selectedSupplierVehicleIds, setSelectedSupplierVehicleIds] = useState<string[]>([]);
   const [selectedGeofenceIds, setSelectedGeofenceIds] = useState<string[]>([]);
   const [description, setDescription] = useState('');
   
@@ -33,6 +36,66 @@ export default function ExceptionModal({
   const [validUntil, setValidUntil] = useState(getTodayDateTimeString(1));
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
+  const resetFormFields = () => {
+    setSelectedVehicleIds([]);
+    setSelectedSupplier('');
+    setSelectedSupplierVehicleIds([]);
+    setSelectedGeofenceIds([]);
+    setDescription('');
+    setValidFrom(getTodayDateTimeString(0));
+    setValidUntil(getTodayDateTimeString(1));
+    setFormErrors({});
+  };
+
+  // Extract unique supplier names from the vehicles list
+  const suppliers = Array.from(
+    new Set(vehicles.map(v => v.supplier).filter(Boolean))
+  ) as string[];
+
+  const handleSupplierChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const supplier = e.target.value;
+    setSelectedSupplier(supplier);
+    if (supplier) {
+      const supplierVehicles = vehicles.filter(v => v.supplier === supplier);
+      setSelectedSupplierVehicleIds(supplierVehicles.map(v => v.id));
+    } else {
+      setSelectedSupplierVehicleIds([]);
+    }
+  };
+
+  const handleToggleSupplierVehicle = (id: string) => {
+    setSelectedSupplierVehicleIds(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleToggleSelectAllVehicles = () => {
+    const supplierVehicles = vehicles.filter(v => v.supplier === selectedSupplier);
+    if (selectedSupplierVehicleIds.length === supplierVehicles.length) {
+      setSelectedSupplierVehicleIds([]);
+    } else {
+      setSelectedSupplierVehicleIds(supplierVehicles.map(v => v.id));
+    }
+  };
+
+  const handleToggleVehicle = (id: string) => {
+    if (id === 'all') {
+      if (vehicles.length > 0 && selectedVehicleIds.length === vehicles.length) {
+        setSelectedVehicleIds([]);
+      } else {
+        setSelectedVehicleIds(vehicles.map(v => v.id));
+      }
+    } else {
+      setSelectedVehicleIds(prev => {
+        if (prev.includes(id)) {
+          return prev.filter(item => item !== id);
+        } else {
+          return [...prev, id];
+        }
+      });
+    }
+  };
+
   if (!open) return null;
 
   const handleToggleGeofence = (id: string) => {
@@ -45,7 +108,17 @@ export default function ExceptionModal({
     e.preventDefault();
     const errors: Record<string, string> = {};
 
-    if (!vehicleId) errors.vehicleId = 'Vehicle is required.';
+    if (exceptionScope === 'vehicle') {
+      if (selectedVehicleIds.length === 0) {
+        errors.vehicleId = 'At least one vehicle must be selected.';
+      }
+    } else {
+      if (!selectedSupplier) errors.supplier = 'Supplier is required.';
+      if (selectedSupplier && selectedSupplierVehicleIds.length === 0) {
+        errors.supplierVehicles = 'At least one vehicle must be selected.';
+      }
+    }
+
     if (selectedGeofenceIds.length === 0) {
       errors.geofences = 'At least one exception target must be checked.';
     }
@@ -64,26 +137,50 @@ export default function ExceptionModal({
 
     setFormErrors({});
 
-    // Save a single exception containing all checked geofenceIds
-    const newException: RouteException = {
-      id: Math.random().toString(36).substring(2, 9),
-      vehicleId,
-      exceptionType: 'allow-missing-go',
-      geofenceIds: selectedGeofenceIds,
-      reason: description.trim(),
-      description: description.trim(),
-      validFrom,
-      validUntil,
-    };
-
-    onSave(newException);
+    if (exceptionScope === 'vehicle') {
+      if (selectedVehicleIds.includes('all')) {
+        const newException: RouteException = {
+          id: Math.random().toString(36).substring(2, 9),
+          vehicleId: 'all',
+          exceptionType: 'allow-missing-go',
+          geofenceIds: selectedGeofenceIds,
+          reason: description.trim(),
+          description: description.trim(),
+          validFrom,
+          validUntil,
+        };
+        onSave(newException);
+      } else {
+        const newExceptions: RouteException[] = selectedVehicleIds.map(vId => ({
+          id: Math.random().toString(36).substring(2, 9),
+          vehicleId: vId,
+          exceptionType: 'allow-missing-go',
+          geofenceIds: selectedGeofenceIds,
+          reason: description.trim(),
+          description: description.trim(),
+          validFrom,
+          validUntil,
+        }));
+        onSave(newExceptions);
+      }
+    } else {
+      // Create a separate exception for each checked vehicle of the supplier
+      const newExceptions: RouteException[] = selectedSupplierVehicleIds.map(vId => ({
+        id: Math.random().toString(36).substring(2, 9),
+        vehicleId: vId,
+        exceptionType: 'allow-missing-go',
+        geofenceIds: selectedGeofenceIds,
+        reason: description.trim(),
+        description: description.trim(),
+        validFrom,
+        validUntil,
+      }));
+      onSave(newExceptions);
+    }
     
     // Reset state
-    setVehicleId('');
-    setSelectedGeofenceIds([]);
-    setDescription('');
-    setValidFrom(getTodayDateTimeString(0));
-    setValidUntil(getTodayDateTimeString(1));
+    resetFormFields();
+    setExceptionScope('vehicle');
     onClose();
   };
 
@@ -100,27 +197,145 @@ export default function ExceptionModal({
         <form onSubmit={handleSubmit} className="ex-modal__form">
           <div className="ex-modal__body">
             
-            {/* Vehicle Selector */}
+            {/* Exception Scope Selection */}
             <div className="ex-modal__field">
-              <label htmlFor="ex-vehicle" className="ex-modal__label">
-                Vehicle <span className="ex-modal__required">*</span>
-              </label>
-              <select
-                id="ex-vehicle"
-                className={`ex-modal__select ${formErrors.vehicleId ? 'ex-modal__select--error' : ''}`}
-                value={vehicleId}
-                onChange={e => setVehicleId(e.target.value)}
-              >
-                <option value="">Select Vehicle</option>
-                <option value="all">All Vehicles (Global Exception)</option>
-                {vehicles.map(v => (
-                  <option key={v.id} value={v.id}>
-                    {v.id} - {v.name} ({v.type})
-                  </option>
-                ))}
-              </select>
-              {formErrors.vehicleId && <span className="ex-modal__error-msg">{formErrors.vehicleId}</span>}
+              <label className="ex-modal__label">Exception Scope</label>
+              <div className="ex-modal__scope-toggle">
+                <label className="ex-modal__radio-label">
+                  <input
+                    type="radio"
+                    name="exceptionScope"
+                    value="vehicle"
+                    checked={exceptionScope === 'vehicle'}
+                    onChange={() => {
+                      setExceptionScope('vehicle');
+                      resetFormFields();
+                    }}
+                    className="ex-modal__radio"
+                  />
+                  <span>Vehicle Based</span>
+                </label>
+                <label className="ex-modal__radio-label">
+                  <input
+                    type="radio"
+                    name="exceptionScope"
+                    value="supplier"
+                    checked={exceptionScope === 'supplier'}
+                    onChange={() => {
+                      setExceptionScope('supplier');
+                      resetFormFields();
+                    }}
+                    className="ex-modal__radio"
+                  />
+                  <span>Supplier Based</span>
+                </label>
+              </div>
             </div>
+
+            {/* Vehicle Selector (Only shown for Vehicle Based exception scope) */}
+            {exceptionScope === 'vehicle' && (
+              <div className="ex-modal__field">
+                <label className="ex-modal__label">
+                  Vehicles <span className="ex-modal__required">*</span>
+                </label>
+                <div className={`ex-modal__supplier-vehicles-box ${formErrors.vehicleId ? 'ex-modal__supplier-vehicles-box--error' : ''}`}>
+                  <label className="ex-modal__checkbox-label ex-modal__checkbox-label--global">
+                    <input
+                      type="checkbox"
+                      checked={vehicles.length > 0 && selectedVehicleIds.length === vehicles.length}
+                      onChange={() => handleToggleVehicle('all')}
+                      className="ex-modal__checkbox"
+                    />
+                    <div className="ex-modal__checkbox-content">
+                      <span className="ex-modal__checkbox-name" style={{ fontWeight: 700 }}>All Vehicles (Global Exception)</span>
+                    </div>
+                  </label>
+                  
+                  {vehicles.map(v => {
+                    const isChecked = selectedVehicleIds.includes(v.id);
+                    return (
+                      <label key={v.id} className="ex-modal__checkbox-label">
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => handleToggleVehicle(v.id)}
+                          className="ex-modal__checkbox"
+                        />
+                        <div className="ex-modal__checkbox-content">
+                          <span className="ex-modal__checkbox-name">
+                            {v.id} - {v.name} ({v.type}){v.supplier ? ` - ${v.supplier}` : ''}
+                          </span>
+                        </div>
+                      </label>
+                    );
+                  })}
+                </div>
+                {formErrors.vehicleId && <span className="ex-modal__error-msg">{formErrors.vehicleId}</span>}
+              </div>
+            )}
+
+            {/* Supplier Selector (Only shown for Supplier Based exception scope) */}
+            {exceptionScope === 'supplier' && (
+              <>
+                <div className="ex-modal__field">
+                  <label htmlFor="ex-supplier" className="ex-modal__label">
+                    Supplier <span className="ex-modal__required">*</span>
+                  </label>
+                  <select
+                    id="ex-supplier"
+                    className={`ex-modal__select ${formErrors.supplier ? 'ex-modal__select--error' : ''}`}
+                    value={selectedSupplier}
+                    onChange={handleSupplierChange}
+                  >
+                    <option value="">Select Supplier</option>
+                    {suppliers.map(s => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                  {formErrors.supplier && <span className="ex-modal__error-msg">{formErrors.supplier}</span>}
+                </div>
+
+                {/* Display all vehicles belonging to the selected supplier */}
+                {selectedSupplier && (
+                  <div className="ex-modal__field">
+                    <label className="ex-modal__label">
+                      Supplier Vehicles <span className="ex-modal__required">*</span>
+                    </label>
+                    <div className={`ex-modal__supplier-vehicles-box ${formErrors.supplierVehicles ? 'ex-modal__supplier-vehicles-box--error' : ''}`}>
+                      <label className="ex-modal__checkbox-label">
+                        <input
+                          type="checkbox"
+                          checked={
+                            vehicles.filter(v => v.supplier === selectedSupplier).length > 0 &&
+                            selectedSupplierVehicleIds.length === vehicles.filter(v => v.supplier === selectedSupplier).length
+                          }
+                          onChange={handleToggleSelectAllVehicles}
+                          className="ex-modal__checkbox"
+                        />
+                        <div className="ex-modal__checkbox-content">
+                          <span className="ex-modal__checkbox-name" style={{ fontWeight: 700 }}>Select All Vehicles</span>
+                        </div>
+                      </label>
+                      
+                      {vehicles.filter(v => v.supplier === selectedSupplier).map(v => (
+                        <label key={v.id} className="ex-modal__checkbox-label">
+                          <input
+                            type="checkbox"
+                            checked={selectedSupplierVehicleIds.includes(v.id)}
+                            onChange={() => handleToggleSupplierVehicle(v.id)}
+                            className="ex-modal__checkbox"
+                          />
+                          <div className="ex-modal__checkbox-content">
+                            <span className="ex-modal__checkbox-name">{v.id} - {v.name} ({v.type})</span>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                    {formErrors.supplierVehicles && <span className="ex-modal__error-msg">{formErrors.supplierVehicles}</span>}
+                  </div>
+                )}
+              </>
+            )}
 
             {/* Select Geofences (Unified list with checkboxes) */}
             <div className="ex-modal__field">

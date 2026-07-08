@@ -9,6 +9,7 @@ export interface Vehicle {
   simulatedProgress?: number;
   csvType: 'correct' | 'incorrect' | null;
   csvRowIndex: number | null;
+  supplier?: string;
 }
 
 export interface TrackPoint {

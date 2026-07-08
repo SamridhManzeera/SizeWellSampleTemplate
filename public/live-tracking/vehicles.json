@@ -9,7 +9,8 @@
     "plannedGpxPath": "/live-tracking/gpx/correct/correct_60.gpx",
     "simulatedProgress": 0.15,
     "csvType": "correct",
-    "csvRowIndex": 0
+    "csvRowIndex": 0,
+    "supplier": "Suffolk Haulage"
   },
   {
     "id": "VEH-002",
@@ -21,7 +22,8 @@
     "plannedGpxPath": "/live-tracking/gpx/correct/correct_60.gpx",
     "simulatedProgress": 0.98,
     "csvType": "correct",
-    "csvRowIndex": 1
+    "csvRowIndex": 1,
+    "supplier": "Suffolk Haulage"
   },
   {
     "id": "VEH-003",
@@ -33,7 +35,8 @@
     "plannedGpxPath": "/live-tracking/gpx/correct/correct_60.gpx",
     "simulatedProgress": 0.65,
     "csvType": "correct",
-    "csvRowIndex": 2
+    "csvRowIndex": 2,
+    "supplier": "Orwell Transport"
   },
   {
     "id": "VEH-004",
@@ -45,7 +48,8 @@
     "plannedGpxPath": "/live-tracking/gpx/correct/correct_60.gpx",
     "simulatedProgress": 0.90,
     "csvType": "incorrect",
-    "csvRowIndex": 3
+    "csvRowIndex": 3,
+    "supplier": "Orwell Transport"
   },
   {
     "id": "VEH-005",
@@ -57,6 +61,7 @@
     "plannedGpxPath": "/live-tracking/gpx/correct/correct_60.gpx",
     "simulatedProgress": 0.98,
     "csvType": "incorrect",
-    "csvRowIndex": 4
+    "csvRowIndex": 4,
+    "supplier": "IPS Logistics"
   }
 ]
