@@ -12,6 +12,8 @@ const ROUTES = {
   REQUESTS_APPLY: '/requests/apply',
   REQUESTS_VIEW: '/requests/:id',
   LIVE_TRACKING: '/live-tracking',
+  ADMIN_PROFILE: '/admin/profile',
+  CONTRACTOR_PROFILE: '/contractor/profile',
 };
 
 const WILDCARD_ROUTES = {
@@ -59,6 +61,14 @@ const ROUTES_CONFIG = {
   LIVE_TRACKING: {
     path: ROUTES.LIVE_TRACKING,
     title: 'Live Tracking',
+  },
+  ADMIN_PROFILE: {
+    path: ROUTES.ADMIN_PROFILE,
+    title: 'Profile',
+  },
+  CONTRACTOR_PROFILE: {
+    path: ROUTES.CONTRACTOR_PROFILE,
+    title: 'Profile',
   },
 };
 

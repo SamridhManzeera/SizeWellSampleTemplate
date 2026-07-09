@@ -52,6 +52,14 @@ function ContractorIcon() {
   );
 }
 
+function ProfileIcon() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v3h20v-3c0-3.33-6.67-5-10-5z" />
+    </svg>
+  );
+}
+
 function ChevronIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -83,8 +91,24 @@ const NAV_GROUPS = [
     icon: <AdminIcon />,
     items: [
       { to: '/', label: 'Full Schedule', icon: <CalendarIcon />, end: true },
-      { to: '/schedule-config', label: 'Schedule Config', icon: <SettingsIcon />, end: false },
-      { to: '/live-tracking', label: 'Live Tracking', icon: <RequestsIcon />, end: false },
+      {
+        to: '/schedule-config',
+        label: 'Schedule Config',
+        icon: <SettingsIcon />,
+        end: false,
+      },
+      {
+        to: '/live-tracking',
+        label: 'Live Tracking',
+        icon: <RequestsIcon />,
+        end: false,
+      },
+      {
+        to: '/admin/profile',
+        label: 'Profile',
+        icon: <ProfileIcon />,
+        end: true,
+      },
     ],
   },
   {
@@ -92,7 +116,18 @@ const NAV_GROUPS = [
     label: 'Contractor / Supplier',
     icon: <ContractorIcon />,
     items: [
-      { to: '/requests', label: 'Requests', icon: <RequestsIcon />, end: false },
+      {
+        to: '/requests',
+        label: 'Requests',
+        icon: <RequestsIcon />,
+        end: false,
+      },
+      {
+        to: '/contractor/profile',
+        label: 'Profile',
+        icon: <ProfileIcon />,
+        end: true,
+      },
     ],
   },
   {
@@ -128,21 +163,36 @@ export function HamburgerButton() {
 
 function Sidebar() {
   const { open, closeSidebar } = useSidebar();
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({ admin: true, contractor: true });
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({
+    admin: true,
+    contractor: true,
+  });
 
   const toggle = (key: string) =>
-    setExpanded(prev => ({ ...prev, [key]: !prev[key] }));
+    setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
 
   return (
     <>
       {open && (
-        <div className="sidebar-backdrop" onClick={closeSidebar} role="presentation" />
+        <div
+          className="sidebar-backdrop"
+          onClick={closeSidebar}
+          role="presentation"
+        />
       )}
 
-      <aside className={`sidebar${open ? ' sidebar--open' : ''}`} aria-hidden={!open}>
+      <aside
+        className={`sidebar${open ? ' sidebar--open' : ''}`}
+        aria-hidden={!open}
+      >
         <div className="sidebar__header">
           <img src={sizewellLogo} alt="Sizewell C" className="sidebar__logo" />
-          <button type="button" className="sidebar__close" onClick={closeSidebar} aria-label="Close menu">
+          <button
+            type="button"
+            className="sidebar__close"
+            onClick={closeSidebar}
+            aria-label="Close menu"
+          >
             <CloseIcon />
           </button>
         </div>
@@ -154,24 +204,36 @@ function Sidebar() {
               <div key={group.key} className="sidebar__group">
                 <button
                   type="button"
-                  className={`sidebar__group-btn${isOpen ? ' sidebar__group-btn--open' : ''}`}
+                  className={`sidebar__group-btn${
+                    isOpen ? ' sidebar__group-btn--open' : ''
+                  }`}
                   onClick={() => toggle(group.key)}
                 >
                   <span className="sidebar__group-icon">{group.icon}</span>
                   <span className="sidebar__group-label">{group.label}</span>
-                  <span className={`sidebar__group-chevron${isOpen ? ' sidebar__group-chevron--open' : ''}`}>
+                  <span
+                    className={`sidebar__group-chevron${
+                      isOpen ? ' sidebar__group-chevron--open' : ''
+                    }`}
+                  >
                     <ChevronIcon />
                   </span>
                 </button>
 
-                <div className={`sidebar__group-items${isOpen ? ' sidebar__group-items--open' : ''}`}>
+                <div
+                  className={`sidebar__group-items${
+                    isOpen ? ' sidebar__group-items--open' : ''
+                  }`}
+                >
                   {group.items.map(({ to, label, icon, end }) => (
                     <NavLink
                       key={to}
                       to={to}
                       end={end}
                       className={({ isActive }) =>
-                        `sidebar__link${isActive ? ' sidebar__link--active' : ''}`
+                        `sidebar__link${
+                          isActive ? ' sidebar__link--active' : ''
+                        }`
                       }
                       onClick={closeSidebar}
                     >
