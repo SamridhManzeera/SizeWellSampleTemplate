@@ -16,6 +16,7 @@ const ROUTES = {
   CONTRACTOR_PROFILE: '/contractor/profile',
   ADMIN_NOTIFICATIONS: '/admin/notifications',
   CONTRACTOR_NOTIFICATIONS: '/contractor/notifications',
+  ADMIN_USER_MANAGEMENT: '/admin/user-management',
 };
 
 const WILDCARD_ROUTES = {
@@ -79,6 +80,10 @@ const ROUTES_CONFIG = {
   CONTRACTOR_NOTIFICATIONS: {
     path: ROUTES.CONTRACTOR_NOTIFICATIONS,
     title: 'Notifications',
+  },
+  ADMIN_USER_MANAGEMENT: {
+    path: ROUTES.ADMIN_USER_MANAGEMENT,
+    title: 'User & Role Management',
   },
 };
 

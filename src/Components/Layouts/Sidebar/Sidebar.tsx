@@ -68,6 +68,14 @@ function BellIcon() {
   );
 }
 
+function ShieldUserIcon() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 6.5c1.38 0 2.5 1.12 2.5 2.5S13.38 12.5 12 12.5 9.5 11.38 9.5 10 10.62 7.5 12 7.5zM12 19c-1.79 0-3.53-.68-4.82-1.9.11-1.44 3.11-2.22 4.82-2.22s4.71.78 4.82 2.22A7.007 7.007 0 0112 19z" />
+    </svg>
+  );
+}
+
 function ChevronIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -121,6 +129,12 @@ const NAV_GROUPS = [
         to: '/admin/notifications',
         label: 'Notifications',
         icon: <BellIcon />,
+        end: true,
+      },
+      {
+        to: '/admin/user-management',
+        label: 'User & Role Management',
+        icon: <ShieldUserIcon />,
         end: true,
       },
     ],
