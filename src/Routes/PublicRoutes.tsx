@@ -6,6 +6,7 @@ import Requests from '../Views/Requests/Requests';
 import RequestForm from '../Views/Requests/RequestForm';
 import LiveTracking from '../Views/LiveTracking/LiveTracking';
 import Profile from '../Views/Profile/Profile';
+import Notifications from '../Views/Notifications/Notifications';
 import LoginV1 from '../Views/Login/LoginV1';
 import LoginV2 from '../Views/Login/LoginV2';
 import LoginV3 from '../Views/Login/LoginV3';
@@ -45,6 +46,16 @@ export const PUBLIC_ROUTES: Array<CustomRouter> = [
     path: ROUTES_CONFIG.CONTRACTOR_PROFILE.path,
     element: <Profile />,
     title: ROUTES_CONFIG.CONTRACTOR_PROFILE.title,
+  },
+  {
+    path: ROUTES_CONFIG.ADMIN_NOTIFICATIONS.path,
+    element: <Notifications />,
+    title: ROUTES_CONFIG.ADMIN_NOTIFICATIONS.title,
+  },
+  {
+    path: ROUTES_CONFIG.CONTRACTOR_NOTIFICATIONS.path,
+    element: <Notifications />,
+    title: ROUTES_CONFIG.CONTRACTOR_NOTIFICATIONS.title,
   },
   // /requests/apply must come before /requests/:id so it isn't caught by the param route
   {
