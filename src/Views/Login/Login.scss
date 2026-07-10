@@ -63,7 +63,7 @@
 
   input {
     flex: 1;
-    padding-right: 56px;
+    padding-right: 44px;
   }
 }
 
@@ -72,16 +72,17 @@
   top: 50%;
   right: 10px;
   transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: none;
   background: none;
-  color: #2563eb;
-  font-size: 12px;
-  font-weight: 600;
+  color: #6b7280;
   cursor: pointer;
-  padding: 4px 6px;
+  padding: 4px;
 
   &:hover {
-    text-decoration: underline;
+    color: #2563eb;
   }
 }
 
