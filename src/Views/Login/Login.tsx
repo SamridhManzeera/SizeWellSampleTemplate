@@ -78,11 +78,11 @@ function Login() {
 
         <div className="login-field">
           <label htmlFor="login-email">
-            Email
+            Username
             <input
               id="login-email"
               name="email"
-              type="email"
+              type="text"
               autoComplete="username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
