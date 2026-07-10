@@ -55,29 +55,29 @@ function ContractorIcon() {
   );
 }
 
-function ProfileIcon() {
-  return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v3h20v-3c0-3.33-6.67-5-10-5z" />
-    </svg>
-  );
-}
+// function ProfileIcon() {
+//   return (
+//     <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+//       <path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v3h20v-3c0-3.33-6.67-5-10-5z" />
+//     </svg>
+//   );
+// }
 
-function BellIcon() {
-  return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
-    </svg>
-  );
-}
+// function BellIcon() {
+//   return (
+//     <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+//       <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
+//     </svg>
+//   );
+// }
 
-function ShieldUserIcon() {
-  return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 6.5c1.38 0 2.5 1.12 2.5 2.5S13.38 12.5 12 12.5 9.5 11.38 9.5 10 10.62 7.5 12 7.5zM12 19c-1.79 0-3.53-.68-4.82-1.9.11-1.44 3.11-2.22 4.82-2.22s4.71.78 4.82 2.22A7.007 7.007 0 0112 19z" />
-    </svg>
-  );
-}
+// function ShieldUserIcon() {
+//   return (
+//     <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+//       <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 6.5c1.38 0 2.5 1.12 2.5 2.5S13.38 12.5 12 12.5 9.5 11.38 9.5 10 10.62 7.5 12 7.5zM12 19c-1.79 0-3.53-.68-4.82-1.9.11-1.44 3.11-2.22 4.82-2.22s4.71.78 4.82 2.22A7.007 7.007 0 0112 19z" />
+//     </svg>
+//   );
+// }
 
 function ChevronIcon() {
   return (
@@ -122,24 +122,24 @@ const NAV_GROUPS = [
         icon: <RequestsIcon />,
         end: false,
       },
-      {
-        to: '/admin/profile',
-        label: 'Profile',
-        icon: <ProfileIcon />,
-        end: true,
-      },
-      {
-        to: '/admin/notifications',
-        label: 'Notifications',
-        icon: <BellIcon />,
-        end: true,
-      },
-      {
-        to: '/admin/user-management',
-        label: 'User & Role Management',
-        icon: <ShieldUserIcon />,
-        end: true,
-      },
+      // {
+      //   to: '/admin/profile',
+      //   label: 'Profile',
+      //   icon: <ProfileIcon />,
+      //   end: true,
+      // },
+      // {
+      //   to: '/admin/notifications',
+      //   label: 'Notifications',
+      //   icon: <BellIcon />,
+      //   end: true,
+      // },
+      // {
+      //   to: '/admin/user-management',
+      //   label: 'User & Role Management',
+      //   icon: <ShieldUserIcon />,
+      //   end: true,
+      // },
     ],
   },
   {
@@ -153,18 +153,18 @@ const NAV_GROUPS = [
         icon: <RequestsIcon />,
         end: false,
       },
-      {
-        to: '/contractor/profile',
-        label: 'Profile',
-        icon: <ProfileIcon />,
-        end: true,
-      },
-      {
-        to: '/contractor/notifications',
-        label: 'Notifications',
-        icon: <BellIcon />,
-        end: true,
-      },
+      // {
+      //   to: '/contractor/profile',
+      //   label: 'Profile',
+      //   icon: <ProfileIcon />,
+      //   end: true,
+      // },
+      // {
+      //   to: '/contractor/notifications',
+      //   label: 'Notifications',
+      //   icon: <BellIcon />,
+      //   end: true,
+      // },
     ],
   },
   {
@@ -279,26 +279,23 @@ function Sidebar() {
               <div key={group.key} className="sidebar__group">
                 <button
                   type="button"
-                  className={`sidebar__group-btn${
-                    isOpen ? ' sidebar__group-btn--open' : ''
-                  }`}
+                  className={`sidebar__group-btn${isOpen ? ' sidebar__group-btn--open' : ''
+                    }`}
                   onClick={() => toggle(group.key)}
                 >
                   <span className="sidebar__group-icon">{group.icon}</span>
                   <span className="sidebar__group-label">{group.label}</span>
                   <span
-                    className={`sidebar__group-chevron${
-                      isOpen ? ' sidebar__group-chevron--open' : ''
-                    }`}
+                    className={`sidebar__group-chevron${isOpen ? ' sidebar__group-chevron--open' : ''
+                      }`}
                   >
                     <ChevronIcon />
                   </span>
                 </button>
 
                 <div
-                  className={`sidebar__group-items${
-                    isOpen ? ' sidebar__group-items--open' : ''
-                  }`}
+                  className={`sidebar__group-items${isOpen ? ' sidebar__group-items--open' : ''
+                    }`}
                 >
                   {group.items.map(({ to, label, icon, end }) => (
                     <NavLink
@@ -306,8 +303,7 @@ function Sidebar() {
                       to={to}
                       end={end}
                       className={({ isActive }) =>
-                        `sidebar__link${
-                          isActive ? ' sidebar__link--active' : ''
+                        `sidebar__link${isActive ? ' sidebar__link--active' : ''
                         }`
                       }
                       onClick={closeSidebar}
