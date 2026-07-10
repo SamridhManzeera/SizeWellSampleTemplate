@@ -1,20 +1,8 @@
+import { ReactNode } from 'react';
 import { AppLayoutProps } from '../AppLayout.d';
-import Sidebar from '../Sidebar/Sidebar';
-import { SidebarProvider } from '../Sidebar/SidebarContext';
-import { ScheduleConfigProvider } from '../../../Views/ScheduleConfig/ScheduleConfigContext';
-import { RequestsProvider } from '../../../Views/Requests/RequestsContext';
 
-function PublicLayout({ children }: AppLayoutProps): JSX.Element {
-  return (
-    <ScheduleConfigProvider>
-      <RequestsProvider>
-        <SidebarProvider>
-          <Sidebar />
-          {children}
-        </SidebarProvider>
-      </RequestsProvider>
-    </ScheduleConfigProvider>
-  );
+function PublicLayout({ children }: AppLayoutProps): ReactNode {
+  return children;
 }
 
 export default PublicLayout;

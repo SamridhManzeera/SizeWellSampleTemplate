@@ -1,9 +1,79 @@
 import { Navigate } from 'react-router-dom';
 import { ROUTES_CONFIG, WILDCARD_ROUTES } from '../Shared/Constants';
+import BookingSchedule from '../Views/BookingSchedule';
+import ScheduleConfig from '../Views/ScheduleConfig/ScheduleConfig';
+import Requests from '../Views/Requests/Requests';
+import RequestForm from '../Views/Requests/RequestForm';
+import LiveTracking from '../Views/LiveTracking/LiveTracking';
+import Profile from '../Views/Profile/Profile';
+import Notifications from '../Views/Notifications/Notifications';
+import UserManagement from '../Views/UserManagement/UserManagement';
+import LoginV1 from '../Views/Login/LoginV1';
+import LoginV2 from '../Views/Login/LoginV2';
+import LoginV3 from '../Views/Login/LoginV3';
+import LoginV4 from '../Views/Login/LoginV4';
+import LoginV5 from '../Views/Login/LoginV5';
+import LoginV6 from '../Views/Login/LoginV6';
 import { CustomRouter } from './RootRoutes';
 
 // eslint-disable-next-line import/prefer-default-export
 export const PRIVATE_ROUTES: Array<CustomRouter> = [
+  {
+    path: ROUTES_CONFIG.HOMEPAGE.path,
+    element: <BookingSchedule />,
+    title: ROUTES_CONFIG.HOMEPAGE.title,
+  },
+  {
+    path: ROUTES_CONFIG.SCHEDULE_CONFIG.path,
+    element: <ScheduleConfig />,
+    title: ROUTES_CONFIG.SCHEDULE_CONFIG.title,
+  },
+  {
+    path: ROUTES_CONFIG.REQUESTS.path,
+    element: <Requests />,
+    title: ROUTES_CONFIG.REQUESTS.title,
+  },
+  {
+    path: ROUTES_CONFIG.LIVE_TRACKING.path,
+    element: <LiveTracking />,
+    title: ROUTES_CONFIG.LIVE_TRACKING.title,
+  },
+  {
+    path: ROUTES_CONFIG.ADMIN_PROFILE.path,
+    element: <Profile />,
+    title: ROUTES_CONFIG.ADMIN_PROFILE.title,
+  },
+  {
+    path: ROUTES_CONFIG.CONTRACTOR_PROFILE.path,
+    element: <Profile />,
+    title: ROUTES_CONFIG.CONTRACTOR_PROFILE.title,
+  },
+  {
+    path: ROUTES_CONFIG.ADMIN_NOTIFICATIONS.path,
+    element: <Notifications />,
+    title: ROUTES_CONFIG.ADMIN_NOTIFICATIONS.title,
+  },
+  {
+    path: ROUTES_CONFIG.CONTRACTOR_NOTIFICATIONS.path,
+    element: <Notifications />,
+    title: ROUTES_CONFIG.CONTRACTOR_NOTIFICATIONS.title,
+  },
+  {
+    path: ROUTES_CONFIG.ADMIN_USER_MANAGEMENT.path,
+    element: <UserManagement />,
+    title: ROUTES_CONFIG.ADMIN_USER_MANAGEMENT.title,
+  },
+  // /requests/apply must come before /requests/:id so it isn't caught by the param route
+  {
+    path: ROUTES_CONFIG.REQUESTS_APPLY.path,
+    element: <RequestForm />,
+    title: ROUTES_CONFIG.REQUESTS_APPLY.title,
+  },
+  {
+    path: ROUTES_CONFIG.REQUESTS_VIEW.path,
+    element: <RequestForm />,
+    title: ROUTES_CONFIG.REQUESTS_VIEW.title,
+  },
   {
     path: ROUTES_CONFIG.ABOUT.path,
     element: '<ABOUT />',
@@ -13,6 +83,36 @@ export const PRIVATE_ROUTES: Array<CustomRouter> = [
     path: '/wishlist',
     element: 'Your wishlist here',
     title: 'Dashboard',
+  },
+  {
+    path: ROUTES_CONFIG.LOGIN_MOCKUP_V1.path,
+    element: <LoginV1 />,
+    title: ROUTES_CONFIG.LOGIN_MOCKUP_V1.title,
+  },
+  {
+    path: ROUTES_CONFIG.LOGIN_MOCKUP_V2.path,
+    element: <LoginV2 />,
+    title: ROUTES_CONFIG.LOGIN_MOCKUP_V2.title,
+  },
+  {
+    path: ROUTES_CONFIG.LOGIN_MOCKUP_V3.path,
+    element: <LoginV3 />,
+    title: ROUTES_CONFIG.LOGIN_MOCKUP_V3.title,
+  },
+  {
+    path: ROUTES_CONFIG.LOGIN_MOCKUP_V4.path,
+    element: <LoginV4 />,
+    title: ROUTES_CONFIG.LOGIN_MOCKUP_V4.title,
+  },
+  {
+    path: ROUTES_CONFIG.LOGIN_MOCKUP_V5.path,
+    element: <LoginV5 />,
+    title: ROUTES_CONFIG.LOGIN_MOCKUP_V5.title,
+  },
+  {
+    path: ROUTES_CONFIG.LOGIN_MOCKUP_V6.path,
+    element: <LoginV6 />,
+    title: ROUTES_CONFIG.LOGIN_MOCKUP_V6.title,
   },
   {
     path: '*',

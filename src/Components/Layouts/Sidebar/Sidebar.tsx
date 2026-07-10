@@ -1,7 +1,10 @@
 import { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import sizewellLogo from '../../../assets/SizewellIcon/SZC-nostrap-white.png';
 import { useSidebar } from './SidebarContext';
+import { updateAuthTokenRedux } from '../../../Store/Common';
+import { ROUTES } from '../../../Shared/Constants';
 import './Sidebar.scss';
 
 function CalendarIcon() {
@@ -84,10 +87,10 @@ function ChevronIcon() {
   );
 }
 
-function LoginIcon() {
+function LogoutIcon() {
   return (
     <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M11 7L9.6 8.4l2.6 2.6H2v2h10.2l-2.6 2.6L11 17l5-5-5-5zm9 12h-8v2h8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-8v2h8v14z" />
+      <path d="M17 7l-1.41 1.41L17.17 10H8v2h9.17l-1.58 1.59L17 15l4-4-4-4zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
     </svg>
   );
 }
@@ -165,16 +168,46 @@ const NAV_GROUPS = [
     ],
   },
   {
-    key: 'login',
-    label: 'Login',
-    icon: <LoginIcon />,
+    key: 'mockups',
+    label: 'Login Mockups',
+    icon: <FormIcon />,
     items: [
-      { to: '/login', label: 'Login V1', icon: <FormIcon />, end: true },
-      { to: '/login-v2', label: 'Login V2', icon: <FormIcon />, end: true },
-      { to: '/login-v3', label: 'Login V3', icon: <FormIcon />, end: true },
-      { to: '/login-v4', label: 'Login V4', icon: <FormIcon />, end: true },
-      { to: '/login-v5', label: 'Login V5', icon: <FormIcon />, end: true },
-      { to: '/login-v6', label: 'Login V6', icon: <FormIcon />, end: true },
+      {
+        to: '/mockups/login-v1',
+        label: 'Login V1',
+        icon: <FormIcon />,
+        end: true,
+      },
+      {
+        to: '/mockups/login-v2',
+        label: 'Login V2',
+        icon: <FormIcon />,
+        end: true,
+      },
+      {
+        to: '/mockups/login-v3',
+        label: 'Login V3',
+        icon: <FormIcon />,
+        end: true,
+      },
+      {
+        to: '/mockups/login-v4',
+        label: 'Login V4',
+        icon: <FormIcon />,
+        end: true,
+      },
+      {
+        to: '/mockups/login-v5',
+        label: 'Login V5',
+        icon: <FormIcon />,
+        end: true,
+      },
+      {
+        to: '/mockups/login-v6',
+        label: 'Login V6',
+        icon: <FormIcon />,
+        end: true,
+      },
     ],
   },
 ];
@@ -201,9 +234,17 @@ function Sidebar() {
     admin: true,
     contractor: true,
   });
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const toggle = (key: string) =>
     setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
+
+  const handleLogout = () => {
+    dispatch(updateAuthTokenRedux({ token: null }));
+    closeSidebar();
+    navigate(ROUTES.LOGIN);
+  };
 
   return (
     <>
@@ -283,6 +324,14 @@ function Sidebar() {
         </nav>
 
         <div className="sidebar__footer">
+          <button
+            type="button"
+            className="sidebar__logout"
+            onClick={handleLogout}
+          >
+            <LogoutIcon />
+            Logout
+          </button>
           <span className="sidebar__footer-text">Sizewell C</span>
         </div>
       </aside>

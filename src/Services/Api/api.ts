@@ -13,6 +13,7 @@ const baseQuery: BaseQueryFn = fetchBaseQuery({
   baseUrl: API_BASE_URL,
   prepareHeaders: async (headers: Headers, { getState }) => {
     const { token } = (getState() as RootState).common;
+    headers.set('ngrok-skip-browser-warning', 'true');
     if (token) {
       headers.append('authorization', `${token}`);
     }

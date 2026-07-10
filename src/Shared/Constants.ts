@@ -17,11 +17,17 @@ const ROUTES = {
   ADMIN_NOTIFICATIONS: '/admin/notifications',
   CONTRACTOR_NOTIFICATIONS: '/contractor/notifications',
   ADMIN_USER_MANAGEMENT: '/admin/user-management',
+  LOGIN_MOCKUP_V1: '/mockups/login-v1',
+  LOGIN_MOCKUP_V2: '/mockups/login-v2',
+  LOGIN_MOCKUP_V3: '/mockups/login-v3',
+  LOGIN_MOCKUP_V4: '/mockups/login-v4',
+  LOGIN_MOCKUP_V5: '/mockups/login-v5',
+  LOGIN_MOCKUP_V6: '/mockups/login-v6',
 };
 
 const WILDCARD_ROUTES = {
-  PUBLIC: ROUTES.HOMEPAGE,
-  PRIVATE: ROUTES.LOGIN,
+  PUBLIC: ROUTES.LOGIN,
+  PRIVATE: ROUTES.HOMEPAGE,
 };
 
 const ROUTES_CONFIG = {
@@ -84,6 +90,30 @@ const ROUTES_CONFIG = {
   ADMIN_USER_MANAGEMENT: {
     path: ROUTES.ADMIN_USER_MANAGEMENT,
     title: 'User & Role Management',
+  },
+  LOGIN_MOCKUP_V1: {
+    path: ROUTES.LOGIN_MOCKUP_V1,
+    title: 'Login V1',
+  },
+  LOGIN_MOCKUP_V2: {
+    path: ROUTES.LOGIN_MOCKUP_V2,
+    title: 'Login V2',
+  },
+  LOGIN_MOCKUP_V3: {
+    path: ROUTES.LOGIN_MOCKUP_V3,
+    title: 'Login V3',
+  },
+  LOGIN_MOCKUP_V4: {
+    path: ROUTES.LOGIN_MOCKUP_V4,
+    title: 'Login V4',
+  },
+  LOGIN_MOCKUP_V5: {
+    path: ROUTES.LOGIN_MOCKUP_V5,
+    title: 'Login V5',
+  },
+  LOGIN_MOCKUP_V6: {
+    path: ROUTES.LOGIN_MOCKUP_V6,
+    title: 'Login V6',
   },
 };
 
