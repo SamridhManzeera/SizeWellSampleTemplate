@@ -4,46 +4,55 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
   {
     id: 'n1',
     type: 'form-submitted',
-    title: 'Request submitted successfully',
+    title: 'Booking request submitted',
     description:
-      'Request was submitted successfully by Tom Holland',
+      'Apex Haulage Ltd submitted a new slot allotment request REQ-014',
     timestamp: '2026-06-26T09:47:00',
     read: false,
   },
   {
     id: 'n2',
-    type: 'documents',
-    title: 'Documents uploaded successfully',
+    type: 'form-submitted',
+    title: 'Emergency booking request submitted',
     description:
-      'Tom Holland has uploaded documents for Request',
-    timestamp: '2026-06-26T09:42:00',
+      'Orion Deliveries submitted an emergency slot request REQ-015',
+    timestamp: '2026-06-26T09:45:00',
     read: false,
   },
   {
     id: 'n3',
-    type: 'modification',
-    title: 'Form modified',
+    type: 'documents',
+    title: 'Delivery documents uploaded',
     description:
-      'Request has been modified by Tom Holland',
-    timestamp: '2026-06-26T09:41:00',
+      'Meridian Freight uploaded supporting documents for request REQ-012',
+    timestamp: '2026-06-26T09:42:00',
     read: false,
   },
   {
     id: 'n4',
-    type: 'approved',
-    title: 'Request approved',
+    type: 'modification',
+    title: 'Slot request modified',
     description:
-      'Request has been approved by the Manager',
+      'Summit Logistics updated the daily slot count for request REQ-010',
+    timestamp: '2026-06-26T09:41:00',
+    read: false,
+  },
+  {
+    id: 'n5',
+    type: 'approved',
+    title: 'Booking request approved',
+    description:
+      'Request REQ-009 for Delta Transport Co. has been approved.',
     timestamp: '2026-06-25T16:12:00',
     read: true,
   },
   {
-    id: 'n5',
+    id: 'n7',
     type: 'alert',
     title: 'Action required',
     description:
-      'Request is missing a required delivery document',
-    timestamp: '2026-06-25T11:05:00',
+      'Request REQ-011 from Vantage Haulage is missing a required delivery document.',
+    timestamp: '2026-06-24T14:30:00',
     read: true,
   },
 ];
