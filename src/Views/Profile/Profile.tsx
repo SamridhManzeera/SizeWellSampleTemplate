@@ -1,5 +1,6 @@
 import { useState, ReactNode } from 'react';
 import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
+import ProfileHero from './ProfileHero';
 import './Profile.scss';
 
 // ── Icons ─────────────────────────────────────────────────────────
@@ -76,27 +77,6 @@ function PhoneIcon() {
   );
 }
 
-// function ClockIcon() {
-//   return (
-//     <svg
-//       width="18"
-//       height="18"
-//       viewBox="0 0 24 24"
-//       fill="none"
-//       aria-hidden="true"
-//     >
-//       <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
-//       <path
-//         d="M12 7v5l3 3"
-//         stroke="currentColor"
-//         strokeWidth="2"
-//         strokeLinecap="round"
-//         strokeLinejoin="round"
-//       />
-//     </svg>
-//   );
-// }
-
 // ── Field helper ──────────────────────────────────────────────────
 
 function ReadField({
@@ -146,7 +126,6 @@ export default function Profile() {
   const [profile, setProfile] = useState<ProfileData>(INITIAL_PROFILE);
   const [draft, setDraft] = useState<ProfileData>(INITIAL_PROFILE);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  // const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
 
   const isView = mode === 'view';
 
@@ -169,47 +148,7 @@ export default function Profile() {
     <div className="pf">
       <PageHeader />
 
-      {/* ── Hero ────────────────────────────────────────────── */}
-      <div className="pf__hero-wrap">
-        <div className="pf__hero">
-          <svg
-            className="pf__hero-wave"
-            viewBox="0 0 1000 300"
-            preserveAspectRatio="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M150,190 C400,70 600,60 750,130 C850,175 920,150 1000,110"
-              stroke="rgba(255,255,255,0.3)"
-              strokeWidth="2"
-              fill="none"
-            />
-            <path
-              d="M170,215 C420,100 620,90 770,155 C860,195 930,175 1000,140"
-              stroke="rgba(255,255,255,0.2)"
-              strokeWidth="2"
-              fill="none"
-            />
-            <path
-              d="M190,240 C440,130 640,120 790,180 C870,215 935,200 1000,170"
-              stroke="rgba(255,255,255,0.12)"
-              strokeWidth="2"
-              fill="none"
-            />
-          </svg>
-
-          <div className="pf__hero-left">
-            <div>
-              <span className="pf__hero-eyebrow">Settings</span>
-              <h1 className="pf__hero-title">Profile</h1>
-              <p className="pf__hero-sub">
-                Manage your personal information, security settings, and
-                notification preferences.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ProfileHero />
 
       <div className="pf__body">
         <div className="pf__row">
@@ -380,10 +319,6 @@ export default function Profile() {
                   <KeyIcon /> Change
                 </button>
               </div>
-
-
-
-
             </div>
           </div>
         </div>
