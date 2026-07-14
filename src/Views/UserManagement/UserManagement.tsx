@@ -1,6 +1,9 @@
 import { useMemo, useState } from 'react';
 import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
 import PageHero from '../../Components/Layouts/PageHero/PageHero';
+import StatCard, {
+  StatCardColor,
+} from '../../Components/Layouts/StatCard/StatCard';
 import { MOCK_USERS } from './userManagementMockData';
 import {
   INITIAL_COMPANIES,
@@ -85,9 +88,9 @@ function EyeIcon() {
 
 // ── Helpers ───────────────────────────────────────────────────────
 
-const ROLE_COLORS = ['navy', 'teal', 'amber', 'green', 'red'];
+const ROLE_COLORS: StatCardColor[] = ['navy', 'teal', 'amber', 'green', 'red'];
 
-function roleColorClass(role: string, roles: string[]) {
+function roleColorClass(role: string, roles: string[]): StatCardColor {
   const idx = roles.indexOf(role);
   return ROLE_COLORS[idx >= 0 ? idx % ROLE_COLORS.length : 0];
 }
@@ -292,42 +295,23 @@ export default function UserManagement() {
       <div className="um__body">
         {/* ── Stats ─────────────────────────────────────────── */}
         <div className="um__stats">
-          <div className="um__stat-card">
-            <div className="um__stat-top">
-              <span className="um__stat-label">Total Users</span>
-              <span className="um__stat-icon um__stat-icon--navy">
-                <PersonIcon />
-              </span>
-            </div>
-            <div className="um__stat-num">{stats.total}</div>
-            <span className="um__stat-tag um__stat-tag--green">
-              Total active accounts
-            </span>
-          </div>
+          <StatCard
+            label="Total Users"
+            value={stats.total}
+            tag="Total active accounts"
+            icon={<PersonIcon />}
+            color="green"
+          />
 
           {stats.byRole.map(({ role, count }) => (
-            <div className="um__stat-card" key={role}>
-              <div className="um__stat-top">
-                <span className="um__stat-label">{role}</span>
-                <span
-                  className={`um__stat-icon um__stat-icon--${roleColorClass(
-                    role,
-                    roles
-                  )}`}
-                >
-                  <BadgeIcon />
-                </span>
-              </div>
-              <div className="um__stat-num">{count}</div>
-              <span
-                className={`um__stat-tag um__stat-tag--${roleColorClass(
-                  role,
-                  roles
-                )}`}
-              >
-                {role} members
-              </span>
-            </div>
+            <StatCard
+              key={role}
+              label={role}
+              value={count}
+              tag={`${role} members`}
+              icon={<BadgeIcon />}
+              color={roleColorClass(role, roles)}
+            />
           ))}
         </div>
 

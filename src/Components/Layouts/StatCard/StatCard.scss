@@ -1,0 +1,144 @@
+$colors: (
+  'navy': #1a3a6b,
+  'teal': #26a69a,
+  'amber': #d97706,
+  'green': #16a34a,
+  'red': #dc2626,
+);
+
+// Brighter stand-ins used only for the decorative glow — the base $colors
+// are tuned for text/icon contrast, and dark, desaturated navy reads as
+// plain gray rather than a color at low opacity.
+$glow-colors: (
+  'navy': #3b6fe0,
+  'teal': #26a69a,
+  'amber': #e0a030,
+  'green': #16a34a,
+  'red': #dc2626,
+);
+
+.stat-card {
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04),
+    0 8px 20px -12px rgba(15, 23, 42, 0.12);
+  padding: 22px 24px;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+
+  &:hover {
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05),
+      0 14px 28px -14px rgba(15, 23, 42, 0.18);
+    transform: translateY(-2px);
+  }
+
+  &__bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+  }
+
+  &__glow {
+    position: absolute;
+    right: -40px;
+    bottom: -50px;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  &__top {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  &__label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding-top: 6px;
+  }
+
+  &__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  &__value {
+    position: relative;
+    font-size: 34px;
+    line-height: 1;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 14px;
+  }
+
+  &__tag {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+
+  &__tag-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+
+  @each $name, $color in $colors {
+    &--#{$name} {
+      $glow: map-get($glow-colors, $name);
+
+      .stat-card__bar {
+        background: $color;
+      }
+
+      .stat-card__glow {
+        background: radial-gradient(
+          circle at 65% 65%,
+          rgba($glow, 0.22) 0%,
+          rgba($glow, 0.1) 45%,
+          rgba($glow, 0) 72%
+        );
+      }
+
+      .stat-card__icon {
+        background: rgba($color, 0.12);
+        color: $color;
+      }
+
+      .stat-card__tag {
+        background: rgba($color, 0.1);
+        color: $color;
+      }
+    }
+  }
+}
