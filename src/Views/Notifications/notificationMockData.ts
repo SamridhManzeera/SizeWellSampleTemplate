@@ -12,19 +12,19 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
   },
   {
     id: 'n2',
-    type: 'form-submitted',
-    title: 'Emergency booking request submitted',
+    type: 'approved',
+    title: 'Slots allocated',
     description:
-      'Orion Deliveries submitted an emergency slot request REQ-015',
+      '10 slots allocated out of 12 requested for REQ-015.',
     timestamp: '2026-06-26T09:45:00',
     read: false,
   },
   {
     id: 'n3',
-    type: 'documents',
-    title: 'Delivery documents uploaded',
+    type: 'approved',
+    title: 'Slots allocated',
     description:
-      'Meridian Freight uploaded supporting documents for request REQ-012',
+      '8 slots allocated out of 10 requested for REQ-013.',
     timestamp: '2026-06-26T09:42:00',
     read: false,
   },
@@ -47,11 +47,11 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
     read: true,
   },
   {
-    id: 'n7',
-    type: 'alert',
-    title: 'Action required',
+    id: 'n6',
+    type: 'approved',
+    title: 'Slots allocated',
     description:
-      'Request REQ-011 from Vantage Haulage is missing a required delivery document.',
+      '15 slots allocated out of 18 requested for REQ-008.',
     timestamp: '2026-06-24T14:30:00',
     read: true,
   },

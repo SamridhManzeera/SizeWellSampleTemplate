@@ -205,14 +205,14 @@ export default function UserManagement() {
         prev.map((u) =>
           u.id === editingUserId
             ? {
-                ...u,
-                firstName: userForm.firstName,
-                lastName: userForm.lastName,
-                email: userForm.email,
-                role: userForm.role,
-                company: userForm.company,
-                phone: userForm.phone,
-              }
+              ...u,
+              firstName: userForm.firstName,
+              lastName: userForm.lastName,
+              email: userForm.email,
+              role: userForm.role,
+              company: userForm.company,
+              phone: userForm.phone,
+            }
             : u
         )
       );
@@ -287,7 +287,7 @@ export default function UserManagement() {
             className="um__hero-btn"
             onClick={openCompanyModal}
           >
-            Add Company
+            Add Contractor
           </button>
         </div>
       </div>
@@ -652,7 +652,7 @@ export default function UserManagement() {
           >
             <div className="um-modal__header">
               <div>
-                <h2 className="um-modal__title">Add Companies</h2>
+                <h2 className="um-modal__title">Add Contractor</h2>
                 <p className="um-modal__sub">
                   Type a name and click Add, then save all at once
                 </p>
@@ -670,7 +670,7 @@ export default function UserManagement() {
             <div className="um-modal__body">
               <div className="um__field">
                 <label className="um__label" htmlFor="companyName">
-                  Company Name *
+                  Contractor Name *
                 </label>
                 <div className="um__inline-add">
                   <input
@@ -711,7 +711,7 @@ export default function UserManagement() {
                 className="um-modal__btn um-modal__btn--confirm"
                 onClick={saveCompanies}
               >
-                Add Company
+                Add Contractor
               </button>
             </div>
           </div>
