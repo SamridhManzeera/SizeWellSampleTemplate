@@ -1,22 +1,8 @@
-import { useState } from 'react';
+import { useState, ReactNode } from 'react';
 import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
 import './Profile.scss';
 
 // ── Icons ─────────────────────────────────────────────────────────
-
-function ProfileIcon() {
-  return (
-    <svg
-      width="40"
-      height="40"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-    >
-      <path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.33 0-10 1.67-10 5v3h20v-3c0-3.33-6.67-5-10-5z" />
-    </svg>
-  );
-}
 
 function EditIcon() {
   return (
@@ -50,13 +36,85 @@ function KeyIcon() {
   );
 }
 
+function MailIcon() {
+  return (
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M3 6h18v12H3z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      <path
+        d="m3 7 9 6 9-6"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function PhoneIcon() {
+  return (
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M6.6 10.8c1.4 2.8 3.8 5.2 6.6 6.6l2.2-2.2c.3-.3.7-.4 1.1-.2 1.2.4 2.5.6 3.8.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.6.6 3.8.1.4 0 .8-.2 1.1L6.6 10.8Z" />
+    </svg>
+  );
+}
+
+// function ClockIcon() {
+//   return (
+//     <svg
+//       width="18"
+//       height="18"
+//       viewBox="0 0 24 24"
+//       fill="none"
+//       aria-hidden="true"
+//     >
+//       <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
+//       <path
+//         d="M12 7v5l3 3"
+//         stroke="currentColor"
+//         strokeWidth="2"
+//         strokeLinecap="round"
+//         strokeLinejoin="round"
+//       />
+//     </svg>
+//   );
+// }
+
 // ── Field helper ──────────────────────────────────────────────────
 
-function ReadField({ label, value }: { label: string; value: string }) {
+function ReadField({
+  label,
+  value,
+  icon,
+}: {
+  label: string;
+  value: string;
+  icon: ReactNode;
+}) {
   return (
     <div className="pf__field">
       <span className="pf__label">{label}</span>
-      <div className="pf__read-val">{value}</div>
+      <div className="pf__read-val">
+        {icon && <span className="pf__read-icon">{icon}</span>}
+        {value}
+      </div>
     </div>
   );
 }
@@ -88,6 +146,7 @@ export default function Profile() {
   const [profile, setProfile] = useState<ProfileData>(INITIAL_PROFILE);
   const [draft, setDraft] = useState<ProfileData>(INITIAL_PROFILE);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  // const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
 
   const isView = mode === 'view';
 
@@ -111,17 +170,43 @@ export default function Profile() {
       <PageHeader />
 
       {/* ── Hero ────────────────────────────────────────────── */}
-      <div className="pf__hero">
-        <div className="pf__hero-left">
-          <div className="pf__hero-icon">
-            <ProfileIcon />
-          </div>
-          <div>
-            <h1 className="pf__hero-title">Profile</h1>
-            <p className="pf__hero-sub">
-              Manage your supplier details, contact information, and
-              notification preferences.
-            </p>
+      <div className="pf__hero-wrap">
+        <div className="pf__hero">
+          <svg
+            className="pf__hero-wave"
+            viewBox="0 0 1000 300"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M150,190 C400,70 600,60 750,130 C850,175 920,150 1000,110"
+              stroke="rgba(255,255,255,0.3)"
+              strokeWidth="2"
+              fill="none"
+            />
+            <path
+              d="M170,215 C420,100 620,90 770,155 C860,195 930,175 1000,140"
+              stroke="rgba(255,255,255,0.2)"
+              strokeWidth="2"
+              fill="none"
+            />
+            <path
+              d="M190,240 C440,130 640,120 790,180 C870,215 935,200 1000,170"
+              stroke="rgba(255,255,255,0.12)"
+              strokeWidth="2"
+              fill="none"
+            />
+          </svg>
+
+          <div className="pf__hero-left">
+            <div>
+              <span className="pf__hero-eyebrow">Settings</span>
+              <h1 className="pf__hero-title">Profile</h1>
+              <p className="pf__hero-sub">
+                Manage your personal information, security settings, and
+                notification preferences.
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -167,7 +252,11 @@ export default function Profile() {
 
             <div className="pf__grid">
               {isView ? (
-                <ReadField label="Full Name" value={profile.fullName} />
+                <ReadField
+                  label="Full Name"
+                  value={profile.fullName}
+                  icon={null}
+                />
               ) : (
                 <div className="pf__field">
                   <label className="pf__label" htmlFor="fullName">
@@ -184,10 +273,14 @@ export default function Profile() {
                 </div>
               )}
 
-              <ReadField label="Role" value={profile.role} />
+              <ReadField label="Role" value={profile.role} icon={null} />
 
               {isView ? (
-                <ReadField label="Company" value={profile.company} />
+                <ReadField
+                  label="Company"
+                  value={profile.company}
+                  icon={null}
+                />
               ) : (
                 <div className="pf__field">
                   <label className="pf__label" htmlFor="company">
@@ -204,10 +297,18 @@ export default function Profile() {
                 </div>
               )}
 
-              <ReadField label="User ID" value={profile.supplierId} />
+              <ReadField
+                label="User ID"
+                value={profile.supplierId}
+                icon={null}
+              />
 
               {isView ? (
-                <ReadField label="Email" value={profile.email} />
+                <ReadField
+                  label="Email"
+                  value={profile.email}
+                  icon={<MailIcon />}
+                />
               ) : (
                 <div className="pf__field">
                   <label className="pf__label" htmlFor="email">
@@ -226,7 +327,11 @@ export default function Profile() {
               )}
 
               {isView ? (
-                <ReadField label="Phone" value={profile.phone} />
+                <ReadField
+                  label="Phone"
+                  value={profile.phone}
+                  icon={<PhoneIcon />}
+                />
               ) : (
                 <div className="pf__field">
                   <label className="pf__label" htmlFor="phone">
@@ -256,20 +361,29 @@ export default function Profile() {
               </div>
             </div>
 
-            <div className="pf__security-row">
-              <div>
-                <p className="pf__security-title">Password</p>
-                <p className="pf__security-sub">
-                  Update your password regularly to keep your account secure.
-                </p>
+            <div className="pf__security-list">
+              <div className="pf__security-item">
+                <div className="pf__security-item-icon">
+                  <KeyIcon />
+                </div>
+                <div className="pf__security-item-body">
+                  <p className="pf__security-title">Password</p>
+                  <p className="pf__security-sub">
+                    Update your password regularly to keep your account secure.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="pf__change-btn"
+                  onClick={() => setShowPasswordModal(true)}
+                >
+                  <KeyIcon /> Change
+                </button>
               </div>
-              <button
-                type="button"
-                className="pf__change-btn"
-                onClick={() => setShowPasswordModal(true)}
-              >
-                <KeyIcon /> Change
-              </button>
+
+
+
+
             </div>
           </div>
         </div>
