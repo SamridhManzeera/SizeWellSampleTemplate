@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
+import PageHero from '../../Components/Layouts/PageHero/PageHero';
 import { useRequests } from './RequestsContext';
 import { RequestStatus, totalSlotsForRequest } from './requestTypes';
 import './Requests.scss';
@@ -9,7 +10,13 @@ import './Requests.scss';
 
 function TruckIcon() {
   return (
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <svg
+      width="48"
+      height="48"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
       <path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
     </svg>
   );
@@ -36,17 +43,23 @@ function PlusIcon() {
 function formatDate(dateStr: string) {
   const [y, m, d] = dateStr.split('-').map(Number);
   return new Date(y, m - 1, d).toLocaleDateString('en-GB', {
-    day: 'numeric', month: 'short', year: 'numeric',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
   });
 }
 
 function formatDateRange(startDate: string, endDate: string) {
-  return startDate === endDate ? formatDate(startDate) : `${formatDate(startDate)} – ${formatDate(endDate)}`;
+  return startDate === endDate
+    ? formatDate(startDate)
+    : `${formatDate(startDate)} – ${formatDate(endDate)}`;
 }
 
 function formatSubmitted(iso: string) {
   return new Date(iso).toLocaleDateString('en-GB', {
-    day: 'numeric', month: 'short', year: 'numeric',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
   });
 }
 
@@ -55,35 +68,40 @@ function formatSubmitted(iso: string) {
 export default function Requests() {
   const navigate = useNavigate();
   const { requests } = useRequests();
-  const [statusFilter, setStatusFilter] = useState<RequestStatus | 'all'>('all');
+  const [statusFilter, setStatusFilter] = useState<RequestStatus | 'all'>(
+    'all'
+  );
 
   const total = requests.length;
-  const pending = requests.filter(r => r.status === 'pending').length;
-  const approved = requests.filter(r => r.status === 'approved').length;
-  const rejected = requests.filter(r => r.status === 'rejected').length;
+  const pending = requests.filter((r) => r.status === 'pending').length;
+  const approved = requests.filter((r) => r.status === 'approved').length;
+  const rejected = requests.filter((r) => r.status === 'rejected').length;
 
-  const filtered = statusFilter === 'all'
-    ? requests
-    : requests.filter(r => r.status === statusFilter);
+  const filtered =
+    statusFilter === 'all'
+      ? requests
+      : requests.filter((r) => r.status === statusFilter);
 
   return (
     <div className="rq">
       <PageHeader />
 
-      {/* ── Hero ────────────────────────────────────────────── */}
-      <div className="rq__hero">
-        <div className="rq__hero-left">
-          <div className="rq__hero-icon"><TruckIcon /></div>
-          <div>
-            <h1 className="rq__hero-title">Delivery Requests</h1>
-            <p className="rq__hero-sub">Manage and track all delivery slot requests for Sizewell C</p>
-          </div>
-        </div>
-        <button type="button" className="rq__apply-btn" onClick={() => navigate('/requests/apply')}>
-          <PlusIcon />
-          Apply Request
-        </button>
-      </div>
+      <PageHero
+        icon={<TruckIcon />}
+        title="Delivery Requests"
+        subtitle="Manage and track all delivery slot requests for Sizewell C"
+        eyebrow={null}
+        actions={
+          <button
+            type="button"
+            className="rq__apply-btn"
+            onClick={() => navigate('/requests/apply')}
+          >
+            <PlusIcon />
+            Apply Request
+          </button>
+        }
+      />
 
       {/* ── Stats ───────────────────────────────────────────── */}
       <div className="rq__stats">
@@ -111,12 +129,16 @@ export default function Requests() {
           <h2 className="rq__list-title">Applied Requests</h2>
 
           <div className="rq__filter-wrap">
-            <label className="rq__filter-label" htmlFor="status-filter">Status</label>
+            <label className="rq__filter-label" htmlFor="status-filter">
+              Status
+            </label>
             <select
               id="status-filter"
               className="rq__filter-select"
               value={statusFilter}
-              onChange={e => setStatusFilter(e.target.value as RequestStatus | 'all')}
+              onChange={(e) =>
+                setStatusFilter(e.target.value as RequestStatus | 'all')
+              }
             >
               <option value="all">All Status</option>
               <option value="pending">Pending</option>
@@ -141,11 +163,17 @@ export default function Requests() {
             </thead>
             <tbody>
               {filtered.length === 0 && (
-                <tr><td colSpan={9} className="rq__empty">No requests found.</td></tr>
+                <tr>
+                  <td colSpan={9} className="rq__empty">
+                    No requests found.
+                  </td>
+                </tr>
               )}
-              {filtered.map(req => (
+              {filtered.map((req) => (
                 <tr key={req.id}>
-                  <td><span className="rq__req-id">{req.id}</span></td>
+                  <td>
+                    <span className="rq__req-id">{req.id}</span>
+                  </td>
                   <td>
                     <span className={`rq__kind rq__kind--${req.kind}`}>
                       {req.kind === 'emergency' ? '⚡ Emergency' : 'Normal'}
@@ -153,9 +181,13 @@ export default function Requests() {
                   </td>
                   <td>{formatDateRange(req.startDate, req.endDate)}</td>
                   <td>
-                    <span className="rq__slot-total">{totalSlotsForRequest(req)}</span>
+                    <span className="rq__slot-total">
+                      {totalSlotsForRequest(req)}
+                    </span>
                   </td>
-                  <td className="rq__submitted">{formatSubmitted(req.submittedAt)}</td>
+                  <td className="rq__submitted">
+                    {formatSubmitted(req.submittedAt)}
+                  </td>
                   <td>
                     <span className={`rq__status rq__status--${req.status}`}>
                       {req.status.charAt(0).toUpperCase() + req.status.slice(1)}
@@ -167,7 +199,10 @@ export default function Requests() {
                         type="button"
                         className="rq__action-btn rq__action-btn--view"
                         onClick={() => navigate(`/requests/${req.id}`)}
-                      ><EyeIcon /><span>View</span></button>
+                      >
+                        <EyeIcon />
+                        <span>View</span>
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -176,7 +211,6 @@ export default function Requests() {
           </table>
         </div>
       </div>
-
     </div>
   );
 }

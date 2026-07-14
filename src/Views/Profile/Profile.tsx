@@ -1,6 +1,6 @@
 import { useState, ReactNode } from 'react';
 import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
-import ProfileHero from './ProfileHero';
+import PageHero from '../../Components/Layouts/PageHero/PageHero';
 import './Profile.scss';
 
 // ── Icons ─────────────────────────────────────────────────────────
@@ -148,7 +148,13 @@ export default function Profile() {
     <div className="pf">
       <PageHeader />
 
-      <ProfileHero />
+      <PageHero
+        icon={null}
+        eyebrow="Settings"
+        title="Profile"
+        subtitle="Manage your personal information, security settings, and notification preferences."
+        actions={null}
+      />
 
       <div className="pf__body">
         <div className="pf__row">

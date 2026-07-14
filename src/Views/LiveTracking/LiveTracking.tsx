@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
+import PageHero from '../../Components/Layouts/PageHero/PageHero';
 import { useLiveTracking } from '../../hooks/useLiveTracking';
 import SummaryCards from '../../Components/LiveTracking/SummaryCards/SummaryCards';
 import VehicleFilters from '../../Components/LiveTracking/VehicleFilters/VehicleFilters';
@@ -52,10 +53,13 @@ export default function LiveTracking() {
   const [activeTab, setActiveTab] = useState<'listing' | 'map'>('map');
   const [isExceptionModalOpen, setIsExceptionModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [exceptionToConfirm, setExceptionToConfirm] = useState<RouteException | null>(null);
+  const [exceptionToConfirm, setExceptionToConfirm] =
+    useState<RouteException | null>(null);
 
   const handleManageException = (vehicleId: string) => {
-    const exc = exceptions.find(e => e.vehicleId === vehicleId || e.vehicleId === 'all');
+    const exc = exceptions.find(
+      (e) => e.vehicleId === vehicleId || e.vehicleId === 'all'
+    );
     if (exc) {
       setExceptionToConfirm(exc);
       setIsConfirmModalOpen(true);
@@ -64,7 +68,7 @@ export default function LiveTracking() {
 
   const handleViewVehicleOnMap = (id: string) => {
     setActiveTab('map');
-    const selected = vehicles.find(v => v.id === id);
+    const selected = vehicles.find((v) => v.id === id);
     if (selected) {
       handleMapFilterChange('status', selected.status);
     }
@@ -76,21 +80,12 @@ export default function LiveTracking() {
     <div className="lt">
       <PageHeader />
 
-      {/* Hero Banner */}
-      <div className="lt__hero">
-        <div className="lt__hero-left">
-          <div className="lt__hero-icon">
-            <MapIcon />
-          </div>
-          <div>
-            <h1 className="lt__hero-title">Live Tracking</h1>
-            <p className="lt__hero-sub">
-              Monitor active vehicles and visualize route compliance in real
-              time.
-            </p>
-          </div>
-        </div>
-        <div className="lt__hero-right">
+      <PageHero
+        icon={<MapIcon />}
+        title="Live Tracking"
+        subtitle="Monitor active vehicles and visualize route compliance in real time."
+        eyebrow={null}
+        actions={
           <div className="lt__tabs">
             <button
               type="button"
@@ -111,8 +106,8 @@ export default function LiveTracking() {
               🗺️ Map View
             </button>
           </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* Main Panel Content */}
       <div className="lt__content">

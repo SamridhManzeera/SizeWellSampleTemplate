@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
+import PageHero from '../../Components/Layouts/PageHero/PageHero';
 import { MOCK_USERS } from './userManagementMockData';
 import {
   INITIAL_COMPANIES,
@@ -205,14 +206,14 @@ export default function UserManagement() {
         prev.map((u) =>
           u.id === editingUserId
             ? {
-              ...u,
-              firstName: userForm.firstName,
-              lastName: userForm.lastName,
-              email: userForm.email,
-              role: userForm.role,
-              company: userForm.company,
-              phone: userForm.phone,
-            }
+                ...u,
+                firstName: userForm.firstName,
+                lastName: userForm.lastName,
+                email: userForm.email,
+                role: userForm.role,
+                company: userForm.company,
+                phone: userForm.phone,
+              }
             : u
         )
       );
@@ -263,34 +264,30 @@ export default function UserManagement() {
     <div className="um">
       <PageHeader />
 
-      {/* ── Hero ────────────────────────────────────────────── */}
-      <div className="um__hero">
-        <span className="um__hero-pill">
-          <ShieldUserIcon /> Access Governance
-        </span>
-        <h1 className="um__hero-title">User and Role Management</h1>
-        <p className="um__hero-sub">
-          Control admin, logistic team and supplier access from one secure page
-          with role assignment, account lifecycle tracking and permission
-          oversight.
-        </p>
-        <div className="um__hero-actions">
-          <button
-            type="button"
-            className="um__hero-btn"
-            onClick={openCreateUser}
-          >
-            Add New User
-          </button>
-          <button
-            type="button"
-            className="um__hero-btn"
-            onClick={openCompanyModal}
-          >
-            Add Contractor
-          </button>
-        </div>
-      </div>
+      <PageHero
+        icon={<ShieldUserIcon />}
+        eyebrow="Access Governance"
+        title="User and Role Management"
+        subtitle="Control admin, logistic team and supplier access from one secure page with role assignment, account lifecycle tracking and permission oversight."
+        actions={
+          <div className="um__hero-actions">
+            <button
+              type="button"
+              className="um__hero-btn"
+              onClick={openCreateUser}
+            >
+              Add New User
+            </button>
+            <button
+              type="button"
+              className="um__hero-btn"
+              onClick={openCompanyModal}
+            >
+              Add Contractor
+            </button>
+          </div>
+        }
+      />
 
       <div className="um__body">
         {/* ── Stats ─────────────────────────────────────────── */}

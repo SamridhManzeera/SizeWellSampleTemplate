@@ -14,51 +14,7 @@ $radius:   12px;
   background: $bg;
   min-height: 100vh;
 
-  // ── Hero ───────────────────────────────────────────────────
-  &__hero {
-    background: linear-gradient(135deg, #122a52 0%, #1a3a6b 60%, #1e4a8a 100%);
-    padding: 32px 24px 28px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 24px;
-    flex-wrap: wrap;
-  }
-
-  &__hero-left {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-
-  &__hero-icon {
-    width: 72px;
-    height: 72px;
-    border-radius: 18px;
-    background: rgba(255,255,255,0.1);
-    border: 1.5px solid rgba(255,255,255,0.15);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(255,255,255,0.85);
-    flex-shrink: 0;
-  }
-
-  &__hero-title {
-    margin: 0 0 6px;
-    font-size: 28px;
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: -0.4px;
-  }
-
-  &__hero-sub {
-    margin: 0;
-    font-size: 14px;
-    color: rgba(255,255,255,0.65);
-    font-weight: 400;
-  }
-
+  // ── Hero actions ───────────────────────────────────────────
   &__mark-btn {
     display: inline-flex;
     align-items: center;
@@ -81,8 +37,8 @@ $radius:   12px;
 
   // ── Body / Card ────────────────────────────────────────────
   &__body {
-    padding: 24px 24px 40px;
-    max-width: 1280px;
+    padding: 20px 20px 40px;
+    max-width: 1400px;
     margin: 0 auto;
   }
 

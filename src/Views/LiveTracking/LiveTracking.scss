@@ -15,59 +15,9 @@ $red:       #dc2626;
   flex-direction: column;
 
   // ── Hero Banner ───────────────────────────────────────────
-  &__hero {
-    background: linear-gradient(135deg, #122a52 0%, #1a3a6b 60%, #1e4a8a 100%);
-    padding: 16px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    column-gap: 24px;
-    row-gap: 20px;
-    flex-wrap: wrap;
+  .page-hero-wrap {
+    width: 100%;
     flex-shrink: 0;
-  }
-
-  &__hero-left {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-
-  &__hero-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1.5px solid rgba(255, 255, 255, 0.15);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(255, 255, 255, 0.85);
-    flex-shrink: 0;
-
-    svg {
-      width: 28px;
-      height: 28px;
-    }
-  }
-
-  &__hero-title {
-    margin: 0 0 4px;
-    font-size: 26px;
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: -0.4px;
-  }
-
-  &__hero-sub {
-    margin: 0;
-    font-size: 13.5px;
-    color: rgba(255, 255, 255, 0.7);
-  }
-
-  &__hero-right {
-    display: flex;
-    align-items: center;
   }
 
   &__tabs {
@@ -122,7 +72,10 @@ $red:       #dc2626;
 
   // ── Layout Content ────────────────────────────────────────
   &__content {
-    padding: 16px 24px 24px;
+    padding: 16px 20px 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -216,9 +169,6 @@ $red:       #dc2626;
 
 // Spacing for smaller viewports
 @media (max-width: 768px) {
-  .lt__hero {
-    padding: 24px 20px;
-  }
   .lt__content {
     padding: 20px;
   }

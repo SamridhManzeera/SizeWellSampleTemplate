@@ -14,84 +14,7 @@ $radius:  12px;
   background: $bg;
   min-height: 100vh;
 
-  // ── Hero (view / edit existing request) ──────────────────────
-  &__hero {
-    background: linear-gradient(135deg, #122a52 0%, #1a3a6b 60%, #1e4a8a 100%);
-    padding: 32px 40px 28px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 24px;
-    flex-wrap: wrap;
-  }
-
-  &__hero-left {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-
-  &__hero-back {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
-    border-radius: 10px;
-    border: 1.5px solid rgba(255,255,255,0.25);
-    background: rgba(255,255,255,0.08);
-    font-size: 13px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.85);
-    cursor: pointer;
-    font-family: inherit;
-    white-space: nowrap;
-    flex-shrink: 0;
-    transition: background 0.12s, border-color 0.12s;
-    &:hover { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.4); }
-  }
-
-  &__hero-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 16px;
-    background: rgba(255,255,255,0.1);
-    border: 1.5px solid rgba(255,255,255,0.15);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(255,255,255,0.85);
-    flex-shrink: 0;
-  }
-
-  &__hero-title-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 6px;
-  }
-
-  &__hero-title {
-    margin: 0;
-    font-size: 26px;
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: -0.3px;
-  }
-
-  &__hero-sub {
-    margin: 0;
-    font-size: 13px;
-    color: rgba(255,255,255,0.55);
-  }
-
-  &__hero-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-shrink: 0;
-  }
-
+  // ── Hero actions (view / edit existing request) ───────────────
   &__hero-edit-btn {
     display: inline-flex;
     align-items: center;
@@ -137,9 +60,17 @@ $radius:  12px;
     &--rejected { background: rgba(#dc2626, 0.22); color: #f87171; }
   }
 
-  &__hero &__kind-badge {
+  .page-hero &__kind-badge {
     &--normal    { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); }
     &--emergency { background: rgba(#dc2626, 0.35);   color: #fca5a5; border: 1px solid rgba(#dc2626,0.5); }
+  }
+
+  .page-hero__title {
+    .rf__kind-badge,
+    .rf__status-badge {
+      margin-left: 10px;
+      vertical-align: middle;
+    }
   }
 
   // ── Flat title bar (create form only) ────────────────────────

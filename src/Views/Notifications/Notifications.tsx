@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
+import PageHero from '../../Components/Layouts/PageHero/PageHero';
 import { MOCK_NOTIFICATIONS } from './notificationMockData';
 import {
   NOTIFICATION_TYPE_META,
@@ -126,24 +127,17 @@ export default function Notifications() {
     <div className="nt">
       <PageHeader />
 
-      {/* ── Hero ────────────────────────────────────────────── */}
-      <div className="nt__hero">
-        <div className="nt__hero-left">
-          <div className="nt__hero-icon">
-            <BellIcon />
-          </div>
-          <div>
-            <h1 className="nt__hero-title">Notifications</h1>
-            <p className="nt__hero-sub">
-              Updates across your requests, documents, and site visits. Unread
-              items are highlighted.
-            </p>
-          </div>
-        </div>
-        <button type="button" className="nt__mark-btn" onClick={markAllRead}>
-          <CheckAllIcon /> Mark all read
-        </button>
-      </div>
+      <PageHero
+        icon={<BellIcon />}
+        title="Notifications"
+        subtitle="Updates across your requests, documents, and site visits. Unread items are highlighted."
+        eyebrow={null}
+        actions={
+          <button type="button" className="nt__mark-btn" onClick={markAllRead}>
+            <CheckAllIcon /> Mark all read
+          </button>
+        }
+      />
 
       <div className="nt__body">
         <div className="nt__card">
