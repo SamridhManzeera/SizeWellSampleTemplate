@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { startOfWeek, endOfWeek } from 'date-fns';
 import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
 import PageHero from '../../Components/Layouts/PageHero/PageHero';
+import WeekPicker from '../../Components/Layouts/WeekPicker/WeekPicker';
 import { useRequests } from './RequestsContext';
 import { VehicleType, DriverRoute, RequestKind, DaySlotCounts } from './requestTypes';
 import './RequestForm.scss';
@@ -66,6 +68,14 @@ function dateToString(d: Date): string {
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
   return `${y}-${m}-${day}`;
+}
+
+function currentWeekRange(): { startDate: string; endDate: string } {
+  const today = new Date();
+  return {
+    startDate: dateToString(startOfWeek(today, { weekStartsOn: 1 })),
+    endDate: dateToString(endOfWeek(today, { weekStartsOn: 1 })),
+  };
 }
 
 function formatDate(dateStr: string) {
@@ -146,8 +156,9 @@ export default function RequestForm() {
 
   const [mode, setMode] = useState<Mode>(initMode);
   const kind: RequestKind = existing?.kind ?? 'normal';
-  const [startDate, setStartDate] = useState(existing?.startDate ?? todayString());
-  const [endDate, setEndDate] = useState(existing?.endDate ?? todayString());
+  const defaultWeek = currentWeekRange();
+  const [startDate, setStartDate] = useState(existing?.startDate ?? defaultWeek.startDate);
+  const [endDate, setEndDate] = useState(existing?.endDate ?? defaultWeek.endDate);
   const [dailySlots, setDailySlots] = useState<Record<string, DaySlotCounts>>(existing?.dailySlots ?? {});
   const vehicleType: VehicleType = existing?.vehicleType ?? 'HGV_ACA_MDS';
   const driverRoute: DriverRoute = existing?.driverRoute ?? 'route1a';
@@ -184,8 +195,6 @@ export default function RequestForm() {
   const copyFromRef = useRef<HTMLInputElement>(null);
   const copyToStartRef = useRef<HTMLInputElement>(null);
   const copyToEndRef = useRef<HTMLInputElement>(null);
-  const startDateInputRef = useRef<HTMLInputElement>(null);
-  const endDateInputRef = useRef<HTMLInputElement>(null);
 
   function openCopyModal() {
     setCopyFrom(dayDates[0] ?? todayString());
@@ -217,7 +226,7 @@ export default function RequestForm() {
 
   function validate() {
     const errs: Record<string, string> = {};
-    if (!startDate || !endDate) errs.deliveryDate = 'Delivery date range is required.';
+    if (!startDate || !endDate) errs.deliveryDate = 'Delivery week is required.';
     else if (endDate < startDate) errs.deliveryDate = 'End date must be on or after start date.';
     if (totalSlots === 0) errs.slots = 'Add at least 1 slot (inbound, outbound, or two-way) on any day.';
     return errs;
@@ -304,53 +313,16 @@ export default function RequestForm() {
             <ReadField label="Delivery Date" value={formatDateRange(startDate, endDate)} />
           ) : (
             <div className="rf__field rf__field--full">
-              <label className="rf__label">Delivery Date Range *</label>
-              <div className="rf__date-range-row">
-                <div className="rf__date-box">
-                  <span className="rf__date-box-label">Start Date</span>
-                  <div
-                    className="rf__date-box-value"
-                    onClick={() => startDateInputRef.current?.showPicker()}
-                  >
-                    <CalendarSmallIcon />
-                    <span>{formatDateShort(startDate)}</span>
-                    <input
-                      ref={startDateInputRef}
-                      type="date"
-                      value={startDate}
-                      min={todayString()}
-                      onChange={e => {
-                        const v = e.target.value;
-                        setStartDate(v);
-                        if (endDate < v) setEndDate(v);
-                        setErrors(p => ({ ...p, deliveryDate: '' }));
-                      }}
-                      className="rf__date-box-hidden"
-                      aria-label="Start date"
-                    />
-                  </div>
-                </div>
-                <span className="rf__date-range-arrow">→</span>
-                <div className="rf__date-box">
-                  <span className="rf__date-box-label">End Date</span>
-                  <div
-                    className="rf__date-box-value"
-                    onClick={() => endDateInputRef.current?.showPicker()}
-                  >
-                    <CalendarSmallIcon />
-                    <span>{formatDateShort(endDate)}</span>
-                    <input
-                      ref={endDateInputRef}
-                      type="date"
-                      value={endDate}
-                      min={startDate}
-                      onChange={e => { setEndDate(e.target.value); setErrors(p => ({ ...p, deliveryDate: '' })); }}
-                      className="rf__date-box-hidden"
-                      aria-label="End date"
-                    />
-                  </div>
-                </div>
-              </div>
+              <label className="rf__label">Delivery Week *</label>
+              <WeekPicker
+                value={{ startDate, endDate }}
+                minDate={parseDate(todayString())}
+                onChange={week => {
+                  setStartDate(week.startDate);
+                  setEndDate(week.endDate);
+                  setErrors(p => ({ ...p, deliveryDate: '' }));
+                }}
+              />
               <p className="rf__date-range-summary">
                 {dayDates.length} {dayDates.length === 1 ? 'day' : 'days'} selected ({formatDateFull(startDate)} – {formatDateFull(endDate)})
               </p>

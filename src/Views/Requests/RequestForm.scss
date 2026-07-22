@@ -319,59 +319,7 @@ $radius:  12px;
     color: $red;
   }
 
-  // ── Delivery Date range ────────────────────────────────────────
-  &__date-range-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    max-width: 640px;
-  }
-
-  &__date-box {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    padding: 10px 14px;
-    border-radius: 10px;
-    border: 1.5px solid $border;
-    background: #fff;
-    min-width: 0;
-  }
-
-  &__date-box-label {
-    font-size: 11px;
-    font-weight: 700;
-    color: $muted;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-
-  &__date-box-value {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    color: $dark;
-    cursor: pointer;
-    position: relative;
-  }
-
-  &__date-box-hidden {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-    width: 0;
-    height: 0;
-  }
-
-  &__date-range-arrow {
-    font-size: 16px;
-    color: $muted;
-    flex-shrink: 0;
-  }
-
+  // ── Delivery week ────────────────────────────────────────────
   &__date-range-summary {
     margin: 8px 0 0;
     font-size: 12px;
