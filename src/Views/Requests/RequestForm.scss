@@ -283,6 +283,92 @@ $radius:  12px;
     font-weight: 500;
   }
 
+  // ── Attachments ─────────────────────────────────────────────
+  &__attach-upload-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    border-radius: 9px;
+    border: 1.5px solid rgba($navy, 0.3);
+    background: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    color: $navy;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    transition: background 0.12s, border-color 0.12s;
+    &:hover { background: rgba($navy, 0.06); border-color: rgba($navy, 0.45); }
+  }
+
+  &__attach-input-hidden {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+  }
+
+  &__attach-list {
+    list-style: none;
+    margin: 14px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__attach-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1.5px solid $border;
+    border-radius: 9px;
+    background: $bg;
+  }
+
+  &__attach-icon {
+    display: flex;
+    align-items: center;
+    color: $muted;
+    flex-shrink: 0;
+  }
+
+  &__attach-name {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 600;
+    color: $dark;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__attach-size {
+    font-size: 12px;
+    font-weight: 500;
+    color: $muted;
+    flex-shrink: 0;
+  }
+
+  &__attach-remove {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: $muted;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.12s, color 0.12s;
+    &:hover { background: rgba($red, 0.1); color: $red; }
+  }
+
   // ── Request Kind toggle ───────────────────────────────────────
   &__kind-group {
     display: flex;
@@ -336,6 +422,13 @@ $radius:  12px;
     flex-wrap: wrap;
   }
 
+  &__ds-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
   &__ds-copy-btn {
     display: inline-flex;
     align-items: center;
@@ -352,6 +445,31 @@ $radius:  12px;
     white-space: nowrap;
     transition: background 0.12s, border-color 0.12s;
     &:hover { background: rgba($navy, 0.06); border-color: rgba($navy, 0.45); }
+  }
+
+  &__ds-clear-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    border-radius: 9px;
+    border: 1.5px solid rgba($red, 0.3);
+    background: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    color: $red;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    transition: background 0.12s, border-color 0.12s;
+    &:hover { background: rgba($red, 0.06); border-color: rgba($red, 0.45); }
+
+    &:disabled {
+      color: $muted;
+      border-color: $border;
+      cursor: not-allowed;
+      &:hover { background: #fff; border-color: $border; }
+    }
   }
 
   &__ds-table-wrap {

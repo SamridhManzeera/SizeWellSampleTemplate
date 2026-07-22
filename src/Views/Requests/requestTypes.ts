@@ -34,6 +34,11 @@ export interface DaySlotCounts {
   twoWay: number;
 }
 
+export interface RequestAttachment {
+  name: string;
+  size: number;
+}
+
 export interface DeliveryRequest {
   id: string;
   kind: RequestKind;
@@ -43,6 +48,7 @@ export interface DeliveryRequest {
   vehicleType: VehicleType;
   driverRoute: DriverRoute;
   notes: string;
+  attachments?: RequestAttachment[];
   status: RequestStatus;
   submittedAt: string;
 }

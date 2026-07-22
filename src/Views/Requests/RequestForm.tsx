@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { startOfWeek, endOfWeek } from 'date-fns';
 import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
 import PageHero from '../../Components/Layouts/PageHero/PageHero';
 import WeekPicker from '../../Components/Layouts/WeekPicker/WeekPicker';
 import { useRequests } from './RequestsContext';
-import { VehicleType, DriverRoute, RequestKind, DaySlotCounts } from './requestTypes';
+import { VehicleType, DriverRoute, RequestKind, DaySlotCounts, RequestAttachment } from './requestTypes';
 import './RequestForm.scss';
 
 // ── Icons ─────────────────────────────────────────────────────────
@@ -48,6 +48,43 @@ function AlertIcon() {
       <circle cx="12" cy="12" r="10"></circle>
       <line x1="12" y1="16" x2="12" y2="12"></line>
       <line x1="12" y1="8" x2="12.01" y2="8"></line>
+    </svg>
+  );
+}
+
+function ClearIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="3 6 5 6 21 6"></polyline>
+      <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+    </svg>
+  );
+}
+
+function UploadIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+      <polyline points="17 8 12 3 7 8"></polyline>
+      <line x1="12" y1="3" x2="12" y2="15"></line>
+    </svg>
+  );
+}
+
+function FileIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+      <polyline points="14 2 14 8 20 8"></polyline>
+    </svg>
+  );
+}
+
+function RemoveIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
     </svg>
   );
 }
@@ -116,6 +153,12 @@ function formatDateRange(startDate: string, endDate: string) {
   return startDate === endDate ? formatDate(startDate) : `${formatDate(startDate)} – ${formatDate(endDate)}`;
 }
 
+function formatFileSize(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 // ── Read-only field ───────────────────────────────────────────────
 
 function ReadField({ label, value }: { label: string; value: string }) {
@@ -167,6 +210,8 @@ export default function RequestForm() {
   const vehicleType: VehicleType = existing?.vehicleType ?? 'HGV_ACA_MDS';
   const driverRoute: DriverRoute = existing?.driverRoute ?? 'route1a';
   const [notes, setNotes] = useState(existing?.notes ?? '');
+  const [attachments, setAttachments] = useState<RequestAttachment[]>(existing?.attachments ?? []);
+  const attachmentInputRef = useRef<HTMLInputElement>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
 
@@ -261,6 +306,27 @@ export default function RequestForm() {
     setErrors(p => ({ ...p, slots: '' }));
   }
 
+  function handleClearSlots() {
+    setDailySlots(prev => {
+      const next = { ...prev };
+      dayDates.forEach(d => { next[d] = emptyCounts(); });
+      return next;
+    });
+  }
+
+  function handleFilesSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const newAttachments = Array.from(files).map(f => ({ name: f.name, size: f.size }));
+      setAttachments(prev => [...prev, ...newAttachments]);
+    }
+    e.target.value = '';
+  }
+
+  function removeAttachment(index: number) {
+    setAttachments(prev => prev.filter((_, i) => i !== index));
+  }
+
   function validate() {
     const errs: Record<string, string> = {};
     if (!startDate || !endDate) errs.deliveryDate = 'Delivery week is required.';
@@ -276,7 +342,7 @@ export default function RequestForm() {
 
     const payload = {
       kind, startDate, endDate, dailySlots,
-      vehicleType, driverRoute, notes,
+      vehicleType, driverRoute, notes, attachments,
     };
 
     if (existing) {
@@ -376,9 +442,14 @@ export default function RequestForm() {
               <p className="rf__section-desc" style={{ marginBottom: 0 }}>Set the number of deliveries per day for each type.</p>
             </div>
             {!isView && (
-              <button type="button" className="rf__ds-copy-btn" onClick={openCopyModal}>
-                <CopyIcon /> Copy Configuration
-              </button>
+              <div className="rf__ds-header-actions">
+                <button type="button" className="rf__ds-clear-btn" onClick={handleClearSlots} disabled={totalSlots === 0}>
+                  <ClearIcon /> Clear
+                </button>
+                <button type="button" className="rf__ds-copy-btn" onClick={openCopyModal}>
+                  <CopyIcon /> Copy Configuration
+                </button>
+              </div>
             )}
           </div>
 
@@ -472,6 +543,47 @@ export default function RequestForm() {
                 onChange={e => setNotes(e.target.value)}
               />
             </div>
+          )}
+        </section>
+
+        {/* ── Section 4: Attachments ────────────────────────── */}
+        <section className="rf__section">
+          <h2 className="rf__section-title" style={{ marginBottom: 4 }}>Attachments</h2>
+          <p className="rf__section-desc">Upload any supporting documents for this request.</p>
+
+          {!isView && (
+            <>
+              <button type="button" className="rf__attach-upload-btn" onClick={() => attachmentInputRef.current?.click()}>
+                <UploadIcon /> Upload Attachment
+              </button>
+              <input
+                ref={attachmentInputRef}
+                type="file"
+                multiple
+                className="rf__attach-input-hidden"
+                onChange={handleFilesSelected}
+                aria-label="Upload attachments"
+              />
+            </>
+          )}
+
+          {attachments.length === 0 ? (
+            <p className="rf__section-desc" style={{ margin: '12px 0 0' }}>No attachments added.</p>
+          ) : (
+            <ul className="rf__attach-list">
+              {attachments.map((file, i) => (
+                <li key={`${file.name}-${i}`} className="rf__attach-item">
+                  <span className="rf__attach-icon"><FileIcon /></span>
+                  <span className="rf__attach-name">{file.name}</span>
+                  <span className="rf__attach-size">{formatFileSize(file.size)}</span>
+                  {!isView && (
+                    <button type="button" className="rf__attach-remove" onClick={() => removeAttachment(i)} aria-label={`Remove ${file.name}`}>
+                      <RemoveIcon />
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
           )}
         </section>
 
