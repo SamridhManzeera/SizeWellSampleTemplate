@@ -350,6 +350,7 @@ export default function RequestForm() {
     } else {
       addRequest({
         id: nextId(requests.length),
+        contractorName: 'Your Company',
         ...payload,
         status: 'pending',
         submittedAt: new Date().toISOString(),

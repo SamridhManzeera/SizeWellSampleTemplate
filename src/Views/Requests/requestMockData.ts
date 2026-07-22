@@ -5,7 +5,7 @@ import { DeliveryRequest } from './requestTypes';
 // have slots, everything else in the week defaults to 0.
 export const MOCK_REQUESTS: DeliveryRequest[] = [
   {
-    id: 'REQ-001', kind: 'normal',
+    id: 'REQ-001', contractorName: 'Balfour Beatty', kind: 'normal',
     startDate: '2026-06-22', endDate: '2026-06-28',
     dailySlots: { '2026-06-22': { inbound: 3, outbound: 2, twoWay: 1 } },
     vehicleType: 'HGV_ACA_MDS', driverRoute: 'route1a',
@@ -13,7 +13,7 @@ export const MOCK_REQUESTS: DeliveryRequest[] = [
     notes: 'Morning delivery preferred — before 10:00 AM.',
   },
   {
-    id: 'REQ-002', kind: 'emergency',
+    id: 'REQ-002', contractorName: 'Kier Group', kind: 'emergency',
     startDate: '2026-06-22', endDate: '2026-06-28',
     dailySlots: { '2026-06-23': { inbound: 0, outbound: 4, twoWay: 0 } },
     vehicleType: 'HDV_MDS', driverRoute: 'route1a',
@@ -21,7 +21,7 @@ export const MOCK_REQUESTS: DeliveryRequest[] = [
     notes: '',
   },
   {
-    id: 'REQ-003', kind: 'normal',
+    id: 'REQ-003', contractorName: 'Laing O\'Rourke', kind: 'normal',
     startDate: '2026-06-29', endDate: '2026-07-05',
     dailySlots: {
       '2026-06-30': { inbound: 2, outbound: 2, twoWay: 2 },
@@ -32,7 +32,7 @@ export const MOCK_REQUESTS: DeliveryRequest[] = [
     notes: 'Two separate drops required.',
   },
   {
-    id: 'REQ-004', kind: 'emergency',
+    id: 'REQ-004', contractorName: 'Bouygues UK', kind: 'emergency',
     startDate: '2026-06-29', endDate: '2026-07-05',
     dailySlots: { '2026-07-02': { inbound: 5, outbound: 0, twoWay: 0 } },
     vehicleType: 'LGV_MDS', driverRoute: 'route1a',
@@ -40,7 +40,7 @@ export const MOCK_REQUESTS: DeliveryRequest[] = [
     notes: 'Slot unavailable — please resubmit for 03 July.',
   },
   {
-    id: 'REQ-005', kind: 'normal',
+    id: 'REQ-005', contractorName: 'Costain Group', kind: 'normal',
     startDate: '2026-06-29', endDate: '2026-07-05',
     dailySlots: { '2026-07-03': { inbound: 0, outbound: 3, twoWay: 1 } },
     vehicleType: 'HGV_ACA_MDS', driverRoute: 'route3a',
@@ -48,7 +48,7 @@ export const MOCK_REQUESTS: DeliveryRequest[] = [
     notes: '',
   },
   {
-    id: 'REQ-006', kind: 'normal',
+    id: 'REQ-006', contractorName: 'Mace Group', kind: 'normal',
     startDate: '2026-07-06', endDate: '2026-07-12',
     dailySlots: { '2026-07-06': { inbound: 2, outbound: 1, twoWay: 0 } },
     vehicleType: 'HGV_ACA_MDS', driverRoute: 'route2a',

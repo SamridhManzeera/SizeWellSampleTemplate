@@ -41,6 +41,7 @@ export interface RequestAttachment {
 
 export interface DeliveryRequest {
   id: string;
+  contractorName: string;
   kind: RequestKind;
   startDate: string;
   endDate: string;

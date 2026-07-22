@@ -79,6 +79,14 @@ function ShieldUserIcon() {
   );
 }
 
+function LeadershipIcon() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M5 16L3 6l5.5 4L12 4l3.5 6L21 6l-2 10H5zm0 2h14v2H5v-2z" />
+    </svg>
+  );
+}
+
 function ChevronIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -164,6 +172,19 @@ const NAV_GROUPS = [
         label: 'Notifications',
         icon: <BellIcon />,
         end: true,
+      },
+    ],
+  },
+  {
+    key: 'slt',
+    label: 'Senior Leadership Team (SLT)',
+    icon: <LeadershipIcon />,
+    items: [
+      {
+        to: '/slt/requests',
+        label: 'Requests',
+        icon: <RequestsIcon />,
+        end: false,
       },
     ],
   },
