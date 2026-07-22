@@ -400,6 +400,13 @@ $radius:  12px;
     }
   }
 
+  &__ds-day-name {
+    font-size: 11px;
+    font-weight: 500;
+    color: $mid;
+    margin-top: 2px;
+  }
+
   &__ds-row-total {
     font-weight: 800;
     color: $navy;

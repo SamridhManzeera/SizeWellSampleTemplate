@@ -87,6 +87,10 @@ function formatDateShort(dateStr: string) {
   return `${d}/${m}/${y}`;
 }
 
+function formatDayName(dateStr: string) {
+  return parseDate(dateStr).toLocaleDateString('en-GB', { weekday: 'long' });
+}
+
 function formatDateFull(dateStr: string) {
   return parseDate(dateStr).toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
 }
@@ -166,7 +170,7 @@ export default function RequestForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
 
-  const isView   = mode === 'view';
+  const isView = mode === 'view';
   const isCreate = mode === 'create';
 
   const dayDates = getDatesInRange(startDate, endDate);
@@ -363,7 +367,10 @@ export default function RequestForm() {
                   const counts = dailySlots[date] ?? emptyCounts();
                   return (
                     <tr key={date}>
-                      <td>{formatDateShort(date)}</td>
+                      <td>
+                        {formatDateShort(date)}
+                        <div className="rf__ds-day-name">({formatDayName(date)})</div>
+                      </td>
                       <td>
                         {isView ? (
                           <span className="rf__ds-view-num rf__ds-view-num--tw">{counts.twoWay}</span>
