@@ -153,7 +153,7 @@ export default function Requests() {
             <thead>
               <tr>
                 <th>Request ID</th>
-                <th>Type</th>
+                {/* <th>Type</th> */}
                 <th>Delivery Week</th>
                 <th>Slots</th>
                 <th>Submitted</th>
@@ -174,11 +174,11 @@ export default function Requests() {
                   <td>
                     <span className="rq__req-id">{req.id}</span>
                   </td>
-                  <td>
+                  {/* <td>
                     <span className={`rq__kind rq__kind--${req.kind}`}>
                       {req.kind === 'emergency' ? '⚡ Emergency' : 'Normal'}
                     </span>
-                  </td>
+                  </td> */}
                   <td>{formatDateRange(req.startDate, req.endDate)}</td>
                   <td>
                     <span className="rq__slot-total">
