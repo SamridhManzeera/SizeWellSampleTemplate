@@ -308,9 +308,9 @@ export default function RequestForm() {
         <section className="rf__section">
           <h2 className="rf__section-title" style={{ marginBottom: 16 }}>Request Details</h2>
 
-          {/* Delivery Date */}
+          {/* Delivery Week */}
           {isView ? (
-            <ReadField label="Delivery Date" value={formatDateRange(startDate, endDate)} />
+            <ReadField label="Delivery Week" value={formatDateRange(startDate, endDate)} />
           ) : (
             <div className="rf__field rf__field--full">
               <label className="rf__label">Delivery Week *</label>

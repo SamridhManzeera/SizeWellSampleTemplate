@@ -154,7 +154,7 @@ export default function Requests() {
               <tr>
                 <th>Request ID</th>
                 <th>Type</th>
-                <th>Delivery Date</th>
+                <th>Delivery Week</th>
                 <th>Slots</th>
                 <th>Submitted</th>
                 <th>Status</th>
