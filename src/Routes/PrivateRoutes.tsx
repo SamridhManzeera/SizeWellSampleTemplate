@@ -5,6 +5,7 @@ import ScheduleConfig from '../Views/ScheduleConfig/ScheduleConfig';
 import Requests from '../Views/Requests/Requests';
 import RequestForm from '../Views/Requests/RequestForm';
 import SLTRequests from '../Views/SLT/SLTRequests';
+import SLTRequestView from '../Views/SLT/SLTRequestView';
 import LiveTracking from '../Views/LiveTracking/LiveTracking';
 import Profile from '../Views/Profile/Profile';
 import Notifications from '../Views/Notifications/Notifications';
@@ -38,6 +39,11 @@ export const PRIVATE_ROUTES: Array<CustomRouter> = [
     path: ROUTES_CONFIG.SLT_REQUESTS.path,
     element: <SLTRequests />,
     title: ROUTES_CONFIG.SLT_REQUESTS.title,
+  },
+  {
+    path: ROUTES_CONFIG.SLT_REQUESTS_VIEW.path,
+    element: <SLTRequestView />,
+    title: ROUTES_CONFIG.SLT_REQUESTS_VIEW.title,
   },
   {
     path: ROUTES_CONFIG.LIVE_TRACKING.path,

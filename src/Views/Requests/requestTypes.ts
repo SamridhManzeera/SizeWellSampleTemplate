@@ -46,6 +46,7 @@ export interface DeliveryRequest {
   startDate: string;
   endDate: string;
   dailySlots: Record<string, DaySlotCounts>;
+  allocatedSlots: Record<string, DaySlotCounts>;
   vehicleType: VehicleType;
   driverRoute: DriverRoute;
   notes: string;
@@ -56,6 +57,13 @@ export interface DeliveryRequest {
 
 export function totalSlotsForRequest(req: DeliveryRequest): number {
   return Object.values(req.dailySlots).reduce(
+    (sum, c) => sum + c.inbound + c.outbound + c.twoWay * 2,
+    0,
+  );
+}
+
+export function totalAllocatedForRequest(req: DeliveryRequest): number {
+  return Object.values(req.allocatedSlots).reduce(
     (sum, c) => sum + c.inbound + c.outbound + c.twoWay * 2,
     0,
   );

@@ -179,7 +179,7 @@ export default function SLTRequests() {
                       <button
                         type="button"
                         className="rq__action-btn rq__action-btn--view"
-                        onClick={() => navigate(`/requests/${req.id}`)}
+                        onClick={() => navigate(`/slt/requests/${req.id}`)}
                       >
                         <EyeIcon />
                         <span>View</span>

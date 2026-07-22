@@ -12,6 +12,7 @@ const ROUTES = {
   REQUESTS_APPLY: '/requests/apply',
   REQUESTS_VIEW: '/requests/:id',
   SLT_REQUESTS: '/slt/requests',
+  SLT_REQUESTS_VIEW: '/slt/requests/:id',
   LIVE_TRACKING: '/live-tracking',
   ADMIN_PROFILE: '/admin/profile',
   CONTRACTOR_PROFILE: '/contractor/profile',
@@ -71,6 +72,10 @@ const ROUTES_CONFIG = {
   SLT_REQUESTS: {
     path: ROUTES.SLT_REQUESTS,
     title: 'SLT Requests',
+  },
+  SLT_REQUESTS_VIEW: {
+    path: ROUTES.SLT_REQUESTS_VIEW,
+    title: 'Delivery Request Allocation',
   },
   LIVE_TRACKING: {
     path: ROUTES.LIVE_TRACKING,

@@ -1,0 +1,175 @@
+$navy:    #1a3a6b;
+$border:  #e8ecf4;
+$bg:      #f8f9fc;
+$dark:    #111827;
+$mid:     #374151;
+$muted:   #9ca3af;
+$green:   #16a34a;
+
+.slv {
+  &__label {
+    font-size: 12px;
+    font-weight: 600;
+    color: $mid;
+  }
+
+  // ── Date range boxes (read-only) ──────────────────────────────
+  &__date-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 560px;
+  }
+
+  &__date-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1.5px solid $border;
+    background: $bg;
+  }
+
+  &__date-box-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: $muted;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__date-box-val {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: $dark;
+  }
+
+  &__date-sep {
+    color: $muted;
+    flex-shrink: 0;
+  }
+
+  // ── Transposed slots table ─────────────────────────────────────
+  &__table-wrap {
+    overflow-x: auto;
+    border: 1.5px solid $border;
+    border-radius: 10px;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+
+    th, td {
+      padding: 10px 14px;
+      text-align: center;
+      white-space: nowrap;
+      border-bottom: 1px solid $border;
+      border-right: 1px solid $border;
+      &:last-child { border-right: none; }
+    }
+
+    thead th {
+      background: $bg;
+      font-size: 11px;
+      font-weight: 700;
+      color: $mid;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    tbody tr:last-child td { border-bottom: none; }
+  }
+
+  &__type-col {
+    text-align: left !important;
+    font-weight: 700;
+    color: $dark;
+    background: $bg;
+    position: sticky;
+    left: 0;
+  }
+
+  &__day-head {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: $dark !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+  }
+
+  &__day-date {
+    font-size: 13px;
+    font-weight: 700;
+    color: $dark;
+    text-transform: none;
+    margin-bottom: 2px;
+  }
+
+  &__sub-head {
+    &--req   { color: $navy !important; }
+    &--alloc { color: $green !important; }
+  }
+
+  &__req-val {
+    color: $navy;
+    font-weight: 700;
+  }
+
+  &__alloc-val {
+    color: $green;
+    font-weight: 700;
+  }
+
+  &__alloc-cell {
+    background: rgba($green, 0.03);
+  }
+
+  &__counter {
+    display: inline-flex;
+    align-items: center;
+    border: 1.5px solid $border;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  &__counter-btn {
+    width: 26px;
+    height: 28px;
+    border: none;
+    background: $bg;
+    font-size: 14px;
+    font-weight: 600;
+    color: $mid;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-family: inherit;
+    transition: background 0.12s;
+
+    &:hover:not(:disabled) { background: darken($bg, 4%); color: $dark; }
+    &:disabled { opacity: 0.35; cursor: not-allowed; }
+  }
+
+  &__counter-val {
+    min-width: 26px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: $dark;
+  }
+
+  &__total-row {
+    font-weight: 800;
+    background: rgba(#eef2f9, 0.6);
+  }
+}

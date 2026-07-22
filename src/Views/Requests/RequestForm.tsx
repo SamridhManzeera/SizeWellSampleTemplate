@@ -352,6 +352,9 @@ export default function RequestForm() {
         id: nextId(requests.length),
         contractorName: 'Your Company',
         ...payload,
+        allocatedSlots: Object.fromEntries(
+          Object.keys(dailySlots).map((d) => [d, emptyCounts()])
+        ),
         status: 'pending',
         submittedAt: new Date().toISOString(),
       });
