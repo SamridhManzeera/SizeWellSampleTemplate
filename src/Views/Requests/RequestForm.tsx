@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { startOfWeek, endOfWeek } from 'date-fns';
 import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
@@ -191,29 +191,62 @@ export default function RequestForm() {
   const totalOutbound = dayDates.reduce((sum, d) => sum + (dailySlots[d]?.outbound ?? 0), 0);
   const totalTwoWay = dayDates.reduce((sum, d) => sum + (dailySlots[d]?.twoWay ?? 0), 0);
 
-  // ── Copy Configuration modal ──────────────────────────────────
+  // ── Copy Configuration modal (copy a previous week's slots onto this week) ──
+  // No backend history endpoint yet, so a previous week's slots are looked up
+  // from the mock request data already loaded into RequestsContext — if
+  // nothing was submitted for the picked week the copy just applies zeros.
+  function weekSlots(weekStart: string, weekEnd: string): Record<string, DaySlotCounts> {
+    const merged: Record<string, DaySlotCounts> = {};
+    requests
+      .filter(r => r.startDate === weekStart && r.endDate === weekEnd)
+      .forEach(r => {
+        Object.entries(r.dailySlots).forEach(([date, c]) => {
+          const cur = merged[date] ?? emptyCounts();
+          merged[date] = { inbound: cur.inbound + c.inbound, outbound: cur.outbound + c.outbound, twoWay: cur.twoWay + c.twoWay };
+        });
+      });
+    return merged;
+  }
+
+  // Day immediately before the currently selected week — the latest date
+  // selectable as part of a "previous" week in the copy-from calendar.
+  const copyFromMaxDate = (() => {
+    const d = parseDate(startDate);
+    d.setDate(d.getDate() - 1);
+    return d;
+  })();
+
+  function defaultCopyFromWeek(): { startDate: string; endDate: string } | null {
+    const priorWeeks = Array.from(new Set(requests.filter(r => r.startDate < startDate).map(r => `${r.startDate}_${r.endDate}`)))
+      .sort((a, b) => b.localeCompare(a));
+    if (priorWeeks.length > 0) {
+      const [s, e] = priorWeeks[0].split('_');
+      return { startDate: s, endDate: e };
+    }
+    const d = parseDate(startDate);
+    d.setDate(d.getDate() - 7);
+    return { startDate: dateToString(startOfWeek(d, { weekStartsOn: 1 })), endDate: dateToString(endOfWeek(d, { weekStartsOn: 1 })) };
+  }
+
   const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
-  const [copyFrom, setCopyFrom] = useState(() => dayDates[0] ?? todayString());
-  const [copyToStart, setCopyToStart] = useState(() => dayDates[1] ?? dayDates[0] ?? todayString());
-  const [copyToEnd, setCopyToEnd] = useState(() => dayDates[dayDates.length - 1] ?? todayString());
-  const copyFromRef = useRef<HTMLInputElement>(null);
-  const copyToStartRef = useRef<HTMLInputElement>(null);
-  const copyToEndRef = useRef<HTMLInputElement>(null);
+  const [copyFromWeek, setCopyFromWeek] = useState<{ startDate: string; endDate: string } | null>(null);
 
   function openCopyModal() {
-    setCopyFrom(dayDates[0] ?? todayString());
-    setCopyToStart(dayDates[1] ?? dayDates[0] ?? todayString());
-    setCopyToEnd(dayDates[dayDates.length - 1] ?? todayString());
+    setCopyFromWeek(defaultCopyFromWeek());
     setIsCopyModalOpen(true);
   }
 
-  const copyToTargets = getDatesInRange(copyToStart, copyToEnd).filter(d => dayDates.includes(d));
+  const copyFromSlots = copyFromWeek ? weekSlots(copyFromWeek.startDate, copyFromWeek.endDate) : {};
+  const copyFromSourceDates = copyFromWeek ? getDatesInRange(copyFromWeek.startDate, copyFromWeek.endDate) : [];
 
   function handleApplyCopy() {
-    const source = dailySlots[copyFrom] ?? emptyCounts();
+    if (!copyFromWeek) return;
     setDailySlots(prev => {
       const next = { ...prev };
-      copyToTargets.forEach(d => { next[d] = { ...source }; });
+      dayDates.forEach((targetDate, i) => {
+        const sourceDate = copyFromSourceDates[i];
+        next[targetDate] = { ...(copyFromSlots[sourceDate] ?? emptyCounts()) };
+      });
       return next;
     });
     setErrors(p => ({ ...p, slots: '' }));
@@ -467,77 +500,44 @@ export default function RequestForm() {
             <div className="rf-modal__body">
               <div className="rf-modal__step">
                 <span className="rf-modal__step-num-title">1. Copy From</span>
-                <div className="rf-modal__date-selector" onClick={() => copyFromRef.current?.showPicker()}>
-                  <span className="rf-modal__date-icon"><CalendarSmallIcon /></span>
-                  <span className="rf-modal__date-text">{formatDateFull(copyFrom)}</span>
-                  <span className="rf-modal__chevron">▾</span>
-                  <input
-                    ref={copyFromRef}
-                    type="date"
-                    value={copyFrom}
-                    min={startDate}
-                    max={endDate}
-                    onChange={e => setCopyFrom(e.target.value)}
-                    className="rf-modal__date-hidden"
-                    aria-label="Copy config from date"
-                  />
-                </div>
+                <span className="rf-modal__step-subtitle">Select a previous week</span>
+
+                <WeekPicker
+                  value={copyFromWeek}
+                  onChange={week => setCopyFromWeek(week)}
+                  maxDate={copyFromMaxDate}
+                  placeholder="Select a previous week"
+                />
               </div>
 
               <div className="rf-modal__step">
                 <span className="rf-modal__step-num-title">2. Copy To</span>
-                <span className="rf-modal__step-subtitle">Select Date Range</span>
+                <span className="rf-modal__step-subtitle">Current selected week</span>
 
-                <div className="rf-modal__range-row">
-                  <div className="rf-modal__range-box" onClick={() => copyToStartRef.current?.showPicker()}>
-                    <span className="rf-modal__range-label">Start Date</span>
-                    <span className="rf-modal__range-val">{formatDateFull(copyToStart)}</span>
-                    <span className="rf-modal__range-icon"><CalendarSmallIcon /></span>
-                    <input
-                      ref={copyToStartRef}
-                      type="date"
-                      value={copyToStart}
-                      min={startDate}
-                      max={endDate}
-                      onChange={e => setCopyToStart(e.target.value)}
-                      className="rf-modal__date-hidden"
-                      aria-label="Copy to start date"
-                    />
-                  </div>
-
-                  <span className="rf-modal__range-arrow">→</span>
-
-                  <div className="rf-modal__range-box" onClick={() => copyToEndRef.current?.showPicker()}>
-                    <span className="rf-modal__range-label">End Date</span>
-                    <span className="rf-modal__range-val">{formatDateFull(copyToEnd)}</span>
-                    <span className="rf-modal__range-icon"><CalendarSmallIcon /></span>
-                    <input
-                      ref={copyToEndRef}
-                      type="date"
-                      value={copyToEnd}
-                      min={startDate}
-                      max={endDate}
-                      onChange={e => setCopyToEnd(e.target.value)}
-                      className="rf-modal__date-hidden"
-                      aria-label="Copy to end date"
-                    />
-                  </div>
+                <div className="rf-modal__range-box rf-modal__range-box--static">
+                  <span className="rf-modal__range-label">This Week</span>
+                  <span className="rf-modal__range-val">{formatDateRange(startDate, endDate)}</span>
+                  <span className="rf-modal__range-icon"><CalendarSmallIcon /></span>
                 </div>
               </div>
 
-              <div className="rf-modal__info-box">
-                <span className="rf-modal__info-icon"><AlertIcon /></span>
-                <span className="rf-modal__info-text">
-                  This will copy the configuration from {formatDateFull(copyFrom)} to {copyToTargets.length} selected {copyToTargets.length === 1 ? 'date' : 'dates'}.
-                </span>
-              </div>
+              {copyFromWeek && (
+                <div className="rf-modal__info-box">
+                  <span className="rf-modal__info-icon"><AlertIcon /></span>
+                  <span className="rf-modal__info-text">
+                    {Object.keys(copyFromSlots).length > 0
+                      ? <>This will copy the full week's delivery slots (day-by-day) from {formatDateRange(copyFromWeek.startDate, copyFromWeek.endDate)} onto {formatDateRange(startDate, endDate)}, overwriting the current entries.</>
+                      : <>No delivery slots were found for {formatDateRange(copyFromWeek.startDate, copyFromWeek.endDate)}. Copying will reset every day in {formatDateRange(startDate, endDate)} to 0.</>}
+                  </span>
+                </div>
+              )}
             </div>
 
             <div className="rf-modal__footer">
               <button type="button" className="rf-modal__btn rf-modal__btn--cancel" onClick={() => setIsCopyModalOpen(false)}>
                 Cancel
               </button>
-              <button type="button" className="rf-modal__btn rf-modal__btn--copy" onClick={handleApplyCopy}>
+              <button type="button" className="rf-modal__btn rf-modal__btn--copy" onClick={handleApplyCopy} disabled={!copyFromWeek}>
                 Copy Configuration
               </button>
             </div>

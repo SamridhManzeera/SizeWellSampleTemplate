@@ -15,6 +15,7 @@ interface WeekPickerProps {
   onChange: (week: WeekRange) => void;
   weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   minDate?: Date;
+  maxDate?: Date;
   disabled?: boolean;
   placeholder?: string;
 }
@@ -77,6 +78,7 @@ function WeekPicker({
   onChange,
   weekStartsOn = 1,
   minDate,
+  maxDate,
   disabled = false,
   placeholder = 'Select a week',
 }: WeekPickerProps) {
@@ -160,7 +162,15 @@ function WeekPicker({
             onMonthChange={setMonth}
             showOutsideDays
             weekStartsOn={weekStartsOn}
-            disabled={minDate ? { before: minDate } : undefined}
+            disabled={
+              minDate && maxDate
+                ? [{ before: minDate }, { after: maxDate }]
+                : minDate
+                ? { before: minDate }
+                : maxDate
+                ? { after: maxDate }
+                : undefined
+            }
             modifiers={{
               selected: selectedWeek,
               range_start: selectedWeek?.from,
