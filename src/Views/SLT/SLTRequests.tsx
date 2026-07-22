@@ -5,6 +5,7 @@ import PageHero from '../../Components/Layouts/PageHero/PageHero';
 import { useRequests } from '../Requests/RequestsContext';
 import { RequestStatus, totalSlotsForRequest } from '../Requests/requestTypes';
 import '../Requests/Requests.scss';
+import './SLTRequests.scss';
 
 // ── Icons ─────────────────────────────────────────────────────────
 
@@ -75,7 +76,7 @@ export default function SLTRequests() {
       : requests.filter((r) => r.status === statusFilter);
 
   return (
-    <div className="rq">
+    <div className="rq slt-rq">
       <PageHeader />
 
       <PageHero
@@ -138,7 +139,7 @@ export default function SLTRequests() {
                 <th>Contractor Name</th>
                 <th>Request ID</th>
                 <th>Delivery Week</th>
-                <th>Slots</th>
+                <th>Requested Slots</th>
                 <th>Submitted</th>
                 <th>Status</th>
                 <th>Actions</th>

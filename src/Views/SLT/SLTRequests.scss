@@ -1,0 +1,5 @@
+// Scoped override — taller table rows on the SLT Requests list only,
+// without affecting the shared contractor Requests page (Requests.scss).
+.slt-rq .rq__table td {
+  padding: 20px 16px;
+}

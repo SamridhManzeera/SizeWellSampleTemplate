@@ -122,6 +122,22 @@ $green:   #16a34a;
     font-weight: 700;
   }
 
+  &__req-val-num {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    cursor: help;
+
+    svg {
+      color: $muted;
+      transition: color 0.12s;
+    }
+
+    &:hover svg {
+      color: $navy;
+    }
+  }
+
   &__alloc-val {
     color: $green;
     font-weight: 700;
@@ -171,5 +187,25 @@ $green:   #16a34a;
   &__total-row {
     font-weight: 800;
     background: rgba(#eef2f9, 0.6);
+
+    td { text-align: left; }
   }
+}
+
+.slv__edit-btn {
+  border: 1.5px solid rgba($navy, 0.3) !important;
+  background: #fff !important;
+  color: $navy !important;
+
+  &:hover {
+    background: rgba($navy, 0.06) !important;
+    border-color: rgba($navy, 0.45) !important;
+  }
+}
+
+.slv__tooltip {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  padding: 8px 12px !important;
+  border-radius: 8px !important;
 }

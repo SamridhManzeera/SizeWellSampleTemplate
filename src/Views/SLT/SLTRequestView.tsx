@@ -1,10 +1,12 @@
 import { Fragment, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Tooltip } from 'react-tooltip';
 import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
 import PageHero from '../../Components/Layouts/PageHero/PageHero';
 import { useRequests } from '../Requests/RequestsContext';
 import { DaySlotCounts } from '../Requests/requestTypes';
 import '../Requests/RequestForm.scss';
+import 'react-tooltip/dist/react-tooltip.css';
 import './SLTRequestView.scss';
 
 // ── Icons ─────────────────────────────────────────────────────────
@@ -41,6 +43,14 @@ function CalendarSmallIcon() {
       <line x1="16" y1="2" x2="16" y2="6" />
       <line x1="8" y1="2" x2="8" y2="6" />
       <line x1="3" y1="10" x2="21" y2="10" />
+    </svg>
+  );
+}
+
+function InfoIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M11 7h2v2h-2V7zm0 4h2v6h-2v-6zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
     </svg>
   );
 }
@@ -126,13 +136,9 @@ function formatFileSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-type SlotField = keyof DaySlotCounts;
-
-const SLOT_ROWS: { field: SlotField; label: string }[] = [
-  { field: 'twoWay', label: '2 - way' },
-  { field: 'inbound', label: 'In - bound' },
-  { field: 'outbound', label: 'Out - bound' },
-];
+function slotBreakdownText(c: DaySlotCounts) {
+  return `Inbound: ${c.inbound} · Outbound: ${c.outbound} · Two-way: ${c.twoWay}`;
+}
 
 // ── Main Component ────────────────────────────────────────────────
 
@@ -146,9 +152,16 @@ export default function SLTRequestView() {
   const existing = id ? getRequest(id) : undefined;
 
   const [mode, setMode] = useState<Mode>('view');
-  const [allocatedSlots, setAllocatedSlots] = useState<
-    Record<string, DaySlotCounts>
-  >(existing?.allocatedSlots ?? {});
+  const [allocatedTotals, setAllocatedTotals] = useState<
+    Record<string, number>
+  >(() =>
+    Object.fromEntries(
+      Object.entries(existing?.allocatedSlots ?? {}).map(([date, c]) => [
+        date,
+        rowTotal(c),
+      ])
+    )
+  );
 
   if (!existing) {
     return (
@@ -165,33 +178,42 @@ export default function SLTRequestView() {
   const isView = mode === 'view';
   const dayDates = getDatesInRange(req.startDate, req.endDate);
 
-  function setAllocatedCount(date: string, field: SlotField, value: number) {
-    setAllocatedSlots((prev) => ({
+  function totalsFromAllocated(allocated: Record<string, DaySlotCounts>) {
+    return Object.fromEntries(
+      Object.entries(allocated).map(([date, c]) => [date, rowTotal(c)])
+    );
+  }
+
+  function setAllocatedTotal(date: string, value: number) {
+    setAllocatedTotals((prev) => ({
       ...prev,
-      [date]: { ...(prev[date] ?? emptyCounts()), [field]: Math.max(0, value) },
+      [date]: Math.max(0, value),
     }));
   }
 
   function handleEdit() {
-    setAllocatedSlots(req.allocatedSlots ?? {});
+    setAllocatedTotals(totalsFromAllocated(req.allocatedSlots ?? {}));
     setMode('edit');
   }
 
   function handleCancel() {
-    setAllocatedSlots(req.allocatedSlots ?? {});
+    setAllocatedTotals(totalsFromAllocated(req.allocatedSlots ?? {}));
     setMode('view');
   }
 
   function handleSave() {
+    const allocatedSlots: Record<string, DaySlotCounts> = Object.fromEntries(
+      dayDates.map((d) => [
+        d,
+        { inbound: allocatedTotals[d] ?? 0, outbound: 0, twoWay: 0 },
+      ])
+    );
     updateRequest({ ...req, allocatedSlots });
     setMode('view');
   }
 
   const requestedTotalByDay = dayDates.map((d) =>
     rowTotal(req.dailySlots[d] ?? emptyCounts())
-  );
-  const allocatedTotalByDay = dayDates.map((d) =>
-    rowTotal(allocatedSlots[d] ?? emptyCounts())
   );
 
   return (
@@ -223,28 +245,7 @@ export default function SLTRequestView() {
             ? 'Viewing submitted request.'
             : 'Editing delivery slot allocation.'
         }
-        actions={
-          <>
-            {isView && (
-              <button
-                type="button"
-                className="rf__hero-edit-btn"
-                onClick={handleEdit}
-              >
-                <EditIcon /> Edit Allocation
-              </button>
-            )}
-            {mode === 'edit' && (
-              <button
-                type="button"
-                className="rf__hero-cancel-btn"
-                onClick={handleCancel}
-              >
-                Cancel Edit
-              </button>
-            )}
-          </>
-        }
+        actions={null}
       />
 
       <div className="rf__form">
@@ -285,19 +286,41 @@ export default function SLTRequestView() {
 
         {/* ── Section 2: Delivery Slots ─────────────────────── */}
         <section className="rf__section">
-          <h2 className="rf__section-title" style={{ marginBottom: 4 }}>
-            Delivery Slots
-          </h2>
-          <p className="rf__section-desc">
-            Set the number of deliveries per day for each type.
-          </p>
+          <div className="rf__ds-header">
+            <div>
+              <h2 className="rf__section-title" style={{ marginBottom: 4 }}>
+                Delivery Slots
+              </h2>
+              <p className="rf__section-desc" style={{ marginBottom: 0 }}>
+                Set the number of deliveries per day for each type.
+              </p>
+            </div>
+            {isView && (
+              <button
+                type="button"
+                className="rf__hero-edit-btn slv__edit-btn"
+                onClick={handleEdit}
+              >
+                <EditIcon /> Edit Allocation
+              </button>
+            )}
+            {mode === 'edit' && (
+              <button
+                type="button"
+                className="rf__cancel-btn"
+                onClick={handleCancel}
+              >
+                Cancel Edit
+              </button>
+            )}
+          </div>
 
           <div className="slv__table-wrap">
             <table className="slv__table">
               <thead>
                 <tr>
                   <th rowSpan={2} className="slv__type-col">
-                    Type
+                    Slots
                   </th>
                   {dayDates.map((date) => (
                     <th key={date} colSpan={2} className="slv__day-head">
@@ -322,80 +345,62 @@ export default function SLTRequestView() {
                 </tr>
               </thead>
               <tbody>
-                {SLOT_ROWS.map(({ field, label }) => (
-                  <tr key={field}>
-                    <td className="slv__type-col">{label}</td>
-                    {dayDates.map((date) => {
-                      const requested = (req.dailySlots[date] ?? emptyCounts())[
-                        field
-                      ];
-                      const allocated = (allocatedSlots[date] ?? emptyCounts())[
-                        field
-                      ];
-                      return (
-                        <Fragment key={date}>
-                          <td className="slv__req-val">{requested}</td>
-                          <td className="slv__alloc-cell">
-                            {isView ? (
-                              <span className="slv__alloc-val">
+                <tr>
+                  <td className="slv__type-col">Total Slots</td>
+                  {dayDates.map((date, i) => {
+                    const requested = requestedTotalByDay[i];
+                    const allocated = allocatedTotals[date] ?? 0;
+                    const breakdown = req.dailySlots[date] ?? emptyCounts();
+                    return (
+                      <Fragment key={date}>
+                        <td className="slv__req-val">
+                          <span
+                            className="slv__req-val-num"
+                            data-tooltip-id="slv-breakdown"
+                            data-tooltip-content={slotBreakdownText(breakdown)}
+                          >
+                            {requested}
+                            <InfoIcon />
+                          </span>
+                        </td>
+                        <td className="slv__alloc-cell">
+                          {isView ? (
+                            <span className="slv__alloc-val">{allocated}</span>
+                          ) : (
+                            <div className="slv__counter">
+                              <button
+                                type="button"
+                                className="slv__counter-btn"
+                                onClick={() =>
+                                  setAllocatedTotal(date, allocated - 1)
+                                }
+                                disabled={allocated === 0}
+                              >
+                                −
+                              </button>
+                              <span className="slv__counter-val">
                                 {allocated}
                               </span>
-                            ) : (
-                              <div className="slv__counter">
-                                <button
-                                  type="button"
-                                  className="slv__counter-btn"
-                                  onClick={() =>
-                                    setAllocatedCount(
-                                      date,
-                                      field,
-                                      allocated - 1
-                                    )
-                                  }
-                                  disabled={allocated === 0}
-                                >
-                                  −
-                                </button>
-                                <span className="slv__counter-val">
-                                  {allocated}
-                                </span>
-                                <button
-                                  type="button"
-                                  className="slv__counter-btn"
-                                  onClick={() =>
-                                    setAllocatedCount(
-                                      date,
-                                      field,
-                                      allocated + 1
-                                    )
-                                  }
-                                >
-                                  +
-                                </button>
-                              </div>
-                            )}
-                          </td>
-                        </Fragment>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr className="slv__total-row">
-                  <td className="slv__type-col">Total Across All Days</td>
-                  {dayDates.map((date, i) => (
-                    <Fragment key={date}>
-                      <td className="slv__req-val">{requestedTotalByDay[i]}</td>
-                      <td className="slv__alloc-val">
-                        {allocatedTotalByDay[i]}
-                      </td>
-                    </Fragment>
-                  ))}
+                              <button
+                                type="button"
+                                className="slv__counter-btn"
+                                onClick={() =>
+                                  setAllocatedTotal(date, allocated + 1)
+                                }
+                              >
+                                +
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </Fragment>
+                    );
+                  })}
                 </tr>
-              </tfoot>
+              </tbody>
             </table>
           </div>
+          <Tooltip id="slv-breakdown" className="slv__tooltip" />
         </section>
 
         {/* ── Section 3: Notes ─────────────────────────────── */}
