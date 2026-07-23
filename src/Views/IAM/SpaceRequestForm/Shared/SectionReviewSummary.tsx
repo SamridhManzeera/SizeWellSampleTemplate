@@ -5,6 +5,7 @@ import './sectionReviewPanel.scss';
 interface SectionReviewSummaryProps {
   sectionReview: SectionReview;
   onEdit?: () => void;
+  onClose?: () => void;
 }
 
 function statusSlug(status: string) {
@@ -30,17 +31,30 @@ function EyeIcon() {
 function SectionReviewSummary({
   sectionReview,
   onEdit,
+  onClose,
 }: SectionReviewSummaryProps) {
   return (
     <aside className="rvw__panel" aria-label="Review and feedback">
       <div className="rvw__panel-header">
         <h2 className="rvw__title">Review & Feedback</h2>
-        {onEdit && (
-          <button type="button" className="rvw__edit-btn" onClick={onEdit}>
-            <EditIcon />
-            Edit
-          </button>
-        )}
+        <div className="rvw__panel-header-actions">
+          {onEdit && (
+            <button type="button" className="rvw__edit-btn" onClick={onEdit}>
+              <EditIcon />
+              Edit
+            </button>
+          )}
+          {onClose && (
+            <button
+              type="button"
+              className="rvw__close-btn"
+              aria-label="Close review panel"
+              onClick={onClose}
+            >
+              ×
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="rvw__field">

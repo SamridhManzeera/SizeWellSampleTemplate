@@ -16,6 +16,7 @@ const STATUS_OPTIONS: ReviewStatus[] = [
   'More Info',
 ];
 
+/* eslint-disable react/require-default-props */
 interface ReviewerDecisionPanelProps {
   sectionReview: SectionReview;
   onSaveDraft: (comment: string, attachments: SectionAttachment[]) => void;
@@ -24,6 +25,7 @@ interface ReviewerDecisionPanelProps {
     comment: string,
     attachments: SectionAttachment[]
   ) => void;
+  onClose?: () => void;
 }
 
 function InfoIcon() {
@@ -64,6 +66,7 @@ function ReviewerDecisionPanel({
   sectionReview,
   onSaveDraft,
   onSubmit,
+  onClose,
 }: ReviewerDecisionPanelProps) {
   const [mode, setMode] = useState<'view' | 'edit'>('view');
   const [draftStatus, setDraftStatus] = useState<ReviewStatus>(
@@ -113,6 +116,7 @@ function ReviewerDecisionPanel({
       <SectionReviewSummary
         sectionReview={sectionReview}
         onEdit={startEditing}
+        onClose={onClose}
       />
     );
   }
@@ -121,6 +125,18 @@ function ReviewerDecisionPanel({
     <aside className="rvw__panel" aria-label="Review and feedback">
       <div className="rvw__panel-header">
         <h2 className="rvw__title">Review & Feedback</h2>
+        {onClose && (
+          <div className="rvw__panel-header-actions">
+            <button
+              type="button"
+              className="rvw__close-btn"
+              aria-label="Close review panel"
+              onClick={onClose}
+            >
+              ×
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="rvw__field">

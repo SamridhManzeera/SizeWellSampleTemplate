@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import PageHeader from '../../../Components/Layouts/PageHeader/PageHeader';
 import PageHero from '../../../Components/Layouts/PageHero/PageHero';
@@ -13,6 +13,7 @@ import {
   useSpaceRequests,
 } from '../SpaceRequestForm/SpaceRequestsContext';
 import ReviewerDecisionPanel from './ReviewerDecisionPanel';
+import ReviewReopenTab from '../SpaceRequestForm/Shared/ReviewReopenTab';
 import '../SpaceRequestForm/Shared/spaceFormLayout.scss';
 import '../SpaceRequestForm/Shared/sectionReviewPanel.scss';
 
@@ -44,6 +45,12 @@ function ReviewerRequestView() {
   const [activeSection, setActiveSection] = useState(
     () => restrictedSection ?? 'general'
   );
+  const [isReviewOpen, setIsReviewOpen] = useState(true);
+
+  useEffect(() => {
+    setIsReviewOpen(true);
+  }, [activeSection]);
+
   const backRoute = restrictedSection
     ? REVIEWER_LISTING_ROUTES[restrictedSection] ?? ROUTES.DASHBOARD
     : ROUTES.DASHBOARD;
@@ -114,22 +121,32 @@ function ReviewerRequestView() {
                 />
               ))}
           </div>
-          <ReviewerDecisionPanel
-            key={activeSection}
-            sectionReview={getSectionReview(request, activeSection)}
-            onSaveDraft={(comment, attachments) =>
-              saveSectionDraft(request.id, activeSection, comment, attachments)
-            }
-            onSubmit={(status, comment, attachments) =>
-              submitSectionReview(
-                request.id,
-                activeSection,
-                status,
-                comment,
-                attachments
-              )
-            }
-          />
+          {isReviewOpen ? (
+            <ReviewerDecisionPanel
+              key={activeSection}
+              sectionReview={getSectionReview(request, activeSection)}
+              onSaveDraft={(comment, attachments) =>
+                saveSectionDraft(
+                  request.id,
+                  activeSection,
+                  comment,
+                  attachments
+                )
+              }
+              onSubmit={(status, comment, attachments) =>
+                submitSectionReview(
+                  request.id,
+                  activeSection,
+                  status,
+                  comment,
+                  attachments
+                )
+              }
+              onClose={() => setIsReviewOpen(false)}
+            />
+          ) : (
+            <ReviewReopenTab onClick={() => setIsReviewOpen(true)} />
+          )}
         </div>
       </div>
     </div>

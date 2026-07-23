@@ -50,6 +50,13 @@ $radius: 12px;
   color: $dark;
 }
 
+.rvw__panel-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 .rvw__edit-btn {
   display: inline-flex;
   align-items: center;
@@ -67,6 +74,66 @@ $radius: 12px;
   &:hover {
     background: rgba($navy, 0.06);
   }
+}
+
+.rvw__close-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1.5px solid $border;
+  background: #fff;
+  color: $muted;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  font-family: inherit;
+
+  &:hover {
+    background: $bg;
+    color: $red;
+    border-color: rgba($red, 0.3);
+  }
+}
+
+.rvw__reopen-tab {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 14px;
+  border-radius: 16px;
+  border: none;
+  background: $navy;
+  color: #fff;
+  font-family: inherit;
+  cursor: pointer;
+  position: sticky;
+  top: 76px;
+  box-shadow: 0 6px 16px rgba($navy, 0.35);
+  transition: background 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    background: darken($navy, 7%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba($navy, 0.42);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.rvw__reopen-tab-text {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
 }
 
 .rvw__field {

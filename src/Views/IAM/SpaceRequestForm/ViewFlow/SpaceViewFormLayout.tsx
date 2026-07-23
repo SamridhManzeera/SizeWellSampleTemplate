@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import PageHeader from '../../../../Components/Layouts/PageHeader/PageHeader';
 import PageHero from '../../../../Components/Layouts/PageHero/PageHero';
@@ -10,6 +10,7 @@ import SpaceViewFormGeneral from './SpaceViewFormGeneral';
 import SpaceViewModulePage from './SpaceViewModulePage';
 import SpaceViewWorkforceForm from './SpaceViewWorkforceForm';
 import SectionReviewSummary from '../Shared/SectionReviewSummary';
+import ReviewReopenTab from '../Shared/ReviewReopenTab';
 import '../Shared/spaceFormLayout.scss';
 import '../Shared/sectionReviewPanel.scss';
 
@@ -30,6 +31,11 @@ function SpaceViewFormLayout() {
   const [activeSection, setActiveSection] = useState(
     () => searchParams.get('section') ?? 'general'
   );
+  const [isReviewOpen, setIsReviewOpen] = useState(true);
+
+  useEffect(() => {
+    setIsReviewOpen(true);
+  }, [activeSection]);
 
   if (!request) {
     return (
@@ -96,9 +102,14 @@ function SpaceViewFormLayout() {
                 />
               ))}
           </div>
-          <SectionReviewSummary
-            sectionReview={getSectionReview(request, activeSection)}
-          />
+          {isReviewOpen ? (
+            <SectionReviewSummary
+              sectionReview={getSectionReview(request, activeSection)}
+              onClose={() => setIsReviewOpen(false)}
+            />
+          ) : (
+            <ReviewReopenTab onClick={() => setIsReviewOpen(true)} />
+          )}
         </div>
       </div>
     </div>
