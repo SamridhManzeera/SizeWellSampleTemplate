@@ -4,7 +4,7 @@ import PageHeader from '../../../Components/Layouts/PageHeader/PageHeader';
 import PageHero from '../../../Components/Layouts/PageHero/PageHero';
 import { REQUEST_FORM_MODULES } from '../../../Shared/requestFormModules';
 import { ROUTES } from '../../../Shared/Constants';
-import { useReviewerRequests } from './ReviewerRequestsContext';
+import { useSpaceRequests } from '../SpaceRequestForm/SpaceRequestsContext';
 import type { SpaceRequestStatus } from '../SpaceRequestForm/spaceRequestFormTypes';
 import '../SpaceRequestForm/SpaceFormListing.scss';
 
@@ -25,20 +25,20 @@ function EyeIcon() {
 }
 
 function ReviewerRequestListing() {
-  const { reviews } = useReviewerRequests();
+  const { requests } = useSpaceRequests();
   const [statusFilter, setStatusFilter] = useState<SpaceRequestStatus | 'all'>(
     'all'
   );
 
-  const total = reviews.length;
-  const submitted = reviews.filter((r) => r.status === 'Submitted').length;
-  const approved = reviews.filter((r) => r.status === 'Approved').length;
-  const rejected = reviews.filter((r) => r.status === 'Rejected').length;
+  const total = requests.length;
+  const submitted = requests.filter((r) => r.status === 'Submitted').length;
+  const approved = requests.filter((r) => r.status === 'Approved').length;
+  const rejected = requests.filter((r) => r.status === 'Rejected').length;
 
   const filtered =
     statusFilter === 'all'
-      ? reviews
-      : reviews.filter((r) => r.status === statusFilter);
+      ? requests
+      : requests.filter((r) => r.status === statusFilter);
 
   return (
     <div className="sfl">
@@ -91,6 +91,7 @@ function ReviewerRequestListing() {
               }
             >
               <option value="all">All Status</option>
+              <option value="Draft">Draft</option>
               <option value="Submitted">Submitted</option>
               <option value="Approved">Approved</option>
               <option value="Rejected">Rejected</option>

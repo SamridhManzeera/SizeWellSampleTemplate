@@ -1,4 +1,5 @@
 import type {
+  SectionReview,
   SpaceRequestRecord,
   WorkforceMonthData,
 } from './spaceRequestFormTypes';
@@ -6,6 +7,13 @@ import type {
 const NO_WORKFORCE_DATA: WorkforceMonthData = {
   counts: {},
 };
+
+function sectionReview(
+  status: SectionReview['status'],
+  comment = ''
+): SectionReview {
+  return { status, comment, attachments: [] };
+}
 
 export const SPACE_REQUEST_MOCK_DATA: SpaceRequestRecord[] = [
   {
@@ -57,6 +65,14 @@ export const SPACE_REQUEST_MOCK_DATA: SpaceRequestRecord[] = [
         '2026-12': 90,
       },
     },
+    sectionReviews: {
+      general: sectionReview('Under Review'),
+      'work-area': sectionReview('Under Review'),
+      water: sectionReview('Under Review'),
+      welfare: sectionReview('Under Review'),
+      power: sectionReview('Under Review'),
+      workforce: sectionReview('Under Review'),
+    },
   },
   {
     id: 'SRF-0032',
@@ -107,6 +123,22 @@ export const SPACE_REQUEST_MOCK_DATA: SpaceRequestRecord[] = [
         '2027-01': 65,
       },
     },
+    sectionReviews: {
+      general: sectionReview(
+        'Approved',
+        'Layout and welfare capacity match the site plan on file. Approved as submitted.'
+      ),
+      'work-area': sectionReview('Approved', 'Footprint within agreed zone.'),
+      it: sectionReview('Approved', 'Cabin location confirmed clear.'),
+      welfare: sectionReview(
+        'Approved',
+        'Welfare capacity within compound limits.'
+      ),
+      workforce: sectionReview(
+        'Approved',
+        'Headcount plan is within site limits.'
+      ),
+    },
   },
   {
     id: 'SRF-0033',
@@ -137,6 +169,7 @@ export const SPACE_REQUEST_MOCK_DATA: SpaceRequestRecord[] = [
       workforce: false,
     },
     workforceData: NO_WORKFORCE_DATA,
+    sectionReviews: {},
   },
   {
     id: 'SRF-0034',
@@ -189,6 +222,12 @@ export const SPACE_REQUEST_MOCK_DATA: SpaceRequestRecord[] = [
         '2027-03': 85,
       },
     },
+    sectionReviews: {
+      general: sectionReview('Under Review'),
+      'work-area': sectionReview('Under Review'),
+      power: sectionReview('Under Review'),
+      workforce: sectionReview('Under Review'),
+    },
   },
   {
     id: 'SRF-0035',
@@ -219,6 +258,16 @@ export const SPACE_REQUEST_MOCK_DATA: SpaceRequestRecord[] = [
       workforce: false,
     },
     workforceData: NO_WORKFORCE_DATA,
+    sectionReviews: {
+      general: sectionReview(
+        'Rejected',
+        'Requested compound overlaps an existing marine licence exclusion zone. Please resubmit with a revised footprint.'
+      ),
+      water: sectionReview(
+        'Rejected',
+        'Connection point conflicts with the exclusion zone — see General comment.'
+      ),
+    },
   },
 ];
 

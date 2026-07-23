@@ -1,0 +1,362 @@
+$navy: #1a3a6b;
+$border: #e8ecf4;
+$bg: #f8f9fc;
+$dark: #111827;
+$mid: #374151;
+$muted: #9ca3af;
+$green: #16a34a;
+$red: #dc2626;
+$amber: #d97706;
+$purple: #7c3aed;
+$blue: #0e5a8d;
+$radius: 12px;
+
+.rvw__body {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  flex: 1;
+  min-width: 0;
+}
+
+.rvw__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.rvw__panel {
+  flex: 0 0 380px;
+  background: #fff;
+  border: 1.5px solid $border;
+  border-radius: $radius;
+  padding: 24px;
+  box-shadow: 0 1px 6px rgba(17, 24, 39, 0.05);
+  position: sticky;
+  top: 76px;
+}
+
+.rvw__panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.rvw__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: $dark;
+}
+
+.rvw__edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1.5px solid $border;
+  background: #fff;
+  color: $navy;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+
+  &:hover {
+    background: rgba($navy, 0.06);
+  }
+}
+
+.rvw__field {
+  margin-bottom: 20px;
+
+  &:last-of-type {
+    margin-bottom: 0;
+  }
+}
+
+.rvw__label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: $mid;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 10px;
+}
+
+.rvw__info-icon {
+  display: inline-flex;
+  color: $muted;
+}
+
+.rvw__view-text {
+  margin: 0;
+  font-size: 14px;
+  color: $dark;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.rvw__empty-hint {
+  margin: 0;
+  font-size: 13px;
+  color: $muted;
+  font-style: italic;
+}
+
+.rvw__status-select {
+  width: 100%;
+  padding: 10px 36px 10px 14px;
+  border: 1.5px solid $border;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: $dark;
+  background: #fff
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239ca3af' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")
+    no-repeat right 14px center;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: $navy;
+    box-shadow: 0 0 0 3px rgba($navy, 0.08);
+  }
+}
+
+.rvw__field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid $border;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  color: $dark;
+  resize: vertical;
+  min-height: 100px;
+
+  &:focus-visible {
+    outline: none;
+    border-color: $navy;
+    box-shadow: 0 0 0 3px rgba($navy, 0.08);
+  }
+}
+
+.rvw__char-count {
+  display: block;
+  text-align: right;
+  font-size: 11px;
+  color: $muted;
+  margin-top: 6px;
+}
+
+.rvw__dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 24px 16px;
+  border: 1.5px dashed $border;
+  border-radius: 10px;
+  background: $bg;
+  color: $muted;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease;
+
+  &:hover {
+    border-color: $navy;
+    background: rgba($navy, 0.03);
+  }
+
+  input {
+    display: none;
+  }
+}
+
+.rvw__dropzone-hint {
+  font-size: 11px;
+  font-weight: 400;
+  color: $muted;
+}
+
+.rvw__attachment-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rvw__attachment-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: 8px;
+  font-size: 12px;
+  color: $dark;
+}
+
+.rvw__attachment-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.rvw__attachment-view {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  color: $navy;
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+  flex-shrink: 0;
+
+  &:hover {
+    background: rgba($navy, 0.08);
+    text-decoration: none;
+  }
+}
+
+.rvw__attachment-remove {
+  border: none;
+  background: none;
+  color: $muted;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0 4px;
+  font-family: inherit;
+
+  &:hover {
+    color: $red;
+  }
+}
+
+.rvw__status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &--submitted {
+    background: rgba($blue, 0.1);
+    color: $blue;
+  }
+
+  &--approved {
+    background: rgba($green, 0.1);
+    color: $green;
+  }
+
+  &--rejected {
+    background: rgba($red, 0.1);
+    color: $red;
+  }
+
+  &--under-review {
+    background: rgba($amber, 0.1);
+    color: $amber;
+  }
+
+  &--more-info {
+    background: rgba($purple, 0.1);
+    color: $purple;
+  }
+}
+
+.rvw__actions {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid $border;
+}
+
+.rvw__actions-primary {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+}
+
+.rvw__btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  border: 1.5px solid transparent;
+}
+
+.rvw__btn--ghost {
+  flex: 0 0 auto;
+  background: none;
+  border-color: $border;
+  color: $mid;
+
+  &:hover {
+    background: $bg;
+    color: $dark;
+  }
+}
+
+.rvw__btn--secondary {
+  background: #fff;
+  border-color: $border;
+  color: $mid;
+
+  &:hover {
+    background: $bg;
+  }
+}
+
+.rvw__btn--primary {
+  background: $navy;
+  color: #fff;
+
+  &:hover {
+    background: darken($navy, 6%);
+  }
+}
+
+@media (max-width: 900px) {
+  .rvw__body {
+    flex-direction: column;
+  }
+
+  .rvw__panel {
+    flex-basis: auto;
+    width: 100%;
+    position: static;
+  }
+}

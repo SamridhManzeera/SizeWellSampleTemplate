@@ -4,15 +4,17 @@ import PageHeader from '../../../Components/Layouts/PageHeader/PageHeader';
 import PageHero from '../../../Components/Layouts/PageHero/PageHero';
 import { ROUTES } from '../../../Shared/Constants';
 import { REQUEST_FORM_MODULES } from '../../../Shared/requestFormModules';
+import SpaceViewFormSidebar from '../SpaceRequestForm/ViewFlow/SpaceViewFormSidebar';
 import SpaceViewFormGeneral from '../SpaceRequestForm/ViewFlow/SpaceViewFormGeneral';
 import SpaceViewModulePage from '../SpaceRequestForm/ViewFlow/SpaceViewModulePage';
 import SpaceViewWorkforceForm from '../SpaceRequestForm/ViewFlow/SpaceViewWorkforceForm';
-import { useReviewerRequests } from './ReviewerRequestsContext';
-import ReviewerRequestSidebar, {
-  REVIEW_SECTION_ID,
-} from './ReviewerRequestSidebar';
+import {
+  getSectionReview,
+  useSpaceRequests,
+} from '../SpaceRequestForm/SpaceRequestsContext';
 import ReviewerDecisionPanel from './ReviewerDecisionPanel';
 import '../SpaceRequestForm/Shared/spaceFormLayout.scss';
+import '../SpaceRequestForm/Shared/sectionReviewPanel.scss';
 
 function ClipboardIcon() {
   return (
@@ -26,13 +28,14 @@ function ReviewerRequestView() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { getReview, submitReview } = useReviewerRequests();
-  const review = getReview(id ?? '');
+  const { getRequest, saveSectionDraft, submitSectionReview } =
+    useSpaceRequests();
+  const request = getRequest(id ?? '');
   const [activeSection, setActiveSection] = useState(
     () => searchParams.get('section') ?? 'general'
   );
 
-  if (!review) {
+  if (!request) {
     return (
       <div className="sfw">
         <PageHeader />
@@ -53,7 +56,8 @@ function ReviewerRequestView() {
 
   const activeModuleConfig = REQUEST_FORM_MODULES.find(
     (moduleConfig) =>
-      moduleConfig.segment === activeSection && review.modules[moduleConfig.key]
+      moduleConfig.segment === activeSection &&
+      request.modules[moduleConfig.key]
   );
 
   return (
@@ -62,9 +66,9 @@ function ReviewerRequestView() {
 
       <PageHero
         icon={<ClipboardIcon />}
-        title={review.title}
-        subtitle={`Review the submission for SRF ${review.srfNumber} and record your decision.`}
-        eyebrow={`SRF ${review.srfNumber} · ${review.status}`}
+        title={request.title}
+        subtitle={`Review the submission for SRF ${request.srfNumber} and record your decision.`}
+        eyebrow={`SRF ${request.srfNumber} · ${request.status}`}
         actions={null}
         backAction={{
           label: '← Back',
@@ -73,35 +77,45 @@ function ReviewerRequestView() {
       />
 
       <div className="sfw__body">
-        <ReviewerRequestSidebar
-          review={review}
+        <SpaceViewFormSidebar
+          request={request}
           activeSection={activeSection}
           onSelectSection={setActiveSection}
         />
-        <div className="sfw__content">
-          {activeSection === 'general' && (
-            <SpaceViewFormGeneral request={review} />
-          )}
-          {activeSection === REVIEW_SECTION_ID && (
-            <ReviewerDecisionPanel
-              review={review}
-              onSubmit={(decision, comment) =>
-                submitReview(review.id, decision, comment)
-              }
-            />
-          )}
-          {activeModuleConfig &&
-            (activeModuleConfig.key === 'workforce' ? (
-              <SpaceViewWorkforceForm
-                request={review}
-                onGoToGeneral={() => setActiveSection('general')}
-              />
-            ) : (
-              <SpaceViewModulePage
-                request={review}
-                label={activeModuleConfig.label}
-              />
-            ))}
+        <div className="rvw__body">
+          <div className="rvw__main">
+            {activeSection === 'general' && (
+              <SpaceViewFormGeneral request={request} />
+            )}
+            {activeModuleConfig &&
+              (activeModuleConfig.key === 'workforce' ? (
+                <SpaceViewWorkforceForm
+                  request={request}
+                  onGoToGeneral={() => setActiveSection('general')}
+                />
+              ) : (
+                <SpaceViewModulePage
+                  request={request}
+                  label={activeModuleConfig.label}
+                />
+              ))}
+          </div>
+          <ReviewerDecisionPanel
+            key={activeSection}
+            sectionReview={getSectionReview(request, activeSection)}
+            onSaveDraft={(comment, attachments) =>
+              saveSectionDraft(request.id, activeSection, comment, attachments)
+            }
+            onSubmit={(status, comment, attachments) =>
+              submitSectionReview(
+                request.id,
+                activeSection,
+                status,
+                comment,
+                attachments
+              )
+            }
+          />
         </div>
       </div>
     </div>

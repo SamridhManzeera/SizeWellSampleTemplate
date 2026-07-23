@@ -4,12 +4,14 @@ import PageHeader from '../../../../Components/Layouts/PageHeader/PageHeader';
 import PageHero from '../../../../Components/Layouts/PageHero/PageHero';
 import { ROUTES } from '../../../../Shared/Constants';
 import { REQUEST_FORM_MODULES } from '../../../../Shared/requestFormModules';
-import { useSpaceRequests } from '../SpaceRequestsContext';
+import { getSectionReview, useSpaceRequests } from '../SpaceRequestsContext';
 import SpaceViewFormSidebar from './SpaceViewFormSidebar';
 import SpaceViewFormGeneral from './SpaceViewFormGeneral';
 import SpaceViewModulePage from './SpaceViewModulePage';
 import SpaceViewWorkforceForm from './SpaceViewWorkforceForm';
+import SectionReviewSummary from '../Shared/SectionReviewSummary';
 import '../Shared/spaceFormLayout.scss';
+import '../Shared/sectionReviewPanel.scss';
 
 function DocIcon() {
   return (
@@ -76,22 +78,27 @@ function SpaceViewFormLayout() {
           activeSection={activeSection}
           onSelectSection={setActiveSection}
         />
-        <div className="sfw__content">
-          {activeSection === 'general' && (
-            <SpaceViewFormGeneral request={request} />
-          )}
-          {activeModuleConfig &&
-            (activeModuleConfig.key === 'workforce' ? (
-              <SpaceViewWorkforceForm
-                request={request}
-                onGoToGeneral={() => setActiveSection('general')}
-              />
-            ) : (
-              <SpaceViewModulePage
-                request={request}
-                label={activeModuleConfig.label}
-              />
-            ))}
+        <div className="rvw__body">
+          <div className="rvw__main">
+            {activeSection === 'general' && (
+              <SpaceViewFormGeneral request={request} />
+            )}
+            {activeModuleConfig &&
+              (activeModuleConfig.key === 'workforce' ? (
+                <SpaceViewWorkforceForm
+                  request={request}
+                  onGoToGeneral={() => setActiveSection('general')}
+                />
+              ) : (
+                <SpaceViewModulePage
+                  request={request}
+                  label={activeModuleConfig.label}
+                />
+              ))}
+          </div>
+          <SectionReviewSummary
+            sectionReview={getSectionReview(request, activeSection)}
+          />
         </div>
       </div>
     </div>

@@ -10,6 +10,24 @@ export interface WorkforceMonthData {
   counts: Record<string, number>;
 }
 
+export type ReviewStatus =
+  | 'Approved'
+  | 'Rejected'
+  | 'Under Review'
+  | 'More Info';
+
+export interface SectionAttachment {
+  id: string;
+  name: string;
+  url: string;
+}
+
+export interface SectionReview {
+  status: ReviewStatus;
+  comment: string;
+  attachments: SectionAttachment[];
+}
+
 export interface SpaceRequestRecord {
   id: string;
   srfNumber: string;
@@ -32,4 +50,5 @@ export interface SpaceRequestRecord {
   status: SpaceRequestStatus;
   modules: Record<RequestFormModuleKey, boolean>;
   workforceData: WorkforceMonthData;
+  sectionReviews: Record<string, SectionReview>;
 }
