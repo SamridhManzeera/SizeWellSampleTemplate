@@ -1,5 +1,5 @@
 $navy:    #1a3a6b;
-$border:  #e8ecf4;
+$border:  #c7cedd;
 $bg:      #f8f9fc;
 $dark:    #111827;
 $mid:     #374151;
@@ -125,17 +125,7 @@ $green:   #16a34a;
   &__req-val-num {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
     cursor: help;
-
-    svg {
-      color: $muted;
-      transition: color 0.12s;
-    }
-
-    &:hover svg {
-      color: $navy;
-    }
   }
 
   &__alloc-val {
