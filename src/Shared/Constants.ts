@@ -29,6 +29,7 @@ const ROUTES = {
   LOGIN_MOCKUP_V4: '/mockups/login-v4',
   LOGIN_MOCKUP_V5: '/mockups/login-v5',
   LOGIN_MOCKUP_V6: '/mockups/login-v6',
+  FMT_DASHBOARD: '/fmt/dashboard',
 };
 
 // projecttype returned by the login API; drives which private routes/layout are shown
@@ -152,6 +153,10 @@ const ROUTES_CONFIG = {
   LOGIN_MOCKUP_V6: {
     path: ROUTES.LOGIN_MOCKUP_V6,
     title: 'Login V6',
+  },
+  FMT_DASHBOARD: {
+    path: ROUTES.FMT_DASHBOARD,
+    title: 'FMT Dashboard',
   },
 };
 

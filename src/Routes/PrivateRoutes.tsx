@@ -16,6 +16,7 @@ import Profile from '../Views/Profile/Profile';
 import Notifications from '../Views/Notifications/Notifications';
 import UserManagement from '../Views/UserManagement/UserManagement';
 import Dashboard from '../Views/Dashboard';
+import FmtDashboard from '../Views/FMT/Dashboard';
 import SpaceFormListing, {
   SpaceRequestFormLayout,
   SpaceGeneralForm,
@@ -140,6 +141,11 @@ export const SLOT_ALLOCATION_ROUTES: Array<CustomRouter> = [
     path: ROUTES_CONFIG.LOGIN_MOCKUP_V6.path,
     element: <LoginV6 />,
     title: ROUTES_CONFIG.LOGIN_MOCKUP_V6.title,
+  },
+  {
+    path: ROUTES_CONFIG.FMT_DASHBOARD.path,
+    element: <FmtDashboard />,
+    title: ROUTES_CONFIG.FMT_DASHBOARD.title,
   },
   {
     path: '*',

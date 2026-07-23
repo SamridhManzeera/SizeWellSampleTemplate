@@ -190,6 +190,19 @@ const NAV_GROUPS_SLOT_ALLOCATION = [
     ],
   },
   {
+    key: 'fmt',
+    label: 'FMT',
+    icon: <RequestsIcon />,
+    items: [
+      {
+        to: '/fmt/dashboard',
+        label: 'Dashboard',
+        icon: <CalendarIcon />,
+        end: true,
+      },
+    ],
+  },
+  {
     key: 'mockups',
     label: 'Login Mockups',
     icon: <FormIcon />,
@@ -285,6 +298,7 @@ function Sidebar() {
     admin: true,
     contractor: true,
     iam: true,
+    fmt: true,
   });
   const dispatch = useDispatch();
   const navigate = useNavigate();
