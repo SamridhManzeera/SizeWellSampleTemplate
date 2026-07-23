@@ -42,8 +42,6 @@ $radius:   12px;
     gap: 0;
     background: #fff;
     border-bottom: 1.5px solid $border;
-    max-width: 1400px;
-    margin: 0 auto;
     padding: 0 20px;
   }
 
@@ -78,8 +76,6 @@ $radius:   12px;
   // ── List Section ───────────────────────────────────────────
   &__list-section {
     padding: 28px 20px 40px;
-    max-width: 1400px;
-    margin: 0 auto;
   }
 
   &__list-header {
