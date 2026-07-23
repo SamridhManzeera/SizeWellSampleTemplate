@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import brandLogo from '../../assets/SizeWellIcon/SZC22_Primary Logo_Print-nostrap.png';
 import { useLoginMutation } from '../../Services/Api/module/authApi';
 import { updateAuthTokenRedux } from '../../Store/Common';
-import { ROUTES } from '../../Shared/Constants';
+import { ROUTES, PROJECT_TYPE } from '../../Shared/Constants';
 import './Login.scss';
 
 function EyeIcon() {
@@ -59,9 +59,11 @@ function Login() {
     e.preventDefault();
     setError('');
     try {
-      const { token } = await login({ email, password }).unwrap();
-      dispatch(updateAuthTokenRedux({ token }));
-      navigate(ROUTES.HOMEPAGE);
+      const { token, projecttype } = await login({ email, password }).unwrap();
+      dispatch(updateAuthTokenRedux({ token, projecttype }));
+      navigate(
+        projecttype === PROJECT_TYPE.IAM ? ROUTES.DASHBOARD : ROUTES.HOMEPAGE
+      );
     } catch {
       setError('Invalid email or password. Please try again.');
     }

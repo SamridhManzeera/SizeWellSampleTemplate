@@ -19,6 +19,7 @@ const ROUTES = {
   ADMIN_NOTIFICATIONS: '/admin/notifications',
   CONTRACTOR_NOTIFICATIONS: '/contractor/notifications',
   ADMIN_USER_MANAGEMENT: '/admin/user-management',
+  DASHBOARD: '/dashboard',
   LOGIN_MOCKUP_V1: '/mockups/login-v1',
   LOGIN_MOCKUP_V2: '/mockups/login-v2',
   LOGIN_MOCKUP_V3: '/mockups/login-v3',
@@ -26,6 +27,14 @@ const ROUTES = {
   LOGIN_MOCKUP_V5: '/mockups/login-v5',
   LOGIN_MOCKUP_V6: '/mockups/login-v6',
 };
+
+// projecttype returned by the login API; drives which private routes/layout are shown
+const PROJECT_TYPE = {
+  SLOT_ALLOCATION: 1,
+  IAM: 2,
+} as const;
+
+export type ProjectType = (typeof PROJECT_TYPE)[keyof typeof PROJECT_TYPE];
 
 const WILDCARD_ROUTES = {
   PUBLIC: ROUTES.LOGIN,
@@ -101,6 +110,10 @@ const ROUTES_CONFIG = {
     path: ROUTES.ADMIN_USER_MANAGEMENT,
     title: 'User & Role Management',
   },
+  DASHBOARD: {
+    path: ROUTES.DASHBOARD,
+    title: 'Dashboard',
+  },
   LOGIN_MOCKUP_V1: {
     path: ROUTES.LOGIN_MOCKUP_V1,
     title: 'Login V1',
@@ -127,4 +140,4 @@ const ROUTES_CONFIG = {
   },
 };
 
-export { ROUTES, WILDCARD_ROUTES, ROUTES_CONFIG };
+export { ROUTES, WILDCARD_ROUTES, ROUTES_CONFIG, PROJECT_TYPE };

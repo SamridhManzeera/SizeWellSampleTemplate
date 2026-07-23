@@ -1,5 +1,10 @@
 import { Navigate } from 'react-router-dom';
-import { ROUTES_CONFIG, WILDCARD_ROUTES } from '../Shared/Constants';
+import {
+  ROUTES_CONFIG,
+  WILDCARD_ROUTES,
+  PROJECT_TYPE,
+  ProjectType,
+} from '../Shared/Constants';
 import BookingSchedule from '../Views/BookingSchedule';
 import ScheduleConfig from '../Views/ScheduleConfig/ScheduleConfig';
 import Requests from '../Views/Requests/Requests';
@@ -10,6 +15,7 @@ import LiveTracking from '../Views/LiveTracking/LiveTracking';
 import Profile from '../Views/Profile/Profile';
 import Notifications from '../Views/Notifications/Notifications';
 import UserManagement from '../Views/UserManagement/UserManagement';
+import Dashboard from '../Views/Dashboard';
 import LoginV1 from '../Views/Login/LoginV1';
 import LoginV2 from '../Views/Login/LoginV2';
 import LoginV3 from '../Views/Login/LoginV3';
@@ -18,8 +24,7 @@ import LoginV5 from '../Views/Login/LoginV5';
 import LoginV6 from '../Views/Login/LoginV6';
 import { CustomRouter } from './RootRoutes';
 
-// eslint-disable-next-line import/prefer-default-export
-export const PRIVATE_ROUTES: Array<CustomRouter> = [
+export const SLOT_ALLOCATION_ROUTES: Array<CustomRouter> = [
   {
     path: ROUTES_CONFIG.HOMEPAGE.path,
     element: <BookingSchedule />,
@@ -132,3 +137,28 @@ export const PRIVATE_ROUTES: Array<CustomRouter> = [
     title: 'Rendering wildcard',
   },
 ];
+
+export const IAM_ROUTES: Array<CustomRouter> = [
+  {
+    path: ROUTES_CONFIG.DASHBOARD.path,
+    element: <Dashboard />,
+    title: ROUTES_CONFIG.DASHBOARD.title,
+  },
+  {
+    path: '*',
+    element: <Navigate to={ROUTES_CONFIG.DASHBOARD.path} />,
+    title: 'Rendering wildcard',
+  },
+];
+
+export const getPrivateRoutes = (
+  projecttype?: ProjectType | null
+): Array<CustomRouter> => {
+  switch (projecttype) {
+    case PROJECT_TYPE.IAM:
+      return IAM_ROUTES;
+    case PROJECT_TYPE.SLOT_ALLOCATION:
+    default:
+      return SLOT_ALLOCATION_ROUTES;
+  }
+};

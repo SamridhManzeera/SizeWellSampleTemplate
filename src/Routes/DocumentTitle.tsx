@@ -3,15 +3,23 @@ import { useLocation } from 'react-router-dom';
 import { Path, pathToRegexp } from 'path-to-regexp';
 
 import AUTH_ROUTES from './AuthRoutes';
-import { PRIVATE_ROUTES } from './PrivateRoutes';
+import { getPrivateRoutes } from './PrivateRoutes';
 import { PUBLIC_ROUTES } from './PublicRoutes';
 import { CustomRouter } from './RootRoutes';
+import { ProjectType } from '../Shared/Constants';
 
 // eslint-disable-next-line react/prop-types
-function DocumentTitle({ isAuthenticated = false }) {
+/* eslint-disable react/require-default-props */
+function DocumentTitle({
+  isAuthenticated = false,
+  projecttype = null,
+}: {
+  isAuthenticated?: boolean;
+  projecttype?: ProjectType | null;
+}) {
   const location = useLocation();
   const ROUTES: CustomRouter[] = PUBLIC_ROUTES.concat(
-    isAuthenticated ? PRIVATE_ROUTES : AUTH_ROUTES
+    isAuthenticated ? getPrivateRoutes(projecttype) : AUTH_ROUTES
   );
   const matchedRoute: CustomRouter | undefined = ROUTES.find(
     (route: CustomRouter) =>

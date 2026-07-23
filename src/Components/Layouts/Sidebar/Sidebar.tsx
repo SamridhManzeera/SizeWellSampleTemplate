@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import sizewellLogo from '../../../assets/SizewellIcon/SZC-nostrap-white.png';
 import { useSidebar } from './SidebarContext';
 import { updateAuthTokenRedux } from '../../../Store/Common';
-import { ROUTES } from '../../../Shared/Constants';
+import { ROUTES, PROJECT_TYPE } from '../../../Shared/Constants';
+import type { RootState } from '../../../Store';
 import './Sidebar.scss';
 
 function CalendarIcon() {
@@ -111,7 +112,7 @@ function FormIcon() {
   );
 }
 
-const NAV_GROUPS = [
+const NAV_GROUPS_SLOT_ALLOCATION = [
   {
     key: 'admin',
     label: 'Admin',
@@ -233,6 +234,22 @@ const NAV_GROUPS = [
   },
 ];
 
+const NAV_GROUPS_IAM = [
+  {
+    key: 'iam',
+    label: 'IAM',
+    icon: <AdminIcon />,
+    items: [
+      {
+        to: '/dashboard',
+        label: 'Dashboard',
+        icon: <CalendarIcon />,
+        end: true,
+      },
+    ],
+  },
+];
+
 export function HamburgerButton() {
   const { openSidebar } = useSidebar();
   return (
@@ -254,9 +271,17 @@ function Sidebar() {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({
     admin: true,
     contractor: true,
+    iam: true,
   });
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const projecttype = useSelector(
+    (state: RootState) => state?.common?.projecttype
+  );
+  const navGroups =
+    projecttype === PROJECT_TYPE.IAM
+      ? NAV_GROUPS_IAM
+      : NAV_GROUPS_SLOT_ALLOCATION;
 
   const toggle = (key: string) =>
     setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -294,7 +319,7 @@ function Sidebar() {
         </div>
 
         <nav className="sidebar__nav">
-          {NAV_GROUPS.map((group) => {
+          {navGroups.map((group) => {
             const isOpen = expanded[group.key];
             return (
               <div key={group.key} className="sidebar__group">

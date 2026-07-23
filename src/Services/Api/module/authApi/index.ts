@@ -7,6 +7,7 @@ export type LoginRequest = {
 
 export type LoginResponse = {
   token: string;
+  projecttype: number;
 };
 
 export const authApi = api.injectEndpoints({
