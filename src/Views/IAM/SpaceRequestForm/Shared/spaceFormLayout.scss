@@ -18,6 +18,13 @@ $mid: #374151;
 .sfw__content {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sfw__section {
+  scroll-margin-top: 92px;
 }
 
 // Local (in-page) section sidebar, distinct from the global app sidebar.
@@ -50,19 +57,82 @@ $mid: #374151;
   display: flex;
   align-items: center;
   gap: 12px;
+  width: 100%;
   padding: 9px 12px 9px 9px;
+  border: none;
+  background: none;
   border-radius: 10px;
   border-left: 3px solid transparent;
   color: $mid;
   font-size: 14px;
   font-weight: 500;
+  font-family: inherit;
   text-decoration: none;
+  text-align: left;
+  cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 
   &:hover {
     background: rgba($navy, 0.06);
     color: $navy;
     text-decoration: none;
+  }
+}
+
+.sfw__sidebar-module {
+  justify-content: space-between;
+  padding-right: 10px;
+  cursor: default;
+
+  &:hover {
+    background: none;
+    color: $mid;
+  }
+}
+
+.sfw__sidebar-module--enabled {
+  &:hover {
+    background: rgba($navy, 0.06);
+    color: $navy;
+  }
+}
+
+.sfw__sidebar-module-jump {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.55;
+  }
+}
+
+.sfw__sidebar-module .sgf__toggle {
+  flex: 0 0 auto;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+
+  .sgf__toggle-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 }
 

@@ -1,12 +1,10 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import WorkforceChart from '../../../../Components/Charts/WorkforceChart/WorkforceChart';
 import {
   formatMonthLabel,
   generateMonthRange,
 } from '../../../../Components/Charts/WorkforceChart/monthRange';
-import { ROUTES } from '../../../../Shared/Constants';
 import type { RootState } from '../../../../Store';
 import '../Shared/spaceGeneralForm.scss';
 
@@ -51,9 +49,9 @@ function SpaceWorkforceForm() {
       <div className="sgf__card">
         <h2 className="sgf__section-title">Workforce (no. of people)</h2>
         <p>
-          Set a Mobilisation Date and Demobilisation Date on the{' '}
-          <Link to={`${ROUTES.SPACE_REQUESTS_NEW}/general`}>General</Link> form
-          to plan monthly workforce numbers for that period.
+          Set a Mobilisation Date and Demobilisation Date in the{' '}
+          <a href="#section-general">General</a> section above to plan monthly
+          workforce numbers for that period.
         </p>
       </div>
     );
@@ -67,7 +65,7 @@ function SpaceWorkforceForm() {
           Planning for {formatMonthLabel(months[0])} –{' '}
           {formatMonthLabel(months[months.length - 1])}, based on the
           Mobilisation and Demobilisation dates set in{' '}
-          <Link to={`${ROUTES.SPACE_REQUESTS_NEW}/general`}>General</Link>.
+          <a href="#section-general">General</a>.
         </p>
         <WorkforceChart labels={months.map(formatMonthLabel)} values={values} />
       </div>

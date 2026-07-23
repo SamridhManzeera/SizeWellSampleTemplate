@@ -1,10 +1,7 @@
 import { ChangeEvent, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import SpaceFormField from '../Shared/SpaceFormField';
-import SpaceToggleSwitch from '../Shared/SpaceToggleSwitch';
-import { REQUEST_FORM_MODULES } from '../../../../Shared/requestFormModules';
 import {
-  setModuleEnabled,
   setMobilisationDate,
   setDemobilisationDate,
 } from '../../../../Store/RequestForm';
@@ -50,7 +47,6 @@ const INITIAL_VALUES: SectionAValues = {
 function SpaceGeneralForm() {
   const [values, setValues] = useState<SectionAValues>(INITIAL_VALUES);
   const dispatch = useDispatch<AppDispatch>();
-  const modules = useSelector((state: RootState) => state.requestForm.modules);
   const mobilisationDate = useSelector(
     (state: RootState) => state.requestForm.mobilisationDate
   );
@@ -249,29 +245,6 @@ function SpaceGeneralForm() {
             </div>
           </div>
         )}
-      </div>
-
-      <div className="sgf__card">
-        <h2 className="sgf__section-title">Enable Modules</h2>
-        <p className="sgf__section-hint">
-          Switch on the modules that apply to this request. Each enabled module
-          adds a dedicated tab to the sidebar.
-        </p>
-        <div className="sgf__toggles">
-          {REQUEST_FORM_MODULES.map((moduleConfig) => (
-            <SpaceToggleSwitch
-              key={moduleConfig.key}
-              id={`module-toggle-${moduleConfig.key}`}
-              label={moduleConfig.label}
-              checked={modules[moduleConfig.key]}
-              onChange={(enabled) =>
-                dispatch(
-                  setModuleEnabled({ module: moduleConfig.key, enabled })
-                )
-              }
-            />
-          ))}
-        </div>
       </div>
     </div>
   );

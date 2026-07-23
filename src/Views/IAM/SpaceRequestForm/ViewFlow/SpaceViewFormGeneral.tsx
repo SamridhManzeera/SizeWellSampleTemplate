@@ -1,12 +1,12 @@
-import { useOutletContext } from 'react-router-dom';
 import SpaceFormField from '../Shared/SpaceFormField';
-import SpaceToggleSwitch from '../Shared/SpaceToggleSwitch';
-import { REQUEST_FORM_MODULES } from '../../../../Shared/requestFormModules';
 import type { SpaceRequestRecord } from '../spaceRequestFormTypes';
 import '../Shared/spaceGeneralForm.scss';
 
-function SpaceViewFormGeneral() {
-  const request = useOutletContext<SpaceRequestRecord>();
+interface SpaceViewFormGeneralProps {
+  request: SpaceRequestRecord;
+}
+
+function SpaceViewFormGeneral({ request }: SpaceViewFormGeneralProps) {
   const isMds = request.developmentSiteType === 'MDS';
 
   return (
@@ -163,24 +163,6 @@ function SpaceViewFormGeneral() {
             </div>
           </div>
         )}
-      </div>
-
-      <div className="sgf__card">
-        <h2 className="sgf__section-title">Enabled Modules</h2>
-        <p className="sgf__section-hint">
-          Modules enabled for this request. Use the sidebar to open one.
-        </p>
-        <div className="sgf__toggles">
-          {REQUEST_FORM_MODULES.map((moduleConfig) => (
-            <SpaceToggleSwitch
-              key={moduleConfig.key}
-              id={`view-module-${moduleConfig.key}`}
-              label={moduleConfig.label}
-              checked={request.modules[moduleConfig.key]}
-              disabled
-            />
-          ))}
-        </div>
       </div>
     </div>
   );

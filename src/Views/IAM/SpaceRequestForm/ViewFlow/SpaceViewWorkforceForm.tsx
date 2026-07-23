@@ -1,30 +1,17 @@
-import { Link, useOutletContext } from 'react-router-dom';
 import WorkforceChart from '../../../../Components/Charts/WorkforceChart/WorkforceChart';
 import {
   formatMonthLabel,
   generateMonthRange,
   ukDateToMonthKey,
 } from '../../../../Components/Charts/WorkforceChart/monthRange';
-import { ROUTES } from '../../../../Shared/Constants';
 import type { SpaceRequestRecord } from '../spaceRequestFormTypes';
 import '../Shared/spaceGeneralForm.scss';
 
-function SpaceViewWorkforceForm() {
-  const request = useOutletContext<SpaceRequestRecord>();
-  const generalPath = `${ROUTES.SPACE_REQUESTS}/${request.id}/general`;
+interface SpaceViewWorkforceFormProps {
+  request: SpaceRequestRecord;
+}
 
-  if (!request.modules.workforce) {
-    return (
-      <div className="sgf__card">
-        <h2 className="sgf__section-title">Workforce</h2>
-        <p>
-          This module wasn&apos;t enabled for SRF {request.srfNumber}. Go back
-          to <Link to={generalPath}>General</Link> to see what was submitted.
-        </p>
-      </div>
-    );
-  }
-
+function SpaceViewWorkforceForm({ request }: SpaceViewWorkforceFormProps) {
   const months = generateMonthRange(
     ukDateToMonthKey(request.mobilisationDate),
     ukDateToMonthKey(request.demobilisationDate)
@@ -52,7 +39,7 @@ function SpaceViewWorkforceForm() {
           Planning for {formatMonthLabel(months[0])} –{' '}
           {formatMonthLabel(months[months.length - 1])}, based on the
           Mobilisation and Demobilisation dates in{' '}
-          <Link to={generalPath}>General</Link>.
+          <a href="#section-general">General</a>.
         </p>
         <WorkforceChart labels={months.map(formatMonthLabel)} values={values} />
       </div>

@@ -1,12 +1,16 @@
 import { useEffect } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import PageHeader from '../../../../Components/Layouts/PageHeader/PageHeader';
 import PageHero from '../../../../Components/Layouts/PageHero/PageHero';
 import { ROUTES } from '../../../../Shared/Constants';
+import { REQUEST_FORM_MODULES } from '../../../../Shared/requestFormModules';
 import { resetRequestForm } from '../../../../Store/RequestForm';
-import type { AppDispatch } from '../../../../Store';
+import type { AppDispatch, RootState } from '../../../../Store';
 import SpaceRequestFormSidebar from './SpaceRequestFormSidebar';
+import SpaceGeneralForm from './SpaceGeneralForm';
+import SpaceModulePage from './SpaceModulePage';
+import SpaceWorkforceForm from './SpaceWorkforceForm';
 import '../Shared/spaceFormLayout.scss';
 
 function DocIcon() {
@@ -20,10 +24,15 @@ function DocIcon() {
 function SpaceRequestFormLayout() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const modules = useSelector((state: RootState) => state.requestForm.modules);
 
   useEffect(() => {
     dispatch(resetRequestForm());
   }, [dispatch]);
+
+  const enabledModules = REQUEST_FORM_MODULES.filter(
+    (moduleConfig) => modules[moduleConfig.key]
+  );
 
   return (
     <div className="sfw">
@@ -44,7 +53,22 @@ function SpaceRequestFormLayout() {
       <div className="sfw__body">
         <SpaceRequestFormSidebar />
         <div className="sfw__content">
-          <Outlet />
+          <section id="section-general" className="sfw__section">
+            <SpaceGeneralForm />
+          </section>
+          {enabledModules.map((moduleConfig) => (
+            <section
+              key={moduleConfig.key}
+              id={`section-${moduleConfig.segment}`}
+              className="sfw__section"
+            >
+              {moduleConfig.key === 'workforce' ? (
+                <SpaceWorkforceForm />
+              ) : (
+                <SpaceModulePage label={moduleConfig.label} />
+              )}
+            </section>
+          ))}
         </div>
       </div>
     </div>

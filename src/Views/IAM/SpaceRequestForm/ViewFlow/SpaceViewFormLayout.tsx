@@ -1,9 +1,13 @@
-import { Outlet, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import PageHeader from '../../../../Components/Layouts/PageHeader/PageHeader';
 import PageHero from '../../../../Components/Layouts/PageHero/PageHero';
 import { ROUTES } from '../../../../Shared/Constants';
+import { REQUEST_FORM_MODULES } from '../../../../Shared/requestFormModules';
 import { useSpaceRequests } from '../SpaceRequestsContext';
 import SpaceViewFormSidebar from './SpaceViewFormSidebar';
+import SpaceViewFormGeneral from './SpaceViewFormGeneral';
+import SpaceViewModulePage from './SpaceViewModulePage';
+import SpaceViewWorkforceForm from './SpaceViewWorkforceForm';
 import '../Shared/spaceFormLayout.scss';
 
 function DocIcon() {
@@ -39,6 +43,10 @@ function SpaceViewFormLayout() {
     );
   }
 
+  const enabledModules = REQUEST_FORM_MODULES.filter(
+    (moduleConfig) => request.modules[moduleConfig.key]
+  );
+
   return (
     <div className="sfw">
       <PageHeader />
@@ -58,7 +66,25 @@ function SpaceViewFormLayout() {
       <div className="sfw__body">
         <SpaceViewFormSidebar request={request} />
         <div className="sfw__content">
-          <Outlet context={request} />
+          <section id="section-general" className="sfw__section">
+            <SpaceViewFormGeneral request={request} />
+          </section>
+          {enabledModules.map((moduleConfig) => (
+            <section
+              key={moduleConfig.key}
+              id={`section-${moduleConfig.segment}`}
+              className="sfw__section"
+            >
+              {moduleConfig.key === 'workforce' ? (
+                <SpaceViewWorkforceForm request={request} />
+              ) : (
+                <SpaceViewModulePage
+                  request={request}
+                  label={moduleConfig.label}
+                />
+              )}
+            </section>
+          ))}
         </div>
       </div>
     </div>
