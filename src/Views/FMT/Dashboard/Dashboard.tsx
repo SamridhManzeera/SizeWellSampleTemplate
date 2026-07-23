@@ -242,7 +242,7 @@ export default function FmtDashboard() {
         icon={<TruckIcon />}
         eyebrow="FMT"
         title="Delivery Distribution"
-        subtitle="Every slot on this board represents a single movement"
+        subtitle=""
         actions={null}
       />
 
@@ -319,8 +319,9 @@ export default function FmtDashboard() {
               </button>
               <button
                 type="button"
-                className={`fmtd__today-btn${isToday ? ' fmtd__today-btn--active' : ''
-                  }`}
+                className={`fmtd__today-btn${
+                  isToday ? ' fmtd__today-btn--active' : ''
+                }`}
                 onClick={() => setSelectedDate(getTodayString())}
               >
                 Today
@@ -354,6 +355,9 @@ export default function FmtDashboard() {
             <span className="fmtd__legend-item">
               <span className="fmtd__legend-dot fmtd__legend-dot--available" />
               Available
+            </span>
+            <span className="fmtd__legend-note">
+              Every slot on this board represents a single movement
             </span>
           </div>
         </div>

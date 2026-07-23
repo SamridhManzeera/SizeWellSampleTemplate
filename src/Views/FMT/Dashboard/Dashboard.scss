@@ -63,9 +63,20 @@ $gutter: 28px;
     justify-content: center;
     flex-shrink: 0;
 
-    &--teal   { background: #e0f7f6; color: #00897b; }
-    &--orange { background: #fff4e6; color: #e8770a; }
-    &--purple { background: #f3f0ff; color: #7048e8; }
+    &--teal {
+      background: #e0f7f6;
+      color: #00897b;
+    }
+
+    &--orange {
+      background: #fff4e6;
+      color: #e8770a;
+    }
+
+    &--purple {
+      background: #f3f0ff;
+      color: #7048e8;
+    }
   }
 
   &__kpi-text {
@@ -81,9 +92,17 @@ $gutter: 28px;
     line-height: 1.1;
     letter-spacing: -0.6px;
 
-    &--teal   { color: #00897b; }
-    &--orange { color: #e8770a; }
-    &--purple { color: #7048e8; }
+    &--teal {
+      color: #00897b;
+    }
+
+    &--orange {
+      color: #e8770a;
+    }
+
+    &--purple {
+      color: #7048e8;
+    }
   }
 
   &__kpi-label {
@@ -176,14 +195,18 @@ $gutter: 28px;
     font-family: inherit;
     transition: background 0.15s, color 0.15s, border-color 0.15s;
 
-    &:hover { background: #f3f4f8; }
+    &:hover {
+      background: #f3f4f8;
+    }
 
     &--active {
       background: $navy;
       color: #fff;
       border-color: $navy;
 
-      &:hover { background: lighten($navy, 6%); }
+      &:hover {
+        background: lighten($navy, 6%);
+      }
     }
   }
 
@@ -230,6 +253,12 @@ $gutter: 28px;
     font-size: 12px;
     font-weight: 500;
     color: $text-mid;
+  }
+
+  &__legend-note {
+    font-size: 12px;
+    font-weight: 600;
+    color: $text-muted;
   }
 
   &__legend-swatch {
