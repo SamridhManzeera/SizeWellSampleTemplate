@@ -47,25 +47,28 @@ function PageHero({
           />
         </svg>
 
-        <div className="page-hero__left">
-          {backAction && (
-            <button
-              type="button"
-              className="page-hero__back"
-              onClick={backAction.onClick}
-            >
-              {backAction.label}
-            </button>
-          )}
-          {icon && <div className="page-hero__icon">{icon}</div>}
-          <div>
-            {eyebrow && <span className="page-hero__eyebrow">{eyebrow}</span>}
-            <h1 className="page-hero__title">{title}</h1>
-            <p className="page-hero__sub">{subtitle}</p>
-          </div>
-        </div>
+        {backAction && (
+          <button
+            type="button"
+            className="page-hero__back"
+            onClick={backAction.onClick}
+          >
+            {backAction.label}
+          </button>
+        )}
 
-        {actions && <div className="page-hero__actions">{actions}</div>}
+        <div className="page-hero__main">
+          <div className="page-hero__left">
+            {icon && <div className="page-hero__icon">{icon}</div>}
+            <div>
+              {eyebrow && <span className="page-hero__eyebrow">{eyebrow}</span>}
+              <h1 className="page-hero__title">{title}</h1>
+              <p className="page-hero__sub">{subtitle}</p>
+            </div>
+          </div>
+
+          {actions && <div className="page-hero__actions">{actions}</div>}
+        </div>
       </div>
     </div>
   );
