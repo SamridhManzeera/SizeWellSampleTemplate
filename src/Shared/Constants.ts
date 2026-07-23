@@ -25,6 +25,12 @@ const ROUTES = {
   SPACE_REQUESTS_VIEW: '/space-requests/:id',
   REVIEWER_REQUESTS: '/reviewer/requests',
   REVIEWER_REQUESTS_VIEW: '/reviewer/requests/:id',
+  REVIEWER_WORK_AREA: '/reviewer/work-area',
+  REVIEWER_IT: '/reviewer/it',
+  REVIEWER_WATER: '/reviewer/water',
+  REVIEWER_WELFARE: '/reviewer/welfare',
+  REVIEWER_POWER: '/reviewer/power',
+  REVIEWER_WORKFORCE: '/reviewer/workforce',
   LOGIN_MOCKUP_V1: '/mockups/login-v1',
   LOGIN_MOCKUP_V2: '/mockups/login-v2',
   LOGIN_MOCKUP_V3: '/mockups/login-v3',
@@ -132,13 +138,33 @@ const ROUTES_CONFIG = {
     path: ROUTES.SPACE_REQUESTS_VIEW,
     title: 'View Space Request',
   },
-  REVIEWER_REQUESTS: {
-    path: ROUTES.REVIEWER_REQUESTS,
-    title: 'Review Requests',
-  },
   REVIEWER_REQUESTS_VIEW: {
     path: ROUTES.REVIEWER_REQUESTS_VIEW,
     title: 'Review Request',
+  },
+  REVIEWER_WORK_AREA: {
+    path: ROUTES.REVIEWER_WORK_AREA,
+    title: 'Work Area Requests',
+  },
+  REVIEWER_IT: {
+    path: ROUTES.REVIEWER_IT,
+    title: 'IT Requests',
+  },
+  REVIEWER_WATER: {
+    path: ROUTES.REVIEWER_WATER,
+    title: 'Water Requests',
+  },
+  REVIEWER_WELFARE: {
+    path: ROUTES.REVIEWER_WELFARE,
+    title: 'Welfare Requests',
+  },
+  REVIEWER_POWER: {
+    path: ROUTES.REVIEWER_POWER,
+    title: 'Power Requests',
+  },
+  REVIEWER_WORKFORCE: {
+    path: ROUTES.REVIEWER_WORKFORCE,
+    title: 'Workforce Requests',
   },
   LOGIN_MOCKUP_V1: {
     path: ROUTES.LOGIN_MOCKUP_V1,

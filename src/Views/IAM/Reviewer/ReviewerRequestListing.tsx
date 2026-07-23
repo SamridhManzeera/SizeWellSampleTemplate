@@ -6,7 +6,13 @@ import { REQUEST_FORM_MODULES } from '../../../Shared/requestFormModules';
 import { ROUTES } from '../../../Shared/Constants';
 import { useSpaceRequests } from '../SpaceRequestForm/SpaceRequestsContext';
 import type { SpaceRequestStatus } from '../SpaceRequestForm/spaceRequestFormTypes';
+import type { RequestFormModuleKey } from '../../../Store/RequestForm';
 import '../SpaceRequestForm/SpaceFormListing.scss';
+
+interface ReviewerRequestListingProps {
+  moduleKey: RequestFormModuleKey;
+  label: string;
+}
 
 function ClipboardIcon() {
   return (
@@ -24,11 +30,18 @@ function EyeIcon() {
   );
 }
 
-function ReviewerRequestListing() {
-  const { requests } = useSpaceRequests();
+function ReviewerRequestListing({
+  moduleKey,
+  label,
+}: ReviewerRequestListingProps) {
+  const { requests: allRequests } = useSpaceRequests();
   const [statusFilter, setStatusFilter] = useState<SpaceRequestStatus | 'all'>(
     'all'
   );
+
+  const requests = allRequests.filter((r) => r.modules[moduleKey]);
+  const sectionSegment =
+    REQUEST_FORM_MODULES.find((m) => m.key === moduleKey)?.segment ?? '';
 
   const total = requests.length;
   const submitted = requests.filter((r) => r.status === 'Submitted').length;
@@ -46,8 +59,8 @@ function ReviewerRequestListing() {
 
       <PageHero
         icon={<ClipboardIcon />}
-        title="Review Requests"
-        subtitle="Review submitted space requests and record your approval decision."
+        title={`${label} Requests`}
+        subtitle={`Review submitted requests that have the ${label} module enabled.`}
         eyebrow="Reviewer"
         actions={null}
       />
@@ -108,14 +121,13 @@ function ReviewerRequestListing() {
                 <th>Company</th>
                 <th>Mobilisation Date</th>
                 <th>Status</th>
-                <th>Modules</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="sfl__empty">
+                  <td colSpan={6} className="sfl__empty">
                     No requests found.
                   </td>
                 </tr>
@@ -136,32 +148,9 @@ function ReviewerRequestListing() {
                     </span>
                   </td>
                   <td>
-                    <div className="sfl__modules">
-                      {REQUEST_FORM_MODULES.map((moduleConfig) => {
-                        const isEnabled = row.modules[moduleConfig.key];
-                        return isEnabled ? (
-                          <Link
-                            key={moduleConfig.key}
-                            to={`${ROUTES.REVIEWER_REQUESTS}/${row.id}?section=${moduleConfig.segment}`}
-                            className="sfl__module-chip sfl__module-chip--enabled"
-                          >
-                            {moduleConfig.label}
-                          </Link>
-                        ) : (
-                          <span
-                            key={moduleConfig.key}
-                            className="sfl__module-chip sfl__module-chip--disabled"
-                          >
-                            {moduleConfig.label}
-                          </span>
-                        );
-                      })}
-                    </div>
-                  </td>
-                  <td>
                     <div className="sfl__actions">
                       <Link
-                        to={`${ROUTES.REVIEWER_REQUESTS}/${row.id}`}
+                        to={`${ROUTES.REVIEWER_REQUESTS}/${row.id}?section=${sectionSegment}`}
                         className="sfl__action-btn"
                       >
                         <EyeIcon />

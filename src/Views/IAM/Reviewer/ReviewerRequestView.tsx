@@ -24,6 +24,15 @@ function ClipboardIcon() {
   );
 }
 
+const REVIEWER_LISTING_ROUTES: Record<string, string> = {
+  'work-area': ROUTES.REVIEWER_WORK_AREA,
+  it: ROUTES.REVIEWER_IT,
+  water: ROUTES.REVIEWER_WATER,
+  welfare: ROUTES.REVIEWER_WELFARE,
+  power: ROUTES.REVIEWER_POWER,
+  workforce: ROUTES.REVIEWER_WORKFORCE,
+};
+
 function ReviewerRequestView() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -31,9 +40,13 @@ function ReviewerRequestView() {
   const { getRequest, saveSectionDraft, submitSectionReview } =
     useSpaceRequests();
   const request = getRequest(id ?? '');
+  const restrictedSection = searchParams.get('section');
   const [activeSection, setActiveSection] = useState(
-    () => searchParams.get('section') ?? 'general'
+    () => restrictedSection ?? 'general'
   );
+  const backRoute = restrictedSection
+    ? REVIEWER_LISTING_ROUTES[restrictedSection] ?? ROUTES.DASHBOARD
+    : ROUTES.DASHBOARD;
 
   if (!request) {
     return (
@@ -47,7 +60,7 @@ function ReviewerRequestView() {
           actions={null}
           backAction={{
             label: '← Back',
-            onClick: () => navigate(ROUTES.REVIEWER_REQUESTS),
+            onClick: () => navigate(backRoute),
           }}
         />
       </div>
@@ -72,7 +85,7 @@ function ReviewerRequestView() {
         actions={null}
         backAction={{
           label: '← Back',
-          onClick: () => navigate(ROUTES.REVIEWER_REQUESTS),
+          onClick: () => navigate(backRoute),
         }}
       />
 
@@ -81,6 +94,7 @@ function ReviewerRequestView() {
           request={request}
           activeSection={activeSection}
           onSelectSection={setActiveSection}
+          allowedSegments={restrictedSection ? [restrictedSection] : undefined}
         />
         <div className="rvw__body">
           <div className="rvw__main">

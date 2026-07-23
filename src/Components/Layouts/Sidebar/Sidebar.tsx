@@ -280,8 +280,38 @@ const NAV_GROUPS_IAM = [
     icon: <ShieldUserIcon />,
     items: [
       {
-        to: '/reviewer/requests',
-        label: 'Requests',
+        to: '/reviewer/work-area',
+        label: 'Work Area',
+        icon: <RequestsIcon />,
+        end: false,
+      },
+      {
+        to: '/reviewer/it',
+        label: 'IT',
+        icon: <RequestsIcon />,
+        end: false,
+      },
+      {
+        to: '/reviewer/water',
+        label: 'Water',
+        icon: <RequestsIcon />,
+        end: false,
+      },
+      {
+        to: '/reviewer/welfare',
+        label: 'Welfare',
+        icon: <RequestsIcon />,
+        end: false,
+      },
+      {
+        to: '/reviewer/power',
+        label: 'Power',
+        icon: <RequestsIcon />,
+        end: false,
+      },
+      {
+        to: '/reviewer/workforce',
+        label: 'Workforce',
         icon: <RequestsIcon />,
         end: false,
       },

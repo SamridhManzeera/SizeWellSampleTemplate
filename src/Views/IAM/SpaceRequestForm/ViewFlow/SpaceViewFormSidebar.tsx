@@ -1,3 +1,4 @@
+/* eslint-disable react/require-default-props */
 import { REQUEST_FORM_MODULES } from '../../../../Shared/requestFormModules';
 import { GeneralIcon, MODULE_ICONS } from '../Shared/spaceModuleIcons';
 import type { SpaceRequestRecord } from '../spaceRequestFormTypes';
@@ -6,15 +7,19 @@ interface SpaceViewFormSidebarProps {
   request: SpaceRequestRecord;
   activeSection: string;
   onSelectSection: (sectionId: string) => void;
+  allowedSegments?: string[];
 }
 
 function SpaceViewFormSidebar({
   request,
   activeSection,
   onSelectSection,
+  allowedSegments,
 }: SpaceViewFormSidebarProps) {
   const enabledModules = REQUEST_FORM_MODULES.filter(
-    (moduleConfig) => request.modules[moduleConfig.key]
+    (moduleConfig) =>
+      request.modules[moduleConfig.key] &&
+      (!allowedSegments || allowedSegments.includes(moduleConfig.segment))
   );
 
   return (
