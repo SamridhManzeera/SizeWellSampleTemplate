@@ -31,7 +31,7 @@ function SpaceViewFormLayout() {
           eyebrow={null}
           actions={null}
           backAction={{
-            label: 'Back to Space Requests',
+            label: '← Back',
             onClick: () => navigate(ROUTES.SPACE_REQUESTS),
           }}
         />
@@ -50,7 +50,7 @@ function SpaceViewFormLayout() {
         eyebrow={`SRF ${request.srfNumber} · ${request.status}`}
         actions={null}
         backAction={{
-          label: 'Back to Space Requests',
+          label: '← Back',
           onClick: () => navigate(ROUTES.SPACE_REQUESTS),
         }}
       />

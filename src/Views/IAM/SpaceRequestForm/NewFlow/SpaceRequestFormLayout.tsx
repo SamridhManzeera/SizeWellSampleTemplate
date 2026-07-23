@@ -36,7 +36,7 @@ function SpaceRequestFormLayout() {
         eyebrow="Contractor"
         actions={null}
         backAction={{
-          label: 'Back to Space Requests',
+          label: '← Back',
           onClick: () => navigate(ROUTES.SPACE_REQUESTS),
         }}
       />
