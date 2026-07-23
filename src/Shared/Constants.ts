@@ -20,6 +20,9 @@ const ROUTES = {
   CONTRACTOR_NOTIFICATIONS: '/contractor/notifications',
   ADMIN_USER_MANAGEMENT: '/admin/user-management',
   DASHBOARD: '/dashboard',
+  SPACE_REQUESTS: '/space-requests',
+  SPACE_REQUESTS_NEW: '/space-requests/new',
+  SPACE_REQUESTS_VIEW: '/space-requests/:id',
   LOGIN_MOCKUP_V1: '/mockups/login-v1',
   LOGIN_MOCKUP_V2: '/mockups/login-v2',
   LOGIN_MOCKUP_V3: '/mockups/login-v3',
@@ -113,6 +116,18 @@ const ROUTES_CONFIG = {
   DASHBOARD: {
     path: ROUTES.DASHBOARD,
     title: 'Dashboard',
+  },
+  SPACE_REQUESTS: {
+    path: ROUTES.SPACE_REQUESTS,
+    title: 'Space Requests',
+  },
+  SPACE_REQUESTS_NEW: {
+    path: ROUTES.SPACE_REQUESTS_NEW,
+    title: 'Space Request Form',
+  },
+  SPACE_REQUESTS_VIEW: {
+    path: ROUTES.SPACE_REQUESTS_VIEW,
+    title: 'View Space Request',
   },
   LOGIN_MOCKUP_V1: {
     path: ROUTES.LOGIN_MOCKUP_V1,

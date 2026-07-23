@@ -1,0 +1,74 @@
+$navy: #1a3a6b;
+$border: #e8ecf4;
+$bg: #f8f9fc;
+$mid: #374151;
+
+.sfw {
+  background: $bg;
+  min-height: 100vh;
+}
+
+.sfw__body {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  padding: 20px 20px 40px;
+}
+
+.sfw__content {
+  flex: 1;
+  min-width: 0;
+}
+
+// Local (in-page) section sidebar, distinct from the global app sidebar.
+.sfw__sidebar {
+  flex: 0 0 220px;
+  background: #fff;
+  border: 1.5px solid $border;
+  border-radius: 12px;
+  padding: 12px;
+  position: sticky;
+  top: 76px;
+}
+
+.sfw__sidebar-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sfw__sidebar-item {
+  margin-bottom: 2px;
+}
+
+.sfw__sidebar-link {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: $mid;
+  font-size: 14px;
+  font-weight: 500;
+
+  &:hover {
+    background: rgba($navy, 0.06);
+    color: $navy;
+  }
+}
+
+.sfw__sidebar-link--active {
+  background: rgba($navy, 0.08);
+  color: $navy;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .sfw__body {
+    flex-direction: column;
+  }
+
+  .sfw__sidebar {
+    flex-basis: auto;
+    width: 100%;
+    position: static;
+  }
+}

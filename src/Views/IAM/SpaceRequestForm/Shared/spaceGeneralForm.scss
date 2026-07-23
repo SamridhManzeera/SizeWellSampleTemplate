@@ -1,0 +1,234 @@
+$navy: #1a3a6b;
+$teal: #26a69a;
+$border: #e8ecf4;
+$dark: #111827;
+$mid: #374151;
+$muted: #9ca3af;
+$radius: 12px;
+
+.sgf {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sgf__card {
+  background: #fff;
+  border: 1.5px solid $border;
+  border-radius: $radius;
+  padding: 24px;
+  box-shadow: 0 1px 6px rgba(17, 24, 39, 0.05);
+}
+
+.sgf__section-title {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+  color: $dark;
+}
+
+.sgf__section-hint {
+  margin: 0 0 16px;
+  color: $muted;
+  font-size: 13px;
+}
+
+.sgf__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.sgf__field {
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: $mid;
+  }
+
+  input,
+  select {
+    padding: 10px 12px;
+    border: 1.5px solid $border;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 400;
+    font-family: inherit;
+    color: $dark;
+    background: #fff;
+
+    &:focus-visible {
+      outline: none;
+      border-color: $navy;
+      box-shadow: 0 0 0 3px rgba($navy, 0.08);
+    }
+
+    &:read-only,
+    &:disabled {
+      background: #f8f9fc;
+      color: $muted;
+      cursor: default;
+    }
+  }
+}
+
+.sgf__field--wide {
+  grid-column: 1 / -1;
+}
+
+.sgf__subsection {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px dashed $border;
+}
+
+.sgf__subsection-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: $dark;
+
+  span {
+    margin-left: 8px;
+    font-size: 12px;
+    font-weight: 400;
+    font-style: italic;
+    color: $muted;
+  }
+}
+
+.sgf__toggles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.sgf__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1.5px solid $border;
+  border-radius: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.sgf__toggle--disabled {
+  cursor: default;
+  opacity: 0.65;
+
+  .sgf__toggle-control input {
+    cursor: default;
+  }
+}
+
+.sgf__toggle-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: $dark;
+}
+
+.sgf__toggle-control {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+
+  input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    margin: 0;
+    cursor: pointer;
+
+    &:checked + .sgf__toggle-track {
+      background: $teal;
+    }
+
+    &:checked + .sgf__toggle-track .sgf__toggle-thumb {
+      transform: translateX(18px);
+    }
+
+    &:focus-visible + .sgf__toggle-track {
+      outline: 2px solid $navy;
+      outline-offset: 2px;
+    }
+  }
+}
+
+.sgf__toggle-track {
+  width: 40px;
+  height: 22px;
+  border-radius: 999px;
+  background: $border;
+  transition: background 0.2s ease;
+}
+
+.sgf__toggle-thumb {
+  display: block;
+  width: 18px;
+  height: 18px;
+  margin: 2px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 32, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.sgf__count-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.sgf__bulk-actions {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 16px 0;
+  padding: 12px 16px;
+  background: #f8f9fc;
+  border: 1px solid $border;
+  border-radius: $radius;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: $mid;
+  }
+
+  input {
+    width: 110px;
+    padding: 8px 10px;
+    border: 1.5px solid $border;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 14px;
+  }
+}
+
+.sgf__bulk-apply {
+  padding: 9px 16px;
+  border: none;
+  border-radius: $radius;
+  background: $teal;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+
+  &:hover {
+    background: darken($teal, 6%);
+  }
+}

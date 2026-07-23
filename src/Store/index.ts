@@ -15,6 +15,7 @@ import { setupListeners } from '@reduxjs/toolkit/query';
 import api from '../Services/Api/api';
 import common from './Common';
 import loader from './Loader';
+import requestForm from './RequestForm';
 
 const rootPersistConfig = {
   key: 'root',
@@ -24,6 +25,7 @@ const rootPersistConfig = {
 const reducers = combineReducers({
   common,
   loader,
+  requestForm,
   [api.reducerPath]: api.reducer,
 });
 

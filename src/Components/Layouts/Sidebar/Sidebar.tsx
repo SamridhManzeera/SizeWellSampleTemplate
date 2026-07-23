@@ -248,6 +248,19 @@ const NAV_GROUPS_IAM = [
       },
     ],
   },
+  {
+    key: 'contractor',
+    label: 'Contractor',
+    icon: <ContractorIcon />,
+    items: [
+      {
+        to: '/space-requests',
+        label: 'Space Requests',
+        icon: <RequestsIcon />,
+        end: false,
+      },
+    ],
+  },
 ];
 
 export function HamburgerButton() {
