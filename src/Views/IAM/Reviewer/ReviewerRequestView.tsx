@@ -96,6 +96,12 @@ function ReviewerRequestView() {
         }}
       />
 
+      {!isReviewOpen && (
+        <div className="rvw__toolbar-row">
+          <ReviewReopenTab onClick={() => setIsReviewOpen(true)} />
+        </div>
+      )}
+
       <div className="sfw__body">
         <SpaceViewFormSidebar
           request={request}
@@ -121,7 +127,7 @@ function ReviewerRequestView() {
                 />
               ))}
           </div>
-          {isReviewOpen ? (
+          {isReviewOpen && (
             <ReviewerDecisionPanel
               key={activeSection}
               sectionReview={getSectionReview(request, activeSection)}
@@ -144,8 +150,6 @@ function ReviewerRequestView() {
               }
               onClose={() => setIsReviewOpen(false)}
             />
-          ) : (
-            <ReviewReopenTab onClick={() => setIsReviewOpen(true)} />
           )}
         </div>
       </div>

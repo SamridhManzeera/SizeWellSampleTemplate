@@ -78,6 +78,12 @@ function SpaceViewFormLayout() {
         }}
       />
 
+      {!isReviewOpen && (
+        <div className="rvw__toolbar-row">
+          <ReviewReopenTab onClick={() => setIsReviewOpen(true)} />
+        </div>
+      )}
+
       <div className="sfw__body">
         <SpaceViewFormSidebar
           request={request}
@@ -102,13 +108,11 @@ function SpaceViewFormLayout() {
                 />
               ))}
           </div>
-          {isReviewOpen ? (
+          {isReviewOpen && (
             <SectionReviewSummary
               sectionReview={getSectionReview(request, activeSection)}
               onClose={() => setIsReviewOpen(false)}
             />
-          ) : (
-            <ReviewReopenTab onClick={() => setIsReviewOpen(true)} />
           )}
         </div>
       </div>
