@@ -10,7 +10,11 @@ import '../Shared/spaceGeneralForm.scss';
 
 const DEFAULT_COUNT = 0;
 
-function SpaceWorkforceForm() {
+interface SpaceWorkforceFormProps {
+  onGoToGeneral: () => void;
+}
+
+function SpaceWorkforceForm({ onGoToGeneral }: SpaceWorkforceFormProps) {
   const mobilisationDate = useSelector(
     (state: RootState) => state.requestForm.mobilisationDate
   );
@@ -50,8 +54,14 @@ function SpaceWorkforceForm() {
         <h2 className="sgf__section-title">Workforce (no. of people)</h2>
         <p>
           Set a Mobilisation Date and Demobilisation Date in the{' '}
-          <a href="#section-general">General</a> section above to plan monthly
-          workforce numbers for that period.
+          <button
+            type="button"
+            className="sgf__inline-link"
+            onClick={onGoToGeneral}
+          >
+            General
+          </button>{' '}
+          section to plan monthly workforce numbers for that period.
         </p>
       </div>
     );
@@ -65,7 +75,14 @@ function SpaceWorkforceForm() {
           Planning for {formatMonthLabel(months[0])} –{' '}
           {formatMonthLabel(months[months.length - 1])}, based on the
           Mobilisation and Demobilisation dates set in{' '}
-          <a href="#section-general">General</a>.
+          <button
+            type="button"
+            className="sgf__inline-link"
+            onClick={onGoToGeneral}
+          >
+            General
+          </button>
+          .
         </p>
         <WorkforceChart labels={months.map(formatMonthLabel)} values={values} />
       </div>

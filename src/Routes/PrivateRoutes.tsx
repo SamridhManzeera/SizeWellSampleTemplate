@@ -21,6 +21,9 @@ import SpaceFormListing, {
   SpaceRequestFormLayout,
   SpaceViewFormLayout,
 } from '../Views/IAM/SpaceRequestForm';
+import ReviewerRequestListing, {
+  ReviewerRequestView,
+} from '../Views/IAM/Reviewer';
 import LoginV1 from '../Views/Login/LoginV1';
 import LoginV2 from '../Views/Login/LoginV2';
 import LoginV3 from '../Views/Login/LoginV3';
@@ -168,6 +171,16 @@ export const IAM_ROUTES: Array<CustomRouter> = [
     path: ROUTES_CONFIG.SPACE_REQUESTS_VIEW.path,
     element: <SpaceViewFormLayout />,
     title: ROUTES_CONFIG.SPACE_REQUESTS_VIEW.title,
+  },
+  {
+    path: ROUTES_CONFIG.REVIEWER_REQUESTS.path,
+    element: <ReviewerRequestListing />,
+    title: ROUTES_CONFIG.REVIEWER_REQUESTS.title,
+  },
+  {
+    path: ROUTES_CONFIG.REVIEWER_REQUESTS_VIEW.path,
+    element: <ReviewerRequestView />,
+    title: ROUTES_CONFIG.REVIEWER_REQUESTS_VIEW.title,
   },
   {
     path: '*',

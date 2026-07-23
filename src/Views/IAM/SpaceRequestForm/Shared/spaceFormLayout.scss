@@ -18,13 +18,6 @@ $mid: #374151;
 .sfw__content {
   flex: 1;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.sfw__section {
-  scroll-margin-top: 92px;
 }
 
 // Local (in-page) section sidebar, distinct from the global app sidebar.

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import PageHeader from '../../../../Components/Layouts/PageHeader/PageHeader';
@@ -25,13 +25,25 @@ function SpaceRequestFormLayout() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const modules = useSelector((state: RootState) => state.requestForm.modules);
+  const [activeSection, setActiveSection] = useState('general');
 
   useEffect(() => {
     dispatch(resetRequestForm());
   }, [dispatch]);
 
-  const enabledModules = REQUEST_FORM_MODULES.filter(
-    (moduleConfig) => modules[moduleConfig.key]
+  useEffect(() => {
+    if (activeSection === 'general') return;
+    const activeModuleConfig = REQUEST_FORM_MODULES.find(
+      (moduleConfig) => moduleConfig.segment === activeSection
+    );
+    if (activeModuleConfig && !modules[activeModuleConfig.key]) {
+      setActiveSection('general');
+    }
+  }, [modules, activeSection]);
+
+  const activeModuleConfig = REQUEST_FORM_MODULES.find(
+    (moduleConfig) =>
+      moduleConfig.segment === activeSection && modules[moduleConfig.key]
   );
 
   return (
@@ -51,24 +63,20 @@ function SpaceRequestFormLayout() {
       />
 
       <div className="sfw__body">
-        <SpaceRequestFormSidebar />
+        <SpaceRequestFormSidebar
+          activeSection={activeSection}
+          onSelectSection={setActiveSection}
+        />
         <div className="sfw__content">
-          <section id="section-general" className="sfw__section">
-            <SpaceGeneralForm />
-          </section>
-          {enabledModules.map((moduleConfig) => (
-            <section
-              key={moduleConfig.key}
-              id={`section-${moduleConfig.segment}`}
-              className="sfw__section"
-            >
-              {moduleConfig.key === 'workforce' ? (
-                <SpaceWorkforceForm />
-              ) : (
-                <SpaceModulePage label={moduleConfig.label} />
-              )}
-            </section>
-          ))}
+          {activeSection === 'general' && <SpaceGeneralForm />}
+          {activeModuleConfig &&
+            (activeModuleConfig.key === 'workforce' ? (
+              <SpaceWorkforceForm
+                onGoToGeneral={() => setActiveSection('general')}
+              />
+            ) : (
+              <SpaceModulePage label={activeModuleConfig.label} />
+            ))}
         </div>
       </div>
     </div>

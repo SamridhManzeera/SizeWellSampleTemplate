@@ -9,9 +9,13 @@ import '../Shared/spaceGeneralForm.scss';
 
 interface SpaceViewWorkforceFormProps {
   request: SpaceRequestRecord;
+  onGoToGeneral: () => void;
 }
 
-function SpaceViewWorkforceForm({ request }: SpaceViewWorkforceFormProps) {
+function SpaceViewWorkforceForm({
+  request,
+  onGoToGeneral,
+}: SpaceViewWorkforceFormProps) {
   const months = generateMonthRange(
     ukDateToMonthKey(request.mobilisationDate),
     ukDateToMonthKey(request.demobilisationDate)
@@ -39,7 +43,14 @@ function SpaceViewWorkforceForm({ request }: SpaceViewWorkforceFormProps) {
           Planning for {formatMonthLabel(months[0])} –{' '}
           {formatMonthLabel(months[months.length - 1])}, based on the
           Mobilisation and Demobilisation dates in{' '}
-          <a href="#section-general">General</a>.
+          <button
+            type="button"
+            className="sgf__inline-link"
+            onClick={onGoToGeneral}
+          >
+            General
+          </button>
+          .
         </p>
         <WorkforceChart labels={months.map(formatMonthLabel)} values={values} />
       </div>

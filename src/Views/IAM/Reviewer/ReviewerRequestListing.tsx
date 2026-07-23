@@ -1,25 +1,17 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import PageHeader from '../../../Components/Layouts/PageHeader/PageHeader';
 import PageHero from '../../../Components/Layouts/PageHero/PageHero';
 import { REQUEST_FORM_MODULES } from '../../../Shared/requestFormModules';
 import { ROUTES } from '../../../Shared/Constants';
-import { useSpaceRequests } from './SpaceRequestsContext';
-import type { SpaceRequestStatus } from './spaceRequestFormTypes';
-import './SpaceFormListing.scss';
+import { useReviewerRequests } from './ReviewerRequestsContext';
+import type { SpaceRequestStatus } from '../SpaceRequestForm/spaceRequestFormTypes';
+import '../SpaceRequestForm/SpaceFormListing.scss';
 
-function BuildingIcon() {
+function ClipboardIcon() {
   return (
     <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M5 21V3h10v6h4v12h-6v-4h-2v4H5zm2-2h2v-2H7v2zm0-4h2v-2H7v2zm0-4h2V9H7v2zm0-4h2V5H7v2zm4 8h2v-2h-2v2zm0-4h2V9h-2v2zm0-4h2V5h-2v2zm6 12h2v-2h-2v2zm0-4h2v-2h-2v2z" />
-    </svg>
-  );
-}
-
-function PlusIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M19 13H13v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+      <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm7 16H5V5h2v3h10V5h2v14z" />
     </svg>
   );
 }
@@ -32,42 +24,32 @@ function EyeIcon() {
   );
 }
 
-function SpaceFormListing() {
-  const navigate = useNavigate();
-  const { requests } = useSpaceRequests();
+function ReviewerRequestListing() {
+  const { reviews } = useReviewerRequests();
   const [statusFilter, setStatusFilter] = useState<SpaceRequestStatus | 'all'>(
     'all'
   );
 
-  const total = requests.length;
-  const submitted = requests.filter((r) => r.status === 'Submitted').length;
-  const approved = requests.filter((r) => r.status === 'Approved').length;
-  const rejected = requests.filter((r) => r.status === 'Rejected').length;
+  const total = reviews.length;
+  const submitted = reviews.filter((r) => r.status === 'Submitted').length;
+  const approved = reviews.filter((r) => r.status === 'Approved').length;
+  const rejected = reviews.filter((r) => r.status === 'Rejected').length;
 
   const filtered =
     statusFilter === 'all'
-      ? requests
-      : requests.filter((r) => r.status === statusFilter);
+      ? reviews
+      : reviews.filter((r) => r.status === statusFilter);
 
   return (
     <div className="sfl">
       <PageHeader />
 
       <PageHero
-        icon={<BuildingIcon />}
-        title="Space Requests"
-        subtitle="Track space requests and jump straight to an enabled module."
-        eyebrow="Contractor"
-        actions={
-          <button
-            type="button"
-            className="sfl__new-btn"
-            onClick={() => navigate(ROUTES.SPACE_REQUESTS_NEW)}
-          >
-            <PlusIcon />
-            Fill Out Request
-          </button>
-        }
+        icon={<ClipboardIcon />}
+        title="Review Requests"
+        subtitle="Review submitted space requests and record your approval decision."
+        eyebrow="Reviewer"
+        actions={null}
       />
 
       <div className="sfl__stats">
@@ -77,7 +59,7 @@ function SpaceFormListing() {
         </div>
         <div className="sfl__stat sfl__stat--submitted">
           <span className="sfl__stat-num">{submitted}</span>
-          <span className="sfl__stat-label">Submitted</span>
+          <span className="sfl__stat-label">Pending Review</span>
         </div>
         <div className="sfl__stat sfl__stat--approved">
           <span className="sfl__stat-num">{approved}</span>
@@ -91,14 +73,17 @@ function SpaceFormListing() {
 
       <div className="sfl__list-section">
         <div className="sfl__list-header">
-          <h2 className="sfl__list-title">My Requests</h2>
+          <h2 className="sfl__list-title">Requests</h2>
 
           <div className="sfl__filter-wrap">
-            <label className="sfl__filter-label" htmlFor="space-status-filter">
+            <label
+              className="sfl__filter-label"
+              htmlFor="reviewer-status-filter"
+            >
               Status
             </label>
             <select
-              id="space-status-filter"
+              id="reviewer-status-filter"
               className="sfl__filter-select"
               value={statusFilter}
               onChange={(e) =>
@@ -106,7 +91,6 @@ function SpaceFormListing() {
               }
             >
               <option value="all">All Status</option>
-              <option value="Draft">Draft</option>
               <option value="Submitted">Submitted</option>
               <option value="Approved">Approved</option>
               <option value="Rejected">Rejected</option>
@@ -157,7 +141,7 @@ function SpaceFormListing() {
                         return isEnabled ? (
                           <Link
                             key={moduleConfig.key}
-                            to={`${ROUTES.SPACE_REQUESTS}/${row.id}?section=${moduleConfig.segment}`}
+                            to={`${ROUTES.REVIEWER_REQUESTS}/${row.id}?section=${moduleConfig.segment}`}
                             className="sfl__module-chip sfl__module-chip--enabled"
                           >
                             {moduleConfig.label}
@@ -176,11 +160,11 @@ function SpaceFormListing() {
                   <td>
                     <div className="sfl__actions">
                       <Link
-                        to={`${ROUTES.SPACE_REQUESTS}/${row.id}`}
+                        to={`${ROUTES.REVIEWER_REQUESTS}/${row.id}`}
                         className="sfl__action-btn"
                       >
                         <EyeIcon />
-                        <span>View</span>
+                        <span>Review</span>
                       </Link>
                     </div>
                   </td>
@@ -194,4 +178,4 @@ function SpaceFormListing() {
   );
 }
 
-export default SpaceFormListing;
+export default ReviewerRequestListing;

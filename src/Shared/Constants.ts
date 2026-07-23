@@ -23,6 +23,8 @@ const ROUTES = {
   SPACE_REQUESTS: '/space-requests',
   SPACE_REQUESTS_NEW: '/space-requests/new',
   SPACE_REQUESTS_VIEW: '/space-requests/:id',
+  REVIEWER_REQUESTS: '/reviewer/requests',
+  REVIEWER_REQUESTS_VIEW: '/reviewer/requests/:id',
   LOGIN_MOCKUP_V1: '/mockups/login-v1',
   LOGIN_MOCKUP_V2: '/mockups/login-v2',
   LOGIN_MOCKUP_V3: '/mockups/login-v3',
@@ -129,6 +131,14 @@ const ROUTES_CONFIG = {
   SPACE_REQUESTS_VIEW: {
     path: ROUTES.SPACE_REQUESTS_VIEW,
     title: 'View Space Request',
+  },
+  REVIEWER_REQUESTS: {
+    path: ROUTES.REVIEWER_REQUESTS,
+    title: 'Review Requests',
+  },
+  REVIEWER_REQUESTS_VIEW: {
+    path: ROUTES.REVIEWER_REQUESTS_VIEW,
+    title: 'Review Request',
   },
   LOGIN_MOCKUP_V1: {
     path: ROUTES.LOGIN_MOCKUP_V1,

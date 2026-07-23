@@ -1,4 +1,5 @@
-import { useNavigate, useParams } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import PageHeader from '../../../../Components/Layouts/PageHeader/PageHeader';
 import PageHero from '../../../../Components/Layouts/PageHero/PageHero';
 import { ROUTES } from '../../../../Shared/Constants';
@@ -21,8 +22,12 @@ function DocIcon() {
 function SpaceViewFormLayout() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { getRequest } = useSpaceRequests();
   const request = getRequest(id ?? '');
+  const [activeSection, setActiveSection] = useState(
+    () => searchParams.get('section') ?? 'general'
+  );
 
   if (!request) {
     return (
@@ -43,8 +48,10 @@ function SpaceViewFormLayout() {
     );
   }
 
-  const enabledModules = REQUEST_FORM_MODULES.filter(
-    (moduleConfig) => request.modules[moduleConfig.key]
+  const activeModuleConfig = REQUEST_FORM_MODULES.find(
+    (moduleConfig) =>
+      moduleConfig.segment === activeSection &&
+      request.modules[moduleConfig.key]
   );
 
   return (
@@ -64,27 +71,27 @@ function SpaceViewFormLayout() {
       />
 
       <div className="sfw__body">
-        <SpaceViewFormSidebar request={request} />
+        <SpaceViewFormSidebar
+          request={request}
+          activeSection={activeSection}
+          onSelectSection={setActiveSection}
+        />
         <div className="sfw__content">
-          <section id="section-general" className="sfw__section">
+          {activeSection === 'general' && (
             <SpaceViewFormGeneral request={request} />
-          </section>
-          {enabledModules.map((moduleConfig) => (
-            <section
-              key={moduleConfig.key}
-              id={`section-${moduleConfig.segment}`}
-              className="sfw__section"
-            >
-              {moduleConfig.key === 'workforce' ? (
-                <SpaceViewWorkforceForm request={request} />
-              ) : (
-                <SpaceViewModulePage
-                  request={request}
-                  label={moduleConfig.label}
-                />
-              )}
-            </section>
-          ))}
+          )}
+          {activeModuleConfig &&
+            (activeModuleConfig.key === 'workforce' ? (
+              <SpaceViewWorkforceForm
+                request={request}
+                onGoToGeneral={() => setActiveSection('general')}
+              />
+            ) : (
+              <SpaceViewModulePage
+                request={request}
+                label={activeModuleConfig.label}
+              />
+            ))}
         </div>
       </div>
     </div>

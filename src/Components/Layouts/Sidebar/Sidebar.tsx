@@ -274,6 +274,19 @@ const NAV_GROUPS_IAM = [
       },
     ],
   },
+  {
+    key: 'reviewer',
+    label: 'Reviewer',
+    icon: <ShieldUserIcon />,
+    items: [
+      {
+        to: '/reviewer/requests',
+        label: 'Requests',
+        icon: <RequestsIcon />,
+        end: false,
+      },
+    ],
+  },
 ];
 
 export function HamburgerButton() {
@@ -299,6 +312,7 @@ function Sidebar() {
     contractor: false,
     iam: false,
     fmt: false,
+    reviewer: false,
   });
   const dispatch = useDispatch();
   const navigate = useNavigate();

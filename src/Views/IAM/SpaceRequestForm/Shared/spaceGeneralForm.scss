@@ -4,6 +4,8 @@ $border: #e8ecf4;
 $dark: #111827;
 $mid: #374151;
 $muted: #9ca3af;
+$green: #16a34a;
+$red: #dc2626;
 $radius: 12px;
 
 .sgf {
@@ -33,6 +35,21 @@ $radius: 12px;
   font-size: 13px;
 }
 
+.sgf__inline-link {
+  padding: 0;
+  border: none;
+  background: none;
+  color: $navy;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:hover {
+    color: darken($navy, 8%);
+  }
+}
+
 .sgf__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -51,7 +68,8 @@ $radius: 12px;
   }
 
   input,
-  select {
+  select,
+  textarea {
     padding: 10px 12px;
     border: 1.5px solid $border;
     border-radius: 10px;
@@ -73,6 +91,11 @@ $radius: 12px;
       color: $muted;
       cursor: default;
     }
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 96px;
   }
 }
 
@@ -230,5 +253,65 @@ $radius: 12px;
 
   &:hover {
     background: darken($teal, 6%);
+  }
+}
+
+.sgf__review-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  margin-bottom: 16px;
+
+  &--submitted {
+    background: rgba($navy, 0.1);
+    color: $navy;
+  }
+
+  &--approved {
+    background: rgba($green, 0.1);
+    color: $green;
+  }
+
+  &--rejected {
+    background: rgba($red, 0.1);
+    color: $red;
+  }
+}
+
+.sgf__review-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.sgf__review-btn {
+  padding: 10px 20px;
+  border-radius: $radius;
+  border: 1.5px solid transparent;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.sgf__review-btn--approve {
+  background: $green;
+  color: #fff;
+
+  &:hover {
+    background: darken($green, 6%);
+  }
+}
+
+.sgf__review-btn--reject {
+  background: $red;
+  color: #fff;
+
+  &:hover {
+    background: darken($red, 6%);
   }
 }
