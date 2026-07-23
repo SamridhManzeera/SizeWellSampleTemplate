@@ -22,13 +22,14 @@ $mid: #374151;
 
 // Local (in-page) section sidebar, distinct from the global app sidebar.
 .sfw__sidebar {
-  flex: 0 0 220px;
+  flex: 0 0 240px;
   background: #fff;
   border: 1.5px solid $border;
-  border-radius: 12px;
-  padding: 12px;
+  border-radius: 14px;
+  padding: 14px;
   position: sticky;
   top: 76px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 }
 
 .sfw__sidebar-list {
@@ -38,27 +39,65 @@ $mid: #374151;
 }
 
 .sfw__sidebar-item {
-  margin-bottom: 2px;
+  margin-bottom: 6px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
 .sfw__sidebar-link {
-  display: block;
-  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px 9px 9px;
   border-radius: 10px;
+  border-left: 3px solid transparent;
   color: $mid;
   font-size: 14px;
   font-weight: 500;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 
   &:hover {
     background: rgba($navy, 0.06);
     color: $navy;
+    text-decoration: none;
   }
+}
+
+.sfw__sidebar-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: $bg;
+  border: 1px solid $border;
+  color: $mid;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.sfw__sidebar-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sfw__sidebar-link--active {
   background: rgba($navy, 0.08);
+  border-left-color: $navy;
   color: $navy;
   font-weight: 700;
+
+  .sfw__sidebar-icon {
+    background: rgba($navy, 0.1);
+    border-color: rgba($navy, 0.25);
+    color: $navy;
+  }
 }
 
 @media (max-width: 768px) {

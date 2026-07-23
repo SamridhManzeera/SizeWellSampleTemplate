@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { REQUEST_FORM_MODULES } from '../../../../Shared/requestFormModules';
 import { ROUTES } from '../../../../Shared/Constants';
+import { GeneralIcon, MODULE_ICONS } from '../Shared/spaceModuleIcons';
 import type { SpaceRequestRecord } from '../spaceRequestFormTypes';
 
 interface SpaceViewFormSidebarProps {
@@ -26,7 +27,10 @@ function SpaceViewFormSidebar({ request }: SpaceViewFormSidebarProps) {
                 }`
               }
             >
-              General
+              <span className="sfw__sidebar-icon">
+                <GeneralIcon />
+              </span>
+              <span className="sfw__sidebar-text">General</span>
             </NavLink>
           </li>
           {enabledModules.map((moduleConfig) => (
@@ -39,7 +43,10 @@ function SpaceViewFormSidebar({ request }: SpaceViewFormSidebarProps) {
                   }`
                 }
               >
-                {moduleConfig.label}
+                <span className="sfw__sidebar-icon">
+                  {MODULE_ICONS[moduleConfig.key]}
+                </span>
+                <span className="sfw__sidebar-text">{moduleConfig.label}</span>
               </NavLink>
             </li>
           ))}
