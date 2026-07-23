@@ -295,10 +295,10 @@ export function HamburgerButton() {
 function Sidebar() {
   const { open, closeSidebar } = useSidebar();
   const [expanded, setExpanded] = useState<Record<string, boolean>>({
-    admin: true,
-    contractor: true,
-    iam: true,
-    fmt: true,
+    admin: false,
+    contractor: false,
+    iam: false,
+    fmt: false,
   });
   const dispatch = useDispatch();
   const navigate = useNavigate();
