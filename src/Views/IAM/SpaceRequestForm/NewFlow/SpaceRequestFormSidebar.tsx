@@ -2,18 +2,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { REQUEST_FORM_MODULES } from '../../../../Shared/requestFormModules';
 import { GeneralIcon, MODULE_ICONS } from '../Shared/spaceModuleIcons';
 import SpaceToggleSwitch from '../Shared/SpaceToggleSwitch';
+import scrollToSection from '../Shared/scrollToFormSection';
 import { setModuleEnabled } from '../../../../Store/RequestForm';
 import type { RootState, AppDispatch } from '../../../../Store';
 
-interface SpaceRequestFormSidebarProps {
-  activeSection: string;
-  onSelectSection: (sectionId: string) => void;
-}
-
-function SpaceRequestFormSidebar({
-  activeSection,
-  onSelectSection,
-}: SpaceRequestFormSidebarProps) {
+function SpaceRequestFormSidebar() {
   const dispatch = useDispatch<AppDispatch>();
   const modules = useSelector((state: RootState) => state.requestForm.modules);
 
@@ -24,10 +17,8 @@ function SpaceRequestFormSidebar({
           <li className="sfw__sidebar-item">
             <button
               type="button"
-              className={`sfw__sidebar-link ${
-                activeSection === 'general' ? 'sfw__sidebar-link--active' : ''
-              }`}
-              onClick={() => onSelectSection('general')}
+              className="sfw__sidebar-link"
+              onClick={() => scrollToSection('section-general')}
             >
               <span className="sfw__sidebar-icon">
                 <GeneralIcon />
@@ -37,20 +28,20 @@ function SpaceRequestFormSidebar({
           </li>
           {REQUEST_FORM_MODULES.map((moduleConfig) => {
             const enabled = modules[moduleConfig.key];
-            const isActive = activeSection === moduleConfig.segment;
+            const sectionId = `section-${moduleConfig.segment}`;
 
             return (
               <li key={moduleConfig.key} className="sfw__sidebar-item">
                 <div
                   className={`sfw__sidebar-link sfw__sidebar-module ${
                     enabled ? 'sfw__sidebar-module--enabled' : ''
-                  } ${isActive ? 'sfw__sidebar-link--active' : ''}`}
+                  }`}
                 >
                   <button
                     type="button"
                     className="sfw__sidebar-module-jump"
                     disabled={!enabled}
-                    onClick={() => onSelectSection(moduleConfig.segment)}
+                    onClick={() => scrollToSection(sectionId)}
                   >
                     <span className="sfw__sidebar-icon">
                       {MODULE_ICONS[moduleConfig.key]}
@@ -71,7 +62,7 @@ function SpaceRequestFormSidebar({
                         })
                       );
                       if (next) {
-                        onSelectSection(moduleConfig.segment);
+                        scrollToSection(sectionId);
                       }
                     }}
                   />
