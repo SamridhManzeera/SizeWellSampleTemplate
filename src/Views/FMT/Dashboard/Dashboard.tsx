@@ -12,6 +12,7 @@ import FmtScheduleGrid, {
 } from './components/FmtScheduleGrid/FmtScheduleGrid';
 import FmtAssignSlotModal from './components/FmtAssignSlotModal/FmtAssignSlotModal';
 import PageHeader from '../../../Components/Layouts/PageHeader/PageHeader';
+import PageHero from '../../../Components/Layouts/PageHero/PageHero';
 import './Dashboard.scss';
 
 interface ConfirmData {
@@ -140,6 +141,14 @@ export default function FmtDashboard() {
     return sum;
   }, [bookedCountsByCompany]);
   const totalRemainingToday = totalAllocated - totalBookedToday;
+  // const bookedPct =
+  //   totalAllocated > 0
+  //     ? Math.round((totalBookedToday / totalAllocated) * 100)
+  //     : 0;
+  // const remainingPct =
+  //   totalAllocated > 0
+  //     ? Math.round((totalRemainingToday / totalAllocated) * 100)
+  //     : 0;
 
   const isToday = selectedDate === getTodayString();
 
@@ -229,103 +238,125 @@ export default function FmtDashboard() {
     <div className="fmtd">
       <PageHeader />
 
+      <PageHero
+        icon={<TruckIcon />}
+        eyebrow="FMT"
+        title="Delivery Distribution"
+        subtitle="Every slot on this board represents a single movement"
+        actions={null}
+      />
+
       <div className="fmtd__header">
-        <div className="fmtd__title-block">
-          <h1 className="fmtd__title">FMT Dashboard</h1>
-          <p className="fmtd__subtitle">
-            Allocated, booked and remaining capacity per company
-          </p>
-        </div>
         <div className="fmtd__kpi-row">
-          <div className="fmtd__kpi-card">
-            <div className="fmtd__kpi-icon fmtd__kpi-icon--purple">
-              <BoxIcon />
+          <div className="fmtd__kpi-tile">
+            <div className="fmtd__kpi-tile-top">
+              <div className="fmtd__kpi-icon fmtd__kpi-icon--purple">
+                <BoxIcon />
+              </div>
+              <div className="fmtd__kpi-text">
+                <span className="fmtd__kpi-num fmtd__kpi-num--purple">
+                  {totalAllocated}
+                </span>
+                <span className="fmtd__kpi-label">Allocated</span>
+              </div>
             </div>
-            <div className="fmtd__kpi-center">
-              <span className="fmtd__kpi-num fmtd__kpi-num--purple">
-                {totalAllocated}
-              </span>
-              <span className="fmtd__kpi-label">Allocated</span>
-            </div>
+            {/* <p className="fmtd__kpi-caption">
+              Total capacity across all companies
+            </p> */}
           </div>
-          <div className="fmtd__kpi-card">
-            <div className="fmtd__kpi-icon fmtd__kpi-icon--teal">
-              <CheckIcon />
+
+          <div className="fmtd__kpi-tile">
+            <div className="fmtd__kpi-tile-top">
+              <div className="fmtd__kpi-icon fmtd__kpi-icon--teal">
+                <CheckIcon />
+              </div>
+              <div className="fmtd__kpi-text">
+                <span className="fmtd__kpi-num fmtd__kpi-num--teal">
+                  {totalBookedToday}
+                </span>
+                <span className="fmtd__kpi-label">Booked</span>
+              </div>
             </div>
-            <div className="fmtd__kpi-center">
-              <span className="fmtd__kpi-num fmtd__kpi-num--teal">
-                {totalBookedToday}
-              </span>
-              <span className="fmtd__kpi-label">Booked</span>
-            </div>
+            {/* <p className="fmtd__kpi-caption">
+              {bookedPct}% of allocated capacity
+            </p> */}
           </div>
-          <div className="fmtd__kpi-card">
-            <div className="fmtd__kpi-icon fmtd__kpi-icon--orange">
-              <GridIcon />
+
+          <div className="fmtd__kpi-tile">
+            <div className="fmtd__kpi-tile-top">
+              <div className="fmtd__kpi-icon fmtd__kpi-icon--orange">
+                <GridIcon />
+              </div>
+              <div className="fmtd__kpi-text">
+                <span className="fmtd__kpi-num fmtd__kpi-num--orange">
+                  {totalRemainingToday}
+                </span>
+                <span className="fmtd__kpi-label">Remaining</span>
+              </div>
             </div>
-            <div className="fmtd__kpi-center">
-              <span className="fmtd__kpi-num fmtd__kpi-num--orange">
-                {totalRemainingToday}
-              </span>
-              <span className="fmtd__kpi-label">Remaining</span>
-            </div>
+            {/* <p className="fmtd__kpi-caption">
+              {remainingPct}% of allocated capacity
+            </p> */}
           </div>
         </div>
       </div>
 
-      <div className="fmtd__toolbar">
-        <div className="fmtd__date-nav">
-          <button
-            type="button"
-            className="fmtd__date-pill"
-            onClick={() => dateInputRef.current?.showPicker()}
-            aria-label="Select date"
-          >
-            <span className="fmtd__cal-icon">📅</span>
-            <span className="fmtd__date-label">
-              {formatDateDisplay(selectedDate)}
+      <div className="fmtd__panel-wrap">
+        <div className="fmtd__panel">
+          <div className="fmtd__toolbar">
+            <div className="fmtd__date-nav">
+              <button
+                type="button"
+                className="fmtd__date-pill"
+                onClick={() => dateInputRef.current?.showPicker()}
+                aria-label="Select date"
+              >
+                <span className="fmtd__cal-icon">📅</span>
+                <span className="fmtd__date-label">
+                  {formatDateDisplay(selectedDate)}
+                </span>
+                <span className="fmtd__chevron">▾</span>
+              </button>
+              <button
+                type="button"
+                className={`fmtd__today-btn${isToday ? ' fmtd__today-btn--active' : ''
+                  }`}
+                onClick={() => setSelectedDate(getTodayString())}
+              >
+                Today
+              </button>
+              <input
+                ref={dateInputRef}
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="fmtd__date-hidden"
+                aria-label="Select date"
+              />
+            </div>
+          </div>
+
+          <div className="fmtd__legend-panel">
+            <span className="fmtd__legend-panel-title">Legend</span>
+            <div className="fmtd__legend-divider-v" />
+            <span className="fmtd__legend-item">
+              <span className="fmtd__legend-swatch fmtd__legend-swatch--alloc">
+                <TruckIcon />
+              </span>
+              Allocated
             </span>
-            <span className="fmtd__chevron">▾</span>
-          </button>
-          <button
-            type="button"
-            className={`fmtd__today-btn${
-              isToday ? ' fmtd__today-btn--active' : ''
-            }`}
-            onClick={() => setSelectedDate(getTodayString())}
-          >
-            Today
-          </button>
-          <input
-            ref={dateInputRef}
-            type="date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className="fmtd__date-hidden"
-            aria-label="Select date"
-          />
+            <span className="fmtd__legend-item">
+              <span className="fmtd__legend-swatch fmtd__legend-swatch--booked">
+                <CalendarIcon />
+              </span>
+              Booked
+            </span>
+            <span className="fmtd__legend-item">
+              <span className="fmtd__legend-dot fmtd__legend-dot--available" />
+              Available
+            </span>
+          </div>
         </div>
-      </div>
-
-      <div className="fmtd__legend-panel">
-        <span className="fmtd__legend-panel-title">Legend</span>
-        <div className="fmtd__legend-divider-v" />
-        <span className="fmtd__legend-item">
-          <span className="fmtd__legend-swatch fmtd__legend-swatch--alloc">
-            <TruckIcon />
-          </span>
-          Allocated
-        </span>
-        <span className="fmtd__legend-item">
-          <span className="fmtd__legend-swatch fmtd__legend-swatch--booked">
-            <CalendarIcon />
-          </span>
-          Booked
-        </span>
-        <span className="fmtd__legend-item">
-          <span className="fmtd__legend-dot fmtd__legend-dot--available" />
-          Available
-        </span>
       </div>
 
       <div className="fmtd__grid-area">

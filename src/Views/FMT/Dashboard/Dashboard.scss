@@ -5,6 +5,7 @@ $text-mid: #374151;
 $text-muted: #9ca3af;
 $navy: #1a3a6b;
 $teal: #26a69a;
+$gutter: 28px;
 
 .fmtd {
   min-height: 100vh;
@@ -14,62 +15,49 @@ $teal: #26a69a;
   display: flex;
   flex-direction: column;
 
+  // Scoped override so the shared PageHero's horizontal gutter lines up
+  // with every other section on this page (the component itself uses 20px).
+  .page-hero-wrap {
+    padding: 20px $gutter 0;
+  }
+
   &__header {
-    background: #fff;
-    border-bottom: 1px solid $border;
-    padding: 16px 28px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 24px;
-    flex-wrap: wrap;
-  }
-
-  &__title-block {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  &__title {
-    margin: 0;
-    font-size: 22px;
-    font-weight: 700;
-    color: $navy;
-    letter-spacing: -0.3px;
-    line-height: 1.2;
-  }
-
-  &__subtitle {
-    margin: 0;
-    font-size: 12px;
-    color: $text-muted;
-    font-weight: 500;
-    letter-spacing: 0.01em;
+    padding: 20px $gutter 0;
   }
 
   &__kpi-row {
     display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
+    align-items: stretch;
+    background: #fff;
+    border: 1px solid $border;
+    border-radius: 16px;
+    box-shadow: 0 1px 8px rgba(17, 24, 39, 0.05);
+    overflow: hidden;
   }
 
-  &__kpi-card {
+  &__kpi-tile {
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px 24px;
+
+    &:not(:last-child) {
+      border-right: 1px solid $border;
+    }
+  }
+
+  &__kpi-tile-top {
     display: flex;
     align-items: center;
-    gap: 10px;
-    background: #fff;
-    border: 1.5px solid $border;
-    border-radius: 12px;
-    padding: 12px 16px;
-    box-shadow: 0 1px 4px rgba(17, 24, 39, 0.05);
-    flex-shrink: 0;
+    gap: 14px;
   }
 
   &__kpi-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -80,17 +68,18 @@ $teal: #26a69a;
     &--purple { background: #f3f0ff; color: #7048e8; }
   }
 
-  &__kpi-center {
+  &__kpi-text {
     display: flex;
     flex-direction: column;
-    gap: 1px;
+    gap: 2px;
+    min-width: 0;
   }
 
   &__kpi-num {
-    font-size: 24px;
+    font-size: 30px;
     font-weight: 800;
-    line-height: 1;
-    letter-spacing: -0.5px;
+    line-height: 1.1;
+    letter-spacing: -0.6px;
 
     &--teal   { color: #00897b; }
     &--orange { color: #e8770a; }
@@ -99,16 +88,33 @@ $teal: #26a69a;
 
   &__kpi-label {
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 700;
     color: $text-muted;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
+  }
+
+  &__kpi-caption {
+    margin: 0;
+    font-size: 12px;
+    color: $text-muted;
+    font-weight: 500;
+  }
+
+  &__panel-wrap {
+    padding: 20px $gutter 0;
+  }
+
+  &__panel {
+    background: #fff;
+    border: 1px solid $border;
+    border-radius: 16px;
+    box-shadow: 0 1px 8px rgba(17, 24, 39, 0.05);
+    overflow: hidden;
   }
 
   &__toolbar {
-    background: #fff;
-    border-bottom: 1px solid $border;
-    padding: 20px 20px 10px 20px;
+    padding: 18px 24px;
     display: flex;
     align-items: center;
     gap: 16px;
@@ -193,9 +199,8 @@ $teal: #26a69a;
   }
 
   &__legend-panel {
-    background: #fff;
-    border-bottom: 1px solid $border;
-    padding: 8px 28px;
+    border-top: 1px solid $border;
+    padding: 14px 24px;
     display: flex;
     align-items: center;
     gap: 16px;
@@ -265,6 +270,6 @@ $teal: #26a69a;
 
   &__grid-area {
     flex: 1;
-    padding: 20px 28px 28px;
+    padding: 20px $gutter $gutter;
   }
 }
