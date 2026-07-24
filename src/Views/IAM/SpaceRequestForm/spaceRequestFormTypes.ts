@@ -49,6 +49,7 @@ export interface SpaceRequestRecord {
   requestTypeOsi: string;
   status: SpaceRequestStatus;
   modules: Record<RequestFormModuleKey, boolean>;
+  places?: any[];
   workforceData: WorkforceMonthData;
   sectionReviews: Record<string, SectionReview>;
 }

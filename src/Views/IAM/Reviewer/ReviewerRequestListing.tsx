@@ -34,7 +34,7 @@ function ReviewerRequestListing({
   moduleKey,
   label,
 }: ReviewerRequestListingProps) {
-  const { requests: allRequests } = useSpaceRequests();
+  const { requests: allRequests, updateRequestStatus } = useSpaceRequests();
   const [statusFilter, setStatusFilter] = useState<SpaceRequestStatus | 'all'>(
     'all'
   );
@@ -141,11 +141,27 @@ function ReviewerRequestListing({
                   <td>{row.originatorCompanyName}</td>
                   <td>{row.mobilisationDate}</td>
                   <td>
-                    <span
-                      className={`sfl__status sfl__status--${row.status.toLowerCase()}`}
+                    <select
+                      className="sfl__status-select"
+                      value={row.status}
+                      onChange={(e) =>
+                        updateRequestStatus(row.id, e.target.value as any)
+                      }
+                      style={{
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        border: '1px solid #d1d5db',
+                        fontSize: '0.85rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        backgroundColor: '#ffffff',
+                      }}
                     >
-                      {row.status}
-                    </span>
+                      <option value="Approved">Approved</option>
+                      <option value="Submitted">Submitted</option>
+                      <option value="Rejected">Rejected</option>
+                      <option value="Draft">Draft</option>
+                    </select>
                   </td>
                   <td>
                     <div className="sfl__actions">
