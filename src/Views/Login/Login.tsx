@@ -62,7 +62,11 @@ function Login() {
       const { token, projecttype } = await login({ email, password }).unwrap();
       dispatch(updateAuthTokenRedux({ token, projecttype }));
       navigate(
-        projecttype === PROJECT_TYPE.IAM ? ROUTES.DASHBOARD : ROUTES.HOMEPAGE
+        projecttype === PROJECT_TYPE.IAM
+          ? ROUTES.DASHBOARD
+          : projecttype === PROJECT_TYPE.SLOT_ALLOCATION
+            ? ROUTES.FMT_DASHBOARD
+            : ROUTES.HOMEPAGE
       );
     } catch {
       setError('Invalid email or password. Please try again.');

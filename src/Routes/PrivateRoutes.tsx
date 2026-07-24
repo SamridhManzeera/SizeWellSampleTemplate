@@ -5,7 +5,7 @@ import {
   PROJECT_TYPE,
   ProjectType,
 } from '../Shared/Constants';
-import BookingSchedule from '../Views/BookingSchedule';
+// import BookingSchedule from '../Views/BookingSchedule';
 import ScheduleConfig from '../Views/ScheduleConfig/ScheduleConfig';
 import Requests from '../Views/Requests/Requests';
 import RequestForm from '../Views/Requests/RequestForm';
@@ -35,8 +35,8 @@ import { CustomRouter } from './RootRoutes';
 export const SLOT_ALLOCATION_ROUTES: Array<CustomRouter> = [
   {
     path: ROUTES_CONFIG.HOMEPAGE.path,
-    element: <BookingSchedule />,
-    title: ROUTES_CONFIG.HOMEPAGE.title,
+    element: <FmtDashboard />,
+    title: ROUTES_CONFIG.FMT_DASHBOARD.title,
   },
   {
     path: ROUTES_CONFIG.SCHEDULE_CONFIG.path,
