@@ -9,6 +9,7 @@ import SpaceViewFormSidebar from './SpaceViewFormSidebar';
 import SpaceViewFormGeneral from './SpaceViewFormGeneral';
 import SpaceViewModulePage from './SpaceViewModulePage';
 import SpaceViewWorkforceForm from './SpaceViewWorkforceForm';
+import SpaceViewWorkAreaForm from './SpaceViewWorkAreaForm';
 import SectionReviewSummary from '../Shared/SectionReviewSummary';
 import ReviewReopenTab from '../Shared/ReviewReopenTab';
 import '../Shared/spaceFormLayout.scss';
@@ -100,6 +101,11 @@ function SpaceViewFormLayout() {
                 <SpaceViewWorkforceForm
                   request={request}
                   onGoToGeneral={() => setActiveSection('general')}
+                />
+              ) : activeModuleConfig.key === 'workArea' ? (
+                <SpaceViewWorkAreaForm
+                  request={request}
+                  role="supplier"
                 />
               ) : (
                 <SpaceViewModulePage

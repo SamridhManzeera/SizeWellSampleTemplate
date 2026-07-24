@@ -8,6 +8,7 @@ import SpaceViewFormSidebar from '../SpaceRequestForm/ViewFlow/SpaceViewFormSide
 import SpaceViewFormGeneral from '../SpaceRequestForm/ViewFlow/SpaceViewFormGeneral';
 import SpaceViewModulePage from '../SpaceRequestForm/ViewFlow/SpaceViewModulePage';
 import SpaceViewWorkforceForm from '../SpaceRequestForm/ViewFlow/SpaceViewWorkforceForm';
+import SpaceViewWorkAreaForm from '../SpaceRequestForm/ViewFlow/SpaceViewWorkAreaForm';
 import {
   getSectionReview,
   useSpaceRequests,
@@ -119,6 +120,11 @@ function ReviewerRequestView() {
                 <SpaceViewWorkforceForm
                   request={request}
                   onGoToGeneral={() => setActiveSection('general')}
+                />
+              ) : activeModuleConfig.key === 'workArea' ? (
+                <SpaceViewWorkAreaForm
+                  request={request}
+                  role="view"
                 />
               ) : (
                 <SpaceViewModulePage

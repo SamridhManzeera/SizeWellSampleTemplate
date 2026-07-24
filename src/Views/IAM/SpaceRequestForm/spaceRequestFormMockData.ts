@@ -44,6 +44,18 @@ export const SPACE_REQUEST_MOCK_DATA: SpaceRequestRecord[] = [
       power: true,
       workforce: true,
     },
+    places: [
+      {
+        id: 'mock-place-0031',
+        name: 'Place 1',
+        points: [
+          [1.616, 52.211],
+          [1.620, 52.211],
+          [1.620, 52.213],
+          [1.616, 52.213]
+        ]
+      }
+    ],
     workforceData: {
       counts: {
         '2025-08': 60,
@@ -102,6 +114,18 @@ export const SPACE_REQUEST_MOCK_DATA: SpaceRequestRecord[] = [
       power: false,
       workforce: true,
     },
+    places: [
+      {
+        id: 'mock-place-0032',
+        name: 'Place 1',
+        points: [
+          [1.621, 52.212],
+          [1.624, 52.212],
+          [1.624, 52.214],
+          [1.621, 52.214]
+        ]
+      }
+    ],
     workforceData: {
       counts: {
         '2025-09': 40,
@@ -199,6 +223,18 @@ export const SPACE_REQUEST_MOCK_DATA: SpaceRequestRecord[] = [
       power: true,
       workforce: true,
     },
+    places: [
+      {
+        id: 'mock-place-0034',
+        name: 'Place 1',
+        points: [
+          [1.612, 52.210],
+          [1.615, 52.210],
+          [1.615, 52.212],
+          [1.612, 52.212]
+        ]
+      }
+    ],
     workforceData: {
       counts: {
         '2025-09': 50,

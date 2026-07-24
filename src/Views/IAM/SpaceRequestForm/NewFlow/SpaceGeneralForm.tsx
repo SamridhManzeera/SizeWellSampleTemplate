@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import SpaceFormField from '../Shared/SpaceFormField';
 import {
@@ -45,7 +45,15 @@ const INITIAL_VALUES: SectionAValues = {
 };
 
 function SpaceGeneralForm() {
-  const [values, setValues] = useState<SectionAValues>(INITIAL_VALUES);
+  const [values, setValues] = useState<SectionAValues>(() => {
+    const saved = localStorage.getItem('sizewell_general_form_values');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return INITIAL_VALUES;
+  });
   const dispatch = useDispatch<AppDispatch>();
   const mobilisationDate = useSelector(
     (state: RootState) => state.requestForm.mobilisationDate
@@ -53,6 +61,10 @@ function SpaceGeneralForm() {
   const demobilisationDate = useSelector(
     (state: RootState) => state.requestForm.demobilisationDate
   );
+
+  useEffect(() => {
+    localStorage.setItem('sizewell_general_form_values', JSON.stringify(values));
+  }, [values]);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;

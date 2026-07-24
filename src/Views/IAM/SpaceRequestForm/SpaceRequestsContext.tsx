@@ -4,6 +4,7 @@ import type {
   ReviewStatus,
   SectionAttachment,
   SectionReview,
+  SpaceRequestStatus,
 } from './spaceRequestFormTypes';
 import { SPACE_REQUEST_MOCK_DATA } from './spaceRequestFormMockData';
 
@@ -37,6 +38,7 @@ interface SpaceRequestsCtx {
     comment: string,
     attachments: SectionAttachment[]
   ) => void;
+  updateRequestStatus: (id: string, status: SpaceRequestStatus) => void;
 }
 
 const Ctx = createContext<SpaceRequestsCtx>({
@@ -45,6 +47,7 @@ const Ctx = createContext<SpaceRequestsCtx>({
   getRequest: () => undefined,
   saveSectionDraft: () => {},
   submitSectionReview: () => {},
+  updateRequestStatus: () => {},
 });
 
 export function SpaceRequestsProvider({ children }: { children: ReactNode }) {
@@ -99,6 +102,12 @@ export function SpaceRequestsProvider({ children }: { children: ReactNode }) {
     updateSection(requestId, sectionId, { status, comment, attachments });
   }
 
+  function updateRequestStatus(id: string, status: SpaceRequestStatus) {
+    setRequests((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, status } : r))
+    );
+  }
+
   return (
     <Ctx.Provider
       value={{
@@ -107,6 +116,7 @@ export function SpaceRequestsProvider({ children }: { children: ReactNode }) {
         getRequest,
         saveSectionDraft,
         submitSectionReview,
+        updateRequestStatus,
       }}
     >
       {children}
