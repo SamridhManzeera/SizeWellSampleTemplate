@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
 import PageHero from '../../Components/Layouts/PageHero/PageHero';
+import FencingMap from '../../Components/Maps/FencingMap/FencingMap';
 import { useDemoApiQuery } from '../../Services/Api/module/demoApi';
 import './Dashboard.scss';
 
@@ -178,6 +179,19 @@ export default function Dashboard() {
             );
           })}
         </div>
+      </div>
+
+      <div className="dash-kpi">
+        <div className="dash-kpi__header">
+          <div>
+            <h2 className="dash-kpi__title">Site Fencing Overview</h2>
+            <p className="dash-kpi__subtitle">
+              Active and planned fencing zones across the site.
+            </p>
+          </div>
+        </div>
+
+        <FencingMap />
       </div>
     </div>
   );
