@@ -204,6 +204,37 @@ $radius: 12px;
     &--rejected { background: rgba($red, 0.1); color: $red; }
   }
 
+  // Editable status pill (Reviewer listing) — same color language as
+  // `.sfl__status` above, but as a functioning <select>.
+  &__status-select {
+    appearance: none;
+    -webkit-appearance: none;
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 30px 5px 12px;
+    border: none;
+    border-radius: 20px;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b7280' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 11px center;
+    transition: box-shadow 0.15s ease;
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba($navy, 0.12);
+    }
+
+    &--draft { background-color: rgba($amber, 0.1); color: $amber; }
+    &--submitted { background-color: rgba($blue, 0.1); color: $blue; }
+    &--approved { background-color: rgba($green, 0.1); color: $green; }
+    &--rejected { background-color: rgba($red, 0.1); color: $red; }
+  }
+
   &__modules {
     display: flex;
     flex-wrap: wrap;

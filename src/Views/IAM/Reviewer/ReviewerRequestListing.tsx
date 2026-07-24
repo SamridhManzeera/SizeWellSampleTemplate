@@ -142,20 +142,11 @@ function ReviewerRequestListing({
                   <td>{row.mobilisationDate}</td>
                   <td>
                     <select
-                      className="sfl__status-select"
+                      className={`sfl__status-select sfl__status-select--${row.status.toLowerCase()}`}
                       value={row.status}
                       onChange={(e) =>
                         updateRequestStatus(row.id, e.target.value as any)
                       }
-                      style={{
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        border: '1px solid #d1d5db',
-                        fontSize: '0.85rem',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        backgroundColor: '#ffffff',
-                      }}
                     >
                       <option value="Approved">Approved</option>
                       <option value="Submitted">Submitted</option>
