@@ -39,7 +39,7 @@ function WorkforceChart({ labels, values }: WorkforceChartProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const { max, stepSize } = useMemo(
-    () => getNiceAxisBounds(Math.max(0, ...values)),
+    () => getNiceAxisBounds(Math.max(0, ...values) * 1.15),
     [values]
   );
 
@@ -54,7 +54,7 @@ function WorkforceChart({ labels, values }: WorkforceChartProps) {
       labels,
       datasets: [
         {
-          label: 'Workforce (no. of people)',
+          label: 'Workforce (No. Of People)',
           data: values,
           backgroundColor: '#1a3a6b',
           borderRadius: 4,

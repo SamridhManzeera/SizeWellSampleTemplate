@@ -174,32 +174,32 @@ export const IAM_ROUTES: Array<CustomRouter> = [
   },
   {
     path: ROUTES_CONFIG.REVIEWER_WORK_AREA.path,
-    element: <ReviewerRequestListing moduleKey="workArea" label="Work Area" />,
+    element: <ReviewerRequestListing moduleKey="workArea" label="Work Area (Space Required)" />,
     title: ROUTES_CONFIG.REVIEWER_WORK_AREA.title,
   },
   {
     path: ROUTES_CONFIG.REVIEWER_IT.path,
-    element: <ReviewerRequestListing moduleKey="it" label="IT" />,
+    element: <ReviewerRequestListing moduleKey="it" label="IT (Equipment Required)" />,
     title: ROUTES_CONFIG.REVIEWER_IT.title,
   },
   {
     path: ROUTES_CONFIG.REVIEWER_WATER.path,
-    element: <ReviewerRequestListing moduleKey="water" label="Water" />,
+    element: <ReviewerRequestListing moduleKey="water" label="Water (Consumption)" />,
     title: ROUTES_CONFIG.REVIEWER_WATER.title,
   },
   {
     path: ROUTES_CONFIG.REVIEWER_WELFARE.path,
-    element: <ReviewerRequestListing moduleKey="welfare" label="Welfare" />,
+    element: <ReviewerRequestListing moduleKey="welfare" label="Welfare (Support Facilities)" />,
     title: ROUTES_CONFIG.REVIEWER_WELFARE.title,
   },
   {
     path: ROUTES_CONFIG.REVIEWER_POWER.path,
-    element: <ReviewerRequestListing moduleKey="power" label="Power" />,
+    element: <ReviewerRequestListing moduleKey="power" label="Power (Energy Demand)" />,
     title: ROUTES_CONFIG.REVIEWER_POWER.title,
   },
   {
     path: ROUTES_CONFIG.REVIEWER_WORKFORCE.path,
-    element: <ReviewerRequestListing moduleKey="workforce" label="Workforce" />,
+    element: <ReviewerRequestListing moduleKey="workforce" label="Workforce (No. Of People)" />,
     title: ROUTES_CONFIG.REVIEWER_WORKFORCE.title,
   },
   {

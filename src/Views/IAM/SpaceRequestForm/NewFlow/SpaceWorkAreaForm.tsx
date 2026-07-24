@@ -94,6 +94,13 @@ export default function SpaceWorkAreaForm() {
   // State for tracking active cursor location on the map (for drawing draft dotted lines)
   const [cursorMapPoint, setCursorMapPoint] = useState<Point | null>(null);
 
+  // State for in-progress drawing points (arbitrary polygon shape)
+  const [activeDrawingPoints, setActiveDrawingPoints] = useState<Point[]>([]);
+  const activeDrawingPointsRef = useRef(activeDrawingPoints);
+  useEffect(() => {
+    activeDrawingPointsRef.current = activeDrawingPoints;
+  }, [activeDrawingPoints]);
+
   // State to hold active overlap warning toast messages
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const toastTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -144,6 +151,7 @@ export default function SpaceWorkAreaForm() {
     }
     if (!isPlacingMarker) {
       setCursorMapPoint(null);
+      setActiveDrawingPoints([]);
     }
   }, [isPlacingMarker]);
 
@@ -207,6 +215,51 @@ export default function SpaceWorkAreaForm() {
         if (isPlacingMarkerRef.current) {
           const mapPoint = view!.toMap({ x: event.x, y: event.y });
           if (mapPoint) {
+            const hit = await view!.hitTest(event);
+            const results = hit.results;
+            const vertexResult = results.find(
+              (r: any) => r.graphic && r.graphic.attributes?.type === 'active-vertex'
+            ) as any;
+
+            if (vertexResult && activeDrawingPointsRef.current.length >= 3) {
+              // Clicked an active vertex! Close the polygon shape
+              const pts = activeDrawingPointsRef.current;
+              
+              // 1. Construct the proposed polygon geometry to check for area overlap / containment
+              const rings = pts.map((p) => [p.longitude!, p.latitude!]);
+              rings.push([pts[0].longitude!, pts[0].latitude!]); // close loop
+              const proposedPoly = new Polygon({
+                rings: [rings],
+                spatialReference: { wkid: 4326 }
+              });
+
+              // 2. Perform polygon overlap check (containment / subset)
+              const overlapResult = checkPolygonOverlap(proposedPoly);
+              if (overlapResult) {
+                if (toastTimerRef.current) {
+                  clearTimeout(toastTimerRef.current);
+                }
+                const msg = overlapResult.isSelf
+                  ? 'Area overlaps with an already marked space in this request.'
+                  : `Area is occupied from ${overlapResult.mobilisationDate} to ${overlapResult.demobilisationDate}, please select a different date.`;
+                setToastMessage(msg);
+                toastTimerRef.current = setTimeout(() => {
+                  setToastMessage(null);
+                }, 5000);
+                return; // Block closing!
+              }
+
+              // All clean, add the place
+              const newPlace = {
+                id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+                name: `Place ${placesRef.current.length + 1}`,
+                points: [...pts]
+              };
+              setPlaces((prev) => [...prev, newPlace]);
+              setActiveDrawingPoints([]);
+              return;
+            }
+
             handleMapClick(mapPoint);
           }
           return;
@@ -226,7 +279,7 @@ export default function SpaceWorkAreaForm() {
               setActivePlacePopover(null);
             } else {
               const matchedPlace = placesRef.current.find((p) => p.id === attributes.placeId);
-              if (matchedPlace && (matchedPlace.points.length === 3 || matchedPlace.points.length === 4)) {
+              if (matchedPlace && matchedPlace.points.length >= 3) {
                 // Show active place deletion popover (for current drawing green areas)
                 setActivePlacePopover({
                   placeId: matchedPlace.id,
@@ -247,6 +300,28 @@ export default function SpaceWorkAreaForm() {
         const mapPoint = view!.toMap({ x: event.x, y: event.y });
         if (isPlacingMarkerRef.current && mapPoint) {
           setCursorMapPoint(mapPoint);
+
+          if (activeDrawingPointsRef.current.length >= 2) {
+            const pts = activeDrawingPointsRef.current;
+            const rings = pts.map((p) => [p.longitude!, p.latitude!]);
+            rings.push([mapPoint.longitude!, mapPoint.latitude!]);
+            rings.push([pts[0].longitude!, pts[0].latitude!]); // close
+
+            const draftPoly = new Polygon({
+              rings: [rings],
+              spatialReference: { wkid: 4326 }
+            });
+
+            const area = Math.abs(geometryEngine.geodesicArea(draftPoly, 'square-meters'));
+            const formattedArea = Math.round(area).toLocaleString() + ' m²';
+
+            setHoverTooltip({
+              text: formattedArea,
+              x: event.x,
+              y: event.y
+            });
+            return;
+          }
         }
 
         const hit = await view!.hitTest(event);
@@ -385,13 +460,13 @@ export default function SpaceWorkAreaForm() {
       const color = CURRENT_PLACE_COLOR;
 
       // Draw markers for all clicked vertices
-      place.points.forEach((p, idx) => {
+      place.points.forEach((p) => {
         const markerGraphic = new Graphic({
           geometry: p,
           symbol: {
             type: 'simple-marker',
             color: color,
-            size: idx === 0 ? 10 : 8,
+            size: 8,
             outline: {
               color: '#ffffff',
               width: 1.5
@@ -459,52 +534,148 @@ export default function SpaceWorkAreaForm() {
       }
     });
 
-    // 3. Render current active drawing guideline dotted lines
-    const incompletePlace = places.find((p) => p.points.length < 4);
-    if (incompletePlace && incompletePlace.points.length > 0 && cursorMapPoint) {
+    // 3. Render current active drawing guideline dotted lines and active vertices
+    if (activeDrawingPoints.length > 0) {
       const activeColor = CURRENT_PLACE_COLOR;
-      const pts = incompletePlace.points;
 
-      // Draw dotted guide line from last vertex to current cursor position
-      const lastPt = pts[pts.length - 1];
-      const dottedGuideLine = new Polyline({
-        paths: [[[lastPt.longitude!, lastPt.latitude!], [cursorMapPoint.longitude!, cursorMapPoint.latitude!]]],
-        spatialReference: { wkid: 4326 }
+      // Draw all current active vertices as markers
+      activeDrawingPoints.forEach((p, idx) => {
+        const markerGraphic = new Graphic({
+          geometry: p,
+          symbol: {
+            type: 'simple-marker',
+            color: activeColor,
+            size: 8,
+            outline: {
+              color: '#ffffff',
+              width: 2.0
+            }
+          } as any,
+          attributes: {
+            type: 'active-vertex',
+            index: idx
+          }
+        });
+        graphicsLayer.add(markerGraphic);
       });
-      const dottedGraphic = new Graphic({
-        geometry: dottedGuideLine,
-        symbol: {
-          type: 'simple-line',
-          color: activeColor,
-          width: 1.5,
-          style: 'dash'
-        } as any
-      });
-      graphicsLayer.add(dottedGraphic);
 
-      // If drawing a 3rd or 4th point, also draw dotted guide back to the first vertex
-      if (pts.length >= 2) {
-        const firstPt = pts[0];
-        const dottedClosingLine = new Polyline({
-          paths: [[[firstPt.longitude!, firstPt.latitude!], [cursorMapPoint.longitude!, cursorMapPoint.latitude!]]],
+      // Draw solid lines connecting current active vertices
+      if (activeDrawingPoints.length >= 2) {
+        const paths = activeDrawingPoints.map((p) => [p.longitude!, p.latitude!]);
+        const polyline = new Polyline({
+          paths: [paths],
           spatialReference: { wkid: 4326 }
         });
-        const dottedClosingGraphic = new Graphic({
-          geometry: dottedClosingLine,
+        const lineGraphic = new Graphic({
+          geometry: polyline,
+          symbol: {
+            type: 'simple-line',
+            color: activeColor,
+            width: 2.5
+          } as any
+        });
+        graphicsLayer.add(lineGraphic);
+      }
+
+      // Draw dotted guideline from last vertex to current cursor position
+      if (cursorMapPoint) {
+        const lastPt = activeDrawingPoints[activeDrawingPoints.length - 1];
+        const dottedGuideLine = new Polyline({
+          paths: [[[lastPt.longitude!, lastPt.latitude!], [cursorMapPoint.longitude!, cursorMapPoint.latitude!]]],
+          spatialReference: { wkid: 4326 }
+        });
+        const dottedGraphic = new Graphic({
+          geometry: dottedGuideLine,
           symbol: {
             type: 'simple-line',
             color: activeColor,
             width: 1.5,
-            style: 'dash'
+            style: 'dot'
           } as any
         });
-        graphicsLayer.add(dottedClosingGraphic);
+        graphicsLayer.add(dottedGraphic);
+
+        // If drawing a 3rd or subsequent point, draw dotted closing guideline back to start
+        if (activeDrawingPoints.length >= 2) {
+          const firstPt = activeDrawingPoints[0];
+          const dottedClosingLine = new Polyline({
+            paths: [[[firstPt.longitude!, firstPt.latitude!], [cursorMapPoint.longitude!, cursorMapPoint.latitude!]]],
+            spatialReference: { wkid: 4326 }
+          });
+          const dottedClosingGraphic = new Graphic({
+            geometry: dottedClosingLine,
+            symbol: {
+              type: 'simple-line',
+              color: activeColor,
+              width: 1.5,
+              style: 'dot'
+            } as any
+          });
+          graphicsLayer.add(dottedClosingGraphic);
+        }
+
+        // Draw draft semi-transparent polygon (activeDrawingPoints + cursorMapPoint)
+        if (activeDrawingPoints.length >= 2) {
+          const rings = activeDrawingPoints.map((p) => [p.longitude!, p.latitude!]);
+          rings.push([cursorMapPoint.longitude!, cursorMapPoint.latitude!]);
+          rings.push([activeDrawingPoints[0].longitude!, activeDrawingPoints[0].latitude!]);
+
+          const draftPoly = new Polygon({
+            rings: [rings],
+            spatialReference: { wkid: 4326 }
+          });
+          const draftGraphic = new Graphic({
+            geometry: draftPoly,
+            symbol: {
+              type: 'simple-fill',
+              color: [...activeColor, 0.15] as any,
+              outline: {
+                color: 'transparent',
+                width: 0
+              }
+            } as any
+          });
+          graphicsLayer.add(draftGraphic);
+        }
       }
     }
-  }, [places, mapReady, cursorMapPoint, requests]);
+  }, [places, activeDrawingPoints, cursorMapPoint, mapReady, requests]);
 
-  // Helper to check if new coordinate overlaps with already submitted occupied places
-  const checkCollision = (newPt: Point, activePlacePoints: Point[]): any | null => {
+  // Helper to check if new coordinate overlaps with already submitted occupied places or user's own drawn places
+  const checkCollision = (newPt: Point, activePlacePoints: Point[]): { isSelf: boolean; mobilisationDate?: string; demobilisationDate?: string } | null => {
+    // 1. Check collision against user's own already drawn completed shapes in this session
+    const ownPlaces = placesRef.current;
+    for (const p of ownPlaces) {
+      if (p.points && p.points.length >= 3) {
+        const rings = p.points.map((pt: any) => [pt.longitude, pt.latitude]);
+        if (rings[0][0] !== rings[rings.length - 1][0] || rings[0][1] !== rings[rings.length - 1][1]) {
+          rings.push([rings[0][0], rings[0][1]]);
+        }
+        const ownPoly = new Polygon({
+          rings: [rings],
+          spatialReference: { wkid: 4326 }
+        });
+
+        // Case A: Point is inside own polygon
+        if (geometryEngine.contains(ownPoly, newPt)) {
+          return { isSelf: true };
+        }
+
+        // Case B: Polyline segment from last point to this point intersects own polygon
+        if (activePlacePoints.length > 0) {
+          const lastPt = activePlacePoints[activePlacePoints.length - 1];
+          const polyline = new Polyline({
+            paths: [[[lastPt.longitude!, lastPt.latitude!], [newPt.longitude!, newPt.latitude!]]],
+            spatialReference: { wkid: 4326 }
+          });
+          if (geometryEngine.intersects(ownPoly, polyline)) {
+            return { isSelf: true };
+          }
+        }
+      }
+    }
+
+    // 2. Check collision against other requests' spaces
     for (const req of requests) {
       if (req.places && req.places.length > 0) {
         for (const p of req.places) {
@@ -518,12 +689,12 @@ export default function SpaceWorkAreaForm() {
               spatialReference: { wkid: 4326 }
             });
 
-            // Case 1: Point is inside the occupied polygon
+            // Case A: Point is inside the occupied polygon
             if (geometryEngine.contains(submittedPoly, newPt)) {
-              return req;
+              return { isSelf: false, mobilisationDate: req.mobilisationDate, demobilisationDate: req.demobilisationDate };
             }
 
-            // Case 2: Polyline segment from last point to this point intersects the occupied polygon
+            // Case B: Polyline segment from last point to this point intersects the occupied polygon
             if (activePlacePoints.length > 0) {
               const lastPt = activePlacePoints[activePlacePoints.length - 1];
               const polyline = new Polyline({
@@ -531,7 +702,7 @@ export default function SpaceWorkAreaForm() {
                 spatialReference: { wkid: 4326 }
               });
               if (geometryEngine.intersects(submittedPoly, polyline)) {
-                return req;
+                return { isSelf: false, mobilisationDate: req.mobilisationDate, demobilisationDate: req.demobilisationDate };
               }
             }
           }
@@ -541,49 +712,87 @@ export default function SpaceWorkAreaForm() {
     return null;
   };
 
-  // Map Click Handler: Adds coordinates to the list of places.
+  // Helper to check if closed polygon intersects, contains, or is contained by existing spaces
+  const checkPolygonOverlap = (newPoly: Polygon): { isSelf: boolean; mobilisationDate?: string; demobilisationDate?: string } | null => {
+    // 1. Check against user's own already drawn completed shapes in this session
+    const ownPlaces = placesRef.current;
+    for (const p of ownPlaces) {
+      if (p.points && p.points.length >= 3) {
+        const rings = p.points.map((pt: any) => [pt.longitude, pt.latitude]);
+        if (rings[0][0] !== rings[rings.length - 1][0] || rings[0][1] !== rings[rings.length - 1][1]) {
+          rings.push([rings[0][0], rings[0][1]]);
+        }
+        const ownPoly = new Polygon({
+          rings: [rings],
+          spatialReference: { wkid: 4326 }
+        });
+
+        try {
+          const inter = geometryEngine.intersect(ownPoly, newPoly) as Polygon;
+          if (inter) {
+            const interArea = Math.abs(geometryEngine.geodesicArea(inter, 'square-meters'));
+            if (interArea > 0.1) {
+              return { isSelf: true };
+            }
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+
+    // 2. Check against other requests' spaces
+    for (const req of requests) {
+      if (req.places && req.places.length > 0) {
+        for (const p of req.places) {
+          if (p.points && p.points.length >= 3) {
+            const rings = p.points.map((pt: any) => [pt[0], pt[1]]);
+            if (rings[0][0] !== rings[rings.length - 1][0] || rings[0][1] !== rings[rings.length - 1][1]) {
+              rings.push([rings[0][0], rings[0][1]]);
+            }
+            const submittedPoly = new Polygon({
+              rings: [rings],
+              spatialReference: { wkid: 4326 }
+            });
+
+            try {
+              const inter = geometryEngine.intersect(submittedPoly, newPoly) as Polygon;
+              if (inter) {
+                const interArea = Math.abs(geometryEngine.geodesicArea(inter, 'square-meters'));
+                if (interArea > 0.1) {
+                  return { isSelf: false, mobilisationDate: req.mobilisationDate, demobilisationDate: req.demobilisationDate };
+                }
+              }
+            } catch (e) {
+              console.error(e);
+            }
+          }
+        }
+      }
+    }
+    return null;
+  };
+
   const handleMapClick = (mapPoint: Point) => {
-    const currentPlacesList = placesRef.current;
+    const activePoints = activeDrawingPointsRef.current;
 
-    // Check if drawing limit is reached
-    const incompleteIndex = currentPlacesList.findIndex((p) => p.points.length < 4);
-    const activePoints = incompleteIndex !== -1 ? currentPlacesList[incompleteIndex].points : [];
-
-    // Perform collision check with already submitted/occupied spaces
-    const collidingReq = checkCollision(mapPoint, activePoints);
-    if (collidingReq) {
+    // Perform collision check with already submitted/occupied spaces or self-drawn shapes
+    const collidingResult = checkCollision(mapPoint, activePoints);
+    if (collidingResult) {
       if (toastTimerRef.current) {
         clearTimeout(toastTimerRef.current);
       }
-      setToastMessage(`Area is occupied from ${collidingReq.mobilisationDate} to ${collidingReq.demobilisationDate}, please select a different date.`);
+      const msg = collidingResult.isSelf
+        ? 'Area overlaps with an already marked space in this request.'
+        : `Area is occupied from ${collidingResult.mobilisationDate} to ${collidingResult.demobilisationDate}, please select a different date.`;
+      setToastMessage(msg);
       toastTimerRef.current = setTimeout(() => {
         setToastMessage(null);
       }, 5000);
       return; // Block adding coordinates!
     }
 
-    if (incompleteIndex !== -1) {
-      // Add point to the existing active place
-      setPlaces((prev) => {
-        const next = [...prev];
-        const updatedPoints = [...next[incompleteIndex].points, mapPoint];
-        next[incompleteIndex] = {
-          ...next[incompleteIndex],
-          points: updatedPoints
-        };
-        return next;
-      });
-    } else {
-      // All places completed. Start a new one if limit not reached
-      if (currentPlacesList.length < 4) {
-        const newPlace: Place = {
-          id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
-          name: `Place ${currentPlacesList.length + 1}`,
-          points: [mapPoint]
-        };
-        setPlaces((prev) => [...prev, newPlace]);
-      }
-    }
+    setActiveDrawingPoints((prev) => [...prev, mapPoint]);
   };
 
   // Place Deletion Handler

@@ -281,37 +281,37 @@ const NAV_GROUPS_IAM = [
     items: [
       {
         to: '/reviewer/work-area',
-        label: 'Work Area',
+        label: 'Work Area (Space Required)',
         icon: <RequestsIcon />,
         end: false,
       },
       {
         to: '/reviewer/it',
-        label: 'IT',
+        label: 'IT (Equipment Required)',
         icon: <RequestsIcon />,
         end: false,
       },
       {
         to: '/reviewer/water',
-        label: 'Water',
+        label: 'Water (Consumption)',
         icon: <RequestsIcon />,
         end: false,
       },
       {
         to: '/reviewer/welfare',
-        label: 'Welfare',
+        label: 'Welfare (Support Facilities)',
         icon: <RequestsIcon />,
         end: false,
       },
       {
         to: '/reviewer/power',
-        label: 'Power',
+        label: 'Power (Energy Demand)',
         icon: <RequestsIcon />,
         end: false,
       },
       {
         to: '/reviewer/workforce',
-        label: 'Workforce',
+        label: 'Workforce (No. Of People)',
         icon: <RequestsIcon />,
         end: false,
       },

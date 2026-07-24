@@ -26,7 +26,7 @@ function SpaceViewWorkforceForm({
   if (months.length === 0) {
     return (
       <div className="sgf__card">
-        <h2 className="sgf__section-title">Workforce (no. of people)</h2>
+        <h2 className="sgf__section-title">Workforce (No. Of People)</h2>
         <p>
           No Mobilisation / Demobilisation date range was submitted for SRF{' '}
           {request.srfNumber}.
@@ -38,7 +38,7 @@ function SpaceViewWorkforceForm({
   return (
     <div className="sgf">
       <div className="sgf__card">
-        <h2 className="sgf__section-title">Workforce (no. of people)</h2>
+        <h2 className="sgf__section-title">Workforce (No. Of People)</h2>
         <p className="sgf__section-hint">
           Planning for {formatMonthLabel(months[0])} –{' '}
           {formatMonthLabel(months[months.length - 1])}, based on the

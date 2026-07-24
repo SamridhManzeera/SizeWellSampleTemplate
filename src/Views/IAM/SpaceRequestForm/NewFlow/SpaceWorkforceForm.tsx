@@ -47,7 +47,7 @@ function SpaceWorkforceForm() {
   if (months.length === 0) {
     return (
       <div className="sgf__card">
-        <h2 className="sgf__section-title">Workforce (no. of people)</h2>
+        <h2 className="sgf__section-title">Workforce (No. Of People)</h2>
         <p>
           Set a Mobilisation Date and Demobilisation Date in the{' '}
           <a href="#section-general">General</a> section to plan monthly
@@ -60,7 +60,7 @@ function SpaceWorkforceForm() {
   return (
     <div className="sgf">
       <div className="sgf__card">
-        <h2 className="sgf__section-title">Workforce (no. of people)</h2>
+        <h2 className="sgf__section-title">Workforce (No. Of People)</h2>
         <p className="sgf__section-hint">
           Planning for {formatMonthLabel(months[0])} –{' '}
           {formatMonthLabel(months[months.length - 1])}, based on the
@@ -68,53 +68,53 @@ function SpaceWorkforceForm() {
           <a href="#section-general">General</a>.
         </p>
         <WorkforceChart labels={months.map(formatMonthLabel)} values={values} />
-      </div>
 
-      <div className="sgf__card">
-        <h2 className="sgf__section-title">Monthly Headcount</h2>
-        <p className="sgf__section-hint">
-          Set the peak workforce for each month in the selected range.
-        </p>
+        <div style={{ marginTop: '32px', borderTop: '1px solid #e5e7eb', paddingTop: '24px' }}>
+          <h2 className="sgf__section-title">Monthly Headcount</h2>
+          <p className="sgf__section-hint">
+            Set the peak workforce for each month in the selected range.
+          </p>
 
-        <div className="sgf__bulk-actions">
-          <label htmlFor="spaceWorkforceBulkValue">
-            Apply a count to every month
-            <input
-              id="spaceWorkforceBulkValue"
-              type="number"
-              min={0}
-              value={bulkValue}
-              onChange={(event) =>
-                setBulkValue(Math.max(0, Number(event.target.value) || 0))
-              }
-            />
-          </label>
-          <button
-            type="button"
-            className="sgf__bulk-apply"
-            onClick={handleApplyToAll}
-          >
-            Apply to all months
-          </button>
-        </div>
+          <div className="sgf__bulk-actions">
+            <label htmlFor="spaceWorkforceBulkValue">
+              Apply a count to every month
+              <input
+                id="spaceWorkforceBulkValue"
+                type="number"
+                min={0}
+                value={bulkValue}
+                onChange={(event) =>
+                  setBulkValue(Math.max(0, Number(event.target.value) || 0))
+                }
+              />
+            </label>
+            <button
+              type="button"
+              className="sgf__bulk-apply"
+              onClick={handleApplyToAll}
+            >
+              Apply to all months
+            </button>
+          </div>
 
-        <div className="sgf__count-grid">
-          {months.map((monthKey) => (
-            <div key={monthKey} className="sgf__field">
-              <label htmlFor={`space-workforce-count-${monthKey}`}>
-                {formatMonthLabel(monthKey)}
-                <input
-                  id={`space-workforce-count-${monthKey}`}
-                  type="number"
-                  min={0}
-                  value={counts[monthKey] ?? DEFAULT_COUNT}
-                  onChange={(event) =>
-                    handleCountChange(monthKey, event.target.value)
-                  }
-                />
-              </label>
-            </div>
-          ))}
+          <div className="sgf__count-grid">
+            {months.map((monthKey) => (
+              <div key={monthKey} className="sgf__field">
+                <label htmlFor={`space-workforce-count-${monthKey}`}>
+                  {formatMonthLabel(monthKey)}
+                  <input
+                    id={`space-workforce-count-${monthKey}`}
+                    type="number"
+                    min={0}
+                    value={counts[monthKey] ?? DEFAULT_COUNT}
+                    onChange={(event) =>
+                      handleCountChange(monthKey, event.target.value)
+                    }
+                  />
+                </label>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

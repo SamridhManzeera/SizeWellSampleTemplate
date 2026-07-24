@@ -54,7 +54,7 @@ function SpaceViewFormSidebar({
                 <span className="sfw__sidebar-icon">
                   {MODULE_ICONS[moduleConfig.key]}
                 </span>
-                <span className="sfw__sidebar-text">{moduleConfig.label}</span>
+                <span className="sfw__sidebar-text">{moduleConfig.shortLabel}</span>
               </button>
             </li>
           ))}

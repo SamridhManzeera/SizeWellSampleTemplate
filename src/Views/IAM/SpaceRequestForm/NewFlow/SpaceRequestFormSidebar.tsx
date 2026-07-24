@@ -47,12 +47,12 @@ function SpaceRequestFormSidebar() {
                       {MODULE_ICONS[moduleConfig.key]}
                     </span>
                     <span className="sfw__sidebar-text">
-                      {moduleConfig.label}
+                      {moduleConfig.shortLabel}
                     </span>
                   </button>
                   <SpaceToggleSwitch
                     id={`module-toggle-${moduleConfig.key}`}
-                    label={`Enable ${moduleConfig.label}`}
+                    label={`Enable ${moduleConfig.shortLabel}`}
                     checked={enabled}
                     onChange={(next) => {
                       dispatch(

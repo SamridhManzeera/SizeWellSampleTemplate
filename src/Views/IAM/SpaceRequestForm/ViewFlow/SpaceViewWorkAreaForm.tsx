@@ -102,7 +102,7 @@ export default function SpaceViewWorkAreaForm({ request, role = 'supplier' }: Sp
     const generalPath = `${ROUTES.SPACE_REQUESTS}/${request.id}`;
     return (
       <div className="sgf__card">
-        <h2 className="sgf__section-title">Work Area</h2>
+        <h2 className="sgf__section-title">Work Area (Space Required)</h2>
         <p>
           This module wasn&apos;t enabled for SRF {request.srfNumber}. Go back
           to <Link to={generalPath}>General</Link> to see what was submitted.
