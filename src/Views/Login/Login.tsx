@@ -77,7 +77,7 @@ function Login() {
     <main className="login-page">
       <form className="login-card" onSubmit={handleSubmit}>
         <img className="login-logo" src={brandLogo} alt="Sizewell C" />
-        <p className="login-portal-title">Slot Allocation & Forecasting</p>
+        <p className="login-portal-title">Mockup Screens</p>
         <h1>Sign in</h1>
         <p className="login-subtitle">
           Enter your credentials to access the portal.
