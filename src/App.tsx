@@ -11,6 +11,7 @@ const baseName = import.meta.env.VITE_BASE_NAME;
 function App() {
   console.log("Branch:Two add")
   // const [count, setCount] = useState<number>(0);
+  console.log("1.1");
   return (
     <Provider store={store}>
       <PersistGate persistor={persistor}>
