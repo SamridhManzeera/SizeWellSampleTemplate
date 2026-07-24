@@ -1,8 +1,10 @@
+import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { useRoutes } from 'react-router-dom';
+import { useLocation, useRoutes } from 'react-router-dom';
 import DocumentTitle from './DocumentTitle';
 import { getAuthenticatedRoutes, guestRoutes } from './config';
 import AppLayout from '../Components/Layouts/AppLayout';
+import { useVerifyTokenMutation } from '../Services/Api/module/authApi';
 import type { RootState } from '../Store';
 
 function RootRouter() {
@@ -13,6 +15,16 @@ function RootRouter() {
   );
   const authenticated = useRoutes(getAuthenticatedRoutes(projecttype));
   const isAuthenticated = !!token;
+  const { pathname } = useLocation();
+  const [verifyToken] = useVerifyTokenMutation();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      verifyToken({ projecttype });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, isAuthenticated]);
+
   return (
     <>
       <DocumentTitle
