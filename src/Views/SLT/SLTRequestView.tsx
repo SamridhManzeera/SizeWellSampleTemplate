@@ -5,6 +5,15 @@ import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
 import PageHero from '../../Components/Layouts/PageHero/PageHero';
 import { useRequests } from '../Requests/RequestsContext';
 import { DaySlotCounts } from '../Requests/requestTypes';
+import {
+  formatDateShort,
+  formatDayName,
+  formatDateRange,
+  getDatesInRange,
+  emptyCounts,
+  rowTotal,
+  slotBreakdownText,
+} from '../Requests/deliverySlotUtils';
 import '../Requests/RequestForm.scss';
 import 'react-tooltip/dist/react-tooltip.css';
 import './SLTRequestView.scss';
@@ -67,69 +76,10 @@ function FileIcon() {
 
 // ── Helpers ───────────────────────────────────────────────────────
 
-function parseDate(dateStr: string): Date {
-  const [y, m, d] = dateStr.split('-').map(Number);
-  return new Date(y, m - 1, d);
-}
-
-function formatDateShort(dateStr: string) {
-  const [y, m, d] = dateStr.split('-');
-  return `${d}/${m}/${y}`;
-}
-
-function formatDayName(dateStr: string) {
-  return parseDate(dateStr).toLocaleDateString('en-GB', { weekday: 'long' });
-}
-
-function formatDateFull(dateStr: string) {
-  return parseDate(dateStr).toLocaleDateString('en-GB', {
-    weekday: 'short',
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
-}
-
-function formatDateRange(startDate: string, endDate: string) {
-  return startDate === endDate
-    ? formatDateFull(startDate)
-    : `${formatDateFull(startDate)} – ${formatDateFull(endDate)}`;
-}
-
-function getDatesInRange(startStr: string, endStr: string): string[] {
-  const start = parseDate(startStr);
-  const end = parseDate(endStr);
-  if (!startStr || !endStr || end < start) return startStr ? [startStr] : [];
-  const dates: string[] = [];
-  const cur = new Date(start);
-  while (cur <= end) {
-    dates.push(
-      `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(
-        2,
-        '0'
-      )}-${String(cur.getDate()).padStart(2, '0')}`
-    );
-    cur.setDate(cur.getDate() + 1);
-  }
-  return dates;
-}
-
-function emptyCounts(): DaySlotCounts {
-  return { inbound: 0, outbound: 0, twoWay: 0 };
-}
-
-function rowTotal(c: DaySlotCounts) {
-  return c.inbound + c.outbound + c.twoWay * 2;
-}
-
 function formatFileSize(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function slotBreakdownText(c: DaySlotCounts) {
-  return `Inbound: ${c.inbound} · Outbound: ${c.outbound} · Two-way: ${c.twoWay}`;
 }
 
 // ── Main Component ────────────────────────────────────────────────

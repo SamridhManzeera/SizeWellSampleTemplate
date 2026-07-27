@@ -11,6 +11,7 @@ import Requests from '../Views/Requests/Requests';
 import RequestForm from '../Views/Requests/RequestForm';
 import SLTRequests from '../Views/SLT/SLTRequests';
 import SLTRequestView from '../Views/SLT/SLTRequestView';
+import SLTDeliverySlots from '../Views/SLT/SLTDeliverySlots';
 import LiveTracking from '../Views/LiveTracking/LiveTracking';
 import Profile from '../Views/Profile/Profile';
 import Notifications from '../Views/Notifications/Notifications';
@@ -57,6 +58,11 @@ export const SLOT_ALLOCATION_ROUTES: Array<CustomRouter> = [
     path: ROUTES_CONFIG.SLT_REQUESTS_VIEW.path,
     element: <SLTRequestView />,
     title: ROUTES_CONFIG.SLT_REQUESTS_VIEW.title,
+  },
+  {
+    path: ROUTES_CONFIG.SLT_DELIVERY_SLOTS.path,
+    element: <SLTDeliverySlots />,
+    title: ROUTES_CONFIG.SLT_DELIVERY_SLOTS.title,
   },
   {
     path: ROUTES_CONFIG.LIVE_TRACKING.path,

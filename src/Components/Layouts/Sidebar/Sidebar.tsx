@@ -187,6 +187,12 @@ const NAV_GROUPS_SLOT_ALLOCATION = [
         icon: <RequestsIcon />,
         end: false,
       },
+      {
+        to: '/slt/delivery-slots',
+        label: 'Delivery Slots',
+        icon: <CalendarIcon />,
+        end: true,
+      },
     ],
   },
   {

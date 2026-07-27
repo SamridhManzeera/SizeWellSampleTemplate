@@ -1,0 +1,128 @@
+$navy:    #1a3a6b;
+$border:  #c7cedd;
+$dark:    #111827;
+$mid:     #374151;
+$muted:   #9ca3af;
+
+.slt-ds__filters {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.slt-ds__filter-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.slt-ds__week-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 36px;
+  padding: 0 6px;
+  border: 1.5px solid $border;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.slt-ds__week-btn {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: $navy;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.12s;
+
+  &:hover:not(:disabled) { background: #eef2f9; }
+  &:disabled { opacity: 0.3; cursor: not-allowed; }
+}
+
+.slt-ds__week-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: $dark;
+  white-space: nowrap;
+  min-width: 170px;
+  text-align: center;
+}
+
+.slt-ds__legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  border: 1.5px solid $border;
+  border-radius: 10px;
+  background: #f8f9fc;
+}
+
+.slt-ds__legend-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: $muted;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+}
+
+.slt-ds__legend-divider {
+  width: 1px;
+  height: 18px;
+  background: $border;
+  flex-shrink: 0;
+}
+
+.slt-ds__legend-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 500;
+  color: $mid;
+}
+
+.slt-ds__legend-swatch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 20px;
+  border-radius: 5px;
+  flex-shrink: 0;
+
+  &--req {
+    background: rgba(37, 99, 235, 0.12);
+    border: 1px solid rgba(37, 99, 235, 0.35);
+    color: #2563eb;
+  }
+
+  &--alloc {
+    background: rgba(22, 163, 74, 0.12);
+    border: 1px solid rgba(22, 163, 74, 0.35);
+    color: #16a34a;
+  }
+}
+
+.slt-ds__legend-dash {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 20px;
+  border-radius: 5px;
+  border: 1.5px dashed $border;
+  color: $muted;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
