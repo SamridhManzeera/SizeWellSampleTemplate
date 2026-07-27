@@ -135,7 +135,7 @@ function FmtScheduleGrid({
             </th>
             <th className="fsg__th fsg__th--stat fsg__th--booked">Booked</th>
             <th className="fsg__th fsg__th--stat fsg__th--remaining">
-              Remaining
+              Unbook Allocation
             </th>
             {HOURS.map((hour) => (
               <th key={hour} className="fsg__th fsg__th--hour">
@@ -182,9 +182,8 @@ function FmtScheduleGrid({
                 </td>
                 <td className="fsg__td fsg__td--stat-3">
                   <span
-                    className={`fsg__stat-num fsg__stat-num--remaining${
-                      remaining <= 0 ? ' fsg__stat-num--full' : ''
-                    }`}
+                    className={`fsg__stat-num fsg__stat-num--remaining${remaining <= 0 ? ' fsg__stat-num--full' : ''
+                      }`}
                   >
                     {remaining}
                   </span>
@@ -200,11 +199,10 @@ function FmtScheduleGrid({
                     <td key={hour} className="fsg__td fsg__td--slot">
                       <button
                         type="button"
-                        className={`fsg__slot${
-                          isOccupied
+                        className={`fsg__slot${isOccupied
                             ? ' fsg__slot--occupied'
                             : ' fsg__slot--available'
-                        }${isDisabled ? ' fsg__slot--disabled' : ''}`}
+                          }${isDisabled ? ' fsg__slot--disabled' : ''}`}
                         onClick={() => {
                           isOccupied
                             ? onOccupiedSlotClick(booking!)
@@ -215,10 +213,9 @@ function FmtScheduleGrid({
                           isDisabled
                             ? 'No remaining allocated capacity'
                             : isOccupied
-                            ? `${booking!.movementCount} allocated · ${
-                                booking!.bookedCount
+                              ? `${booking!.movementCount} allocated · ${booking!.bookedCount
                               } booked — click to edit`
-                            : 'Available — click to assign slot'
+                              : 'Available — click to assign slot'
                         }
                       >
                         {isOccupied && (
