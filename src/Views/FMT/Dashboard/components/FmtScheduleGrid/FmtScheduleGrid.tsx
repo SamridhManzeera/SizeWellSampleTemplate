@@ -135,7 +135,7 @@ function FmtScheduleGrid({
             </th>
             <th className="fsg__th fsg__th--stat fsg__th--booked">Booked</th>
             <th className="fsg__th fsg__th--stat fsg__th--remaining">
-              Unbook Allocation
+              Unbooked Allocation
             </th>
             {HOURS.map((hour) => (
               <th key={hour} className="fsg__th fsg__th--hour">
@@ -200,8 +200,8 @@ function FmtScheduleGrid({
                       <button
                         type="button"
                         className={`fsg__slot${isOccupied
-                            ? ' fsg__slot--occupied'
-                            : ' fsg__slot--available'
+                          ? ' fsg__slot--occupied'
+                          : ' fsg__slot--available'
                           }${isDisabled ? ' fsg__slot--disabled' : ''}`}
                         onClick={() => {
                           isOccupied
