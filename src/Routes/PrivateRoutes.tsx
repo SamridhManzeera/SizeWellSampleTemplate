@@ -18,6 +18,7 @@ import Notifications from '../Views/Notifications/Notifications';
 import UserManagement from '../Views/UserManagement/UserManagement';
 import Dashboard from '../Views/Dashboard';
 import FmtDashboard from '../Views/FMT/Dashboard';
+import FmtAllocationTable from '../Views/FMT/AllocationTable';
 import SpaceFormListing, {
   SpaceRequestFormLayout,
   SpaceViewFormLayout,
@@ -149,6 +150,11 @@ export const SLOT_ALLOCATION_ROUTES: Array<CustomRouter> = [
     path: ROUTES_CONFIG.FMT_DASHBOARD.path,
     element: <FmtDashboard />,
     title: ROUTES_CONFIG.FMT_DASHBOARD.title,
+  },
+  {
+    path: ROUTES_CONFIG.FMT_ALLOCATION_TABLE.path,
+    element: <FmtAllocationTable />,
+    title: ROUTES_CONFIG.FMT_ALLOCATION_TABLE.title,
   },
   {
     path: '*',

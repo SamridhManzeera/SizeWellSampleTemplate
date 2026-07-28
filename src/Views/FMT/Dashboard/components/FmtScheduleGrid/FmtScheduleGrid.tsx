@@ -1,7 +1,7 @@
 import { CSSProperties } from 'react';
-import { FmtCompany, FmtBooking, FmtSlotKey } from '../../types';
-import { buildFmtSlotKey } from '../../mockData';
-import { DCO_HOUR_CONSTRAINTS } from '../../../../ScheduleConfig/ScheduleConfigContext';
+import { FmtCompany, FmtBooking, FmtSlotKey } from '../../../types';
+import { buildFmtSlotKey } from '../../../mockData';
+import { HourType } from '../../../../ScheduleConfig/ScheduleConfigContext';
 import './FmtScheduleGrid.scss';
 
 interface BookedBreakdown {
@@ -17,6 +17,7 @@ interface FmtScheduleGridProps {
   bookedBreakdown: Map<string, BookedBreakdown>;
   selectedDate: string;
   hourLimits: Record<number, number>;
+  hourTypes: Record<number, HourType>;
   showEarlyHours: boolean;
   showLateHours: boolean;
   onToggleEarlyHours: () => void;
@@ -42,14 +43,15 @@ const ROW_COLORS = [
 ];
 
 function formatHour(hour: number): string {
-  return `${String(hour).padStart(2, '0')}:00`;
+  const start = String(hour).padStart(2, '0');
+  const end = String((hour + 1) % 24).padStart(2, '0');
+  return `${start}:00 - ${end}:00`;
 }
 
-function getHourConstraintLabel(hour: number): string | null {
-  const constraint = DCO_HOUR_CONSTRAINTS[hour];
-  if (!constraint) return null;
+function getHourConstraintLabel(hour: number, type: HourType): string | null {
+  if (!type) return null;
   const period = hour < 12 ? 'AM' : 'PM';
-  const kind = constraint.type === 'peak' ? 'Peak' : 'Shoulder';
+  const kind = type === 'peak' ? 'Peak' : 'Shoulder';
   return `${period} ${kind}`;
 }
 
@@ -88,6 +90,7 @@ function FmtScheduleGrid({
   bookedBreakdown,
   selectedDate,
   hourLimits,
+  hourTypes,
   showEarlyHours,
   showLateHours,
   onToggleEarlyHours,
@@ -184,8 +187,9 @@ function FmtScheduleGrid({
               </button>
             </th>
             {visibleHours.map((hour) => {
-              const isConstrained = !!DCO_HOUR_CONSTRAINTS[hour];
-              const constraintLabel = getHourConstraintLabel(hour);
+              const hourType = hourTypes[hour] ?? null;
+              const isConstrained = !!hourType;
+              const constraintLabel = getHourConstraintLabel(hour, hourType);
               return (
                 <th
                   key={hour}
@@ -300,7 +304,7 @@ function FmtScheduleGrid({
                   const key = buildFmtSlotKey(company.id, selectedDate, hour);
                   const booking = bookings.get(key);
                   const isOccupied = !!booking;
-                  const isConstrained = !!DCO_HOUR_CONSTRAINTS[hour];
+                  const isConstrained = !!hourTypes[hour];
 
                   return (
                     <td

@@ -1,4 +1,4 @@
-import { FmtBooking, FmtCompany } from '../../types';
+import { FmtBooking, FmtCompany } from '../../../types';
 import './FmtBookingViewModal.scss';
 
 interface FmtBookingViewModalProps {

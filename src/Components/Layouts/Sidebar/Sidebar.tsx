@@ -206,6 +206,12 @@ const NAV_GROUPS_SLOT_ALLOCATION = [
         icon: <CalendarIcon />,
         end: true,
       },
+      {
+        to: '/fmt/allocation-table',
+        label: 'Allocation Table',
+        icon: <RequestsIcon />,
+        end: true,
+      },
     ],
   },
   {

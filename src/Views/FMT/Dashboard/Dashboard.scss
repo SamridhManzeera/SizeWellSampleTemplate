@@ -305,6 +305,16 @@ $gutter: 28px;
       border: 1.5px solid #f0b878;
     }
 
+    &--available {
+      background: #e0f2fe;
+      border: 1.5px solid #7dd3fc;
+    }
+
+    &--occupied {
+      background: #eef2fb;
+      border: 1.5px solid #dbe4f5;
+    }
+
     &--twoway {
       background: rgba(214, 51, 108, 0.15);
       border: 1.5px solid rgba(214, 51, 108, 0.5);

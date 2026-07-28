@@ -1,16 +1,13 @@
 import { useState, useMemo, useRef } from 'react';
 import { useScheduleConfig } from '../../ScheduleConfig/ScheduleConfigContext';
-import { FmtBooking } from '../types';
-import { FMT_MOCK_COMPANIES } from '../mockData';
 import { useFmtBookings } from '../FmtBookingsContext';
-import FmtScheduleGrid, {
-  TruckIcon,
-  CalendarIcon,
-} from './components/FmtScheduleGrid/FmtScheduleGrid';
-import FmtBookingViewModal from './components/FmtBookingViewModal/FmtBookingViewModal';
+import { FmtBooking, FmtCompany } from '../types';
+import { FMT_MOCK_COMPANIES, buildFmtSlotKey } from '../mockData';
+import AllocationGrid from './components/AllocationGrid/AllocationGrid';
+import AllocationEditModal from './components/AllocationEditModal/AllocationEditModal';
 import PageHeader from '../../../Components/Layouts/PageHeader/PageHeader';
 import PageHero from '../../../Components/Layouts/PageHero/PageHero';
-import './Dashboard.scss';
+import '../Dashboard/Dashboard.scss';
 
 function getTodayString(): string {
   return new Date().toISOString().split('T')[0];
@@ -25,15 +22,23 @@ function formatDateDisplay(dateStr: string): string {
   });
 }
 
-function BoxIcon() {
+function TruckIcon() {
   return (
     <svg
-      width="22"
-      height="22"
+      width="32"
+      height="32"
       viewBox="0 0 24 24"
       fill="currentColor"
       aria-hidden="true"
     >
+      <path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5S5.17 15.5 6 15.5s1.5.67 1.5 1.5S6.83 18.5 6 18.5zm12 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm-1.5-6h-3V9.5h3.36L20 12.5h-1.5z" />
+    </svg>
+  );
+}
+
+function BoxIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M20 7l-8-4-8 4v10l8 4 8-4V7zm-8 1.5L17.5 11 12 13.5 6.5 11 12 8.5zM5 12.18l6 3v4.32l-6-3v-4.32zm8 7.32v-4.32l6-3v4.32l-6 3z" />
     </svg>
   );
@@ -41,13 +46,7 @@ function BoxIcon() {
 
 function CheckIcon() {
   return (
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-    >
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
     </svg>
   );
@@ -55,13 +54,7 @@ function CheckIcon() {
 
 function GridIcon() {
   return (
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-    >
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M3 3h7v7H3V3zm0 11h7v7H3v-7zm11-11h7v7h-7V3zm0 11h7v7h-7v-7z" />
     </svg>
   );
@@ -69,21 +62,22 @@ function GridIcon() {
 
 function CapacityIcon() {
   return (
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-    >
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h4v4H7v-4z" />
     </svg>
   );
 }
 
-export default function FmtDashboard() {
+interface ModalState {
+  open: boolean;
+  company: FmtCompany | null;
+  hour: number;
+  existingBooking?: FmtBooking;
+}
+
+export default function AllocationTable() {
   const { getConfigForDate } = useScheduleConfig();
-  const { bookings } = useFmtBookings();
+  const { bookings, updateAllocation } = useFmtBookings();
 
   const [selectedDate, setSelectedDate] = useState(getTodayString());
   const [showEarlyHours, setShowEarlyHours] = useState(false);
@@ -92,77 +86,84 @@ export default function FmtDashboard() {
   const HOUR_LIMITS = dayConfig.hourLimits;
   const totalSlotCapacityToday = dayConfig.totalCapacity;
 
-  const [viewBooking, setViewBooking] = useState<FmtBooking | null>(null);
+  const [modalState, setModalState] = useState<ModalState>({
+    open: false,
+    company: null,
+    hour: 0,
+  });
 
   const dateInputRef = useRef<HTMLInputElement>(null);
 
-  // Booked = reported by the booking API (mock data) — independent of what has been distributed to hours
-  const bookedCountsByCompany = useMemo(() => {
+  // Distributed = sum of movementCount already assigned to hours today, per company
+  const distributedCountsByCompany = useMemo(() => {
     const counts = new Map<string, number>();
     bookings.forEach((b) => {
       if (b.date === selectedDate) {
-        counts.set(b.companyId, (counts.get(b.companyId) ?? 0) + b.bookedCount);
+        counts.set(
+          b.companyId,
+          (counts.get(b.companyId) ?? 0) + b.movementCount
+        );
       }
     });
     return counts;
   }, [bookings, selectedDate]);
 
-  // Breakdown of Booked totals per company (for the Booked stat column)
-  const bookedBreakdownByCompany = useMemo(() => {
-    const breakdown = new Map<
-      string,
-      { inbound: number; outbound: number; twoWay: number }
-    >();
-    bookings.forEach((b) => {
-      if (b.date !== selectedDate) return;
-      const prev = breakdown.get(b.companyId) ?? {
-        inbound: 0,
-        outbound: 0,
-        twoWay: 0,
-      };
-      breakdown.set(b.companyId, {
-        inbound: prev.inbound + b.inbound,
-        outbound: prev.outbound + b.outbound,
-        twoWay: prev.twoWay + b.twoWay,
-      });
-    });
-    return breakdown;
-  }, [bookings, selectedDate]);
-
-  const totalAllocated = FMT_MOCK_COMPANIES.reduce(
+  const totalDailyAllocated = FMT_MOCK_COMPANIES.reduce(
     (s, c) => s + c.allocatedCapacity,
     0
   );
-  const totalBookedToday = useMemo(() => {
+  const totalHourlyAllocationToday = useMemo(() => {
     let sum = 0;
-    bookedCountsByCompany.forEach((v) => {
+    distributedCountsByCompany.forEach((v) => {
       sum += v;
     });
     return sum;
-  }, [bookedCountsByCompany]);
-  const totalRemainingToday = totalAllocated - totalBookedToday;
-  // const bookedPct =
-  //   totalAllocated > 0
-  //     ? Math.round((totalBookedToday / totalAllocated) * 100)
-  //     : 0;
-  // const remainingPct =
-  //   totalAllocated > 0
-  //     ? Math.round((totalRemainingToday / totalAllocated) * 100)
-  //     : 0;
+  }, [distributedCountsByCompany]);
+  const totalRemainingToday = totalDailyAllocated - totalHourlyAllocationToday;
 
   const isToday = selectedDate === getTodayString();
 
-  function handleViewBooking(booking: FmtBooking) {
-    setViewBooking(booking);
+  function handleSlotClick(
+    company: FmtCompany,
+    hour: number,
+    booking?: FmtBooking
+  ) {
+    setModalState({ open: true, company, hour, existingBooking: booking });
   }
 
-  function handleCloseView() {
-    setViewBooking(null);
+  function handleModalClose() {
+    setModalState((prev) => ({ ...prev, open: false }));
   }
 
-  const viewCompany = viewBooking
-    ? FMT_MOCK_COMPANIES.find((c) => c.id === viewBooking.companyId) ?? null
-    : null;
+  function handleConfirm(movementCount: number, notes: string) {
+    if (!modalState.company) return;
+    updateAllocation(
+      modalState.company.id,
+      selectedDate,
+      modalState.hour,
+      movementCount,
+      notes
+    );
+    handleModalClose();
+  }
+
+  const modalCurrentDistributed = modalState.company
+    ? distributedCountsByCompany.get(modalState.company.id) ?? 0
+    : 0;
+
+  const modalCurrentHourTotal = useMemo(() => {
+    let sum = 0;
+    FMT_MOCK_COMPANIES.forEach((c) => {
+      const b = bookings.get(
+        buildFmtSlotKey(c.id, selectedDate, modalState.hour)
+      );
+      if (b) {
+        const skip = modalState.company && c.id === modalState.company.id;
+        if (!skip) sum += b.movementCount;
+      }
+    });
+    return sum;
+  }, [bookings, selectedDate, modalState.hour, modalState.company]);
 
   return (
     <div className="fmtd">
@@ -171,7 +172,7 @@ export default function FmtDashboard() {
       <PageHero
         icon={<TruckIcon />}
         eyebrow="FMT"
-        title="Bookings Dashboard"
+        title="Allocation Table"
         subtitle=""
         actions={null}
       />
@@ -199,14 +200,11 @@ export default function FmtDashboard() {
               </div>
               <div className="fmtd__kpi-text">
                 <span className="fmtd__kpi-num fmtd__kpi-num--purple">
-                  {totalAllocated}
+                  {totalDailyAllocated}
                 </span>
-                <span className="fmtd__kpi-label">Allocated</span>
+                <span className="fmtd__kpi-label">Daily Allocated</span>
               </div>
             </div>
-            {/* <p className="fmtd__kpi-caption">
-              Total capacity across all companies
-            </p> */}
           </div>
 
           <div className="fmtd__kpi-tile">
@@ -216,14 +214,11 @@ export default function FmtDashboard() {
               </div>
               <div className="fmtd__kpi-text">
                 <span className="fmtd__kpi-num fmtd__kpi-num--teal">
-                  {totalBookedToday}
+                  {totalHourlyAllocationToday}
                 </span>
-                <span className="fmtd__kpi-label">Booked</span>
+                <span className="fmtd__kpi-label">Hourly Allocation Total</span>
               </div>
             </div>
-            {/* <p className="fmtd__kpi-caption">
-              {bookedPct}% of allocated capacity
-            </p> */}
           </div>
 
           <div className="fmtd__kpi-tile">
@@ -235,12 +230,9 @@ export default function FmtDashboard() {
                 <span className="fmtd__kpi-num fmtd__kpi-num--orange">
                   {totalRemainingToday}
                 </span>
-                <span className="fmtd__kpi-label">Remaining</span>
+                <span className="fmtd__kpi-label">Remaining Allocation</span>
               </div>
             </div>
-            {/* <p className="fmtd__kpi-caption">
-              {remainingPct}% of allocated capacity
-            </p> */}
           </div>
         </div>
       </div>
@@ -284,47 +276,29 @@ export default function FmtDashboard() {
             <span className="fmtd__legend-panel-title">Legend</span>
             <div className="fmtd__legend-divider-v" />
             <span className="fmtd__legend-item">
-              <span className="fmtd__legend-swatch fmtd__legend-swatch--alloc">
-                <TruckIcon />
-              </span>
-              Allocated
+              <span className="fmtd__legend-dot fmtd__legend-dot--available" />
+              Available — click to allocate
             </span>
             <span className="fmtd__legend-item">
-              <span className="fmtd__legend-swatch fmtd__legend-swatch--booked">
-                <CalendarIcon />
-              </span>
-              Booked
+              <span className="fmtd__legend-dot fmtd__legend-dot--occupied" />
+              Allocated — click to edit
             </span>
             <span className="fmtd__legend-item">
               <span className="fmtd__legend-dot fmtd__legend-dot--constrained" />
               Shoulder / Peak Hour
             </span>
-            <div className="fmtd__legend-divider-v" />
-            <span className="fmtd__legend-item">
-              <span className="fmtd__legend-dot fmtd__legend-dot--twoway" />
-              Two-way
-            </span>
-            <span className="fmtd__legend-item">
-              <span className="fmtd__legend-dot fmtd__legend-dot--inbound" />
-              Inbound
-            </span>
-            <span className="fmtd__legend-item">
-              <span className="fmtd__legend-dot fmtd__legend-dot--outbound" />
-              Outbound
-            </span>
             <span className="fmtd__legend-note">
-              click a booked slot for details
+              Click any slot to allocate or edit movements
             </span>
           </div>
         </div>
       </div>
 
       <div className="fmtd__grid-area">
-        <FmtScheduleGrid
+        <AllocationGrid
           companies={FMT_MOCK_COMPANIES}
           bookings={bookings}
-          bookedCounts={bookedCountsByCompany}
-          bookedBreakdown={bookedBreakdownByCompany}
+          distributedCounts={distributedCountsByCompany}
           selectedDate={selectedDate}
           hourLimits={HOUR_LIMITS}
           hourTypes={dayConfig.hourTypes}
@@ -332,15 +306,22 @@ export default function FmtDashboard() {
           showLateHours={showLateHours}
           onToggleEarlyHours={() => setShowEarlyHours((v) => !v)}
           onToggleLateHours={() => setShowLateHours((v) => !v)}
-          onViewBooking={handleViewBooking}
+          onSlotClick={handleSlotClick}
         />
       </div>
 
-      <FmtBookingViewModal
-        open={viewBooking !== null}
-        booking={viewBooking}
-        company={viewCompany}
-        onClose={handleCloseView}
+      <AllocationEditModal
+        open={modalState.open}
+        company={modalState.company}
+        hour={modalState.hour}
+        selectedDate={selectedDate}
+        currentDistributed={modalCurrentDistributed}
+        currentHourTotal={modalCurrentHourTotal}
+        hourCapacity={HOUR_LIMITS[modalState.hour] ?? 0}
+        totalSlotCapacity={totalSlotCapacityToday}
+        existingBooking={modalState.existingBooking}
+        onConfirm={handleConfirm}
+        onClose={handleModalClose}
       />
     </div>
   );

@@ -87,6 +87,10 @@ function formatHour(h: number) {
   return `${String(h).padStart(2, '0')}:00`;
 }
 
+function formatHourRange(h: number) {
+  return `${formatHour(h)} - ${formatHour((h + 1) % 24)}`;
+}
+
 function parseDate(dateStr: string): Date {
   const [y, m, d] = dateStr.split('-').map(Number);
   return new Date(y, m - 1, d);
@@ -317,20 +321,10 @@ function ScheduleConfig() {
     addDays(todayString(), PATTERN_DEFAULT_LOOKAHEAD_DAYS)
   );
 
-  // Explicit type label per hour — independent of the slot value
-  const defaultHourTypes = (): Record<number, 'peak' | 'shoulder' | null> =>
-    Object.fromEntries(
-      HOURS.map((h) => [h, DCO_HOUR_CONSTRAINTS[h]?.type ?? null])
-    );
-
-  const [hourTypes, setHourTypes] =
-    useState<Record<number, 'peak' | 'shoulder' | null>>(defaultHourTypes);
-
   const isToday = selectedDate === todayString();
 
   useEffect(() => {
     setDraft(getConfigForDate(selectedDate));
-    setHourTypes(defaultHourTypes());
     setSaved(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDate]);
@@ -443,7 +437,11 @@ function ScheduleConfig() {
   }
 
   function setHourType(h: number, type: 'peak' | 'shoulder' | null) {
-    setHourTypes((prev) => ({ ...prev, [h]: type }));
+    setDraft((prev) => ({
+      ...prev,
+      hourTypes: { ...prev.hourTypes, [h]: type },
+    }));
+    setSaved(false);
     // Auto-apply DCO slot value for constrained hours
     const dco = DCO_HOUR_CONSTRAINTS[h];
     if (type && dco) setHourLimit(h, dco.slots);
@@ -746,7 +744,7 @@ function ScheduleConfig() {
                     {col.map((h) => {
                       const blocked = isBlocked(h);
                       const val = getHourValue(h);
-                      const hType = hourTypes[h] ?? null;
+                      const hType = draft.hourTypes[h] ?? null;
                       const menuOpen = openHourMenu === h;
 
                       return (
@@ -764,7 +762,7 @@ function ScheduleConfig() {
                                   blocked ? ' sc__hour-time--blocked' : ''
                                 }`}
                               >
-                                {formatHour(h)}
+                                {formatHourRange(h)}
                               </span>
                               {blocked && (
                                 <span className="sc__hour-state sc__hour-state--blocked">
