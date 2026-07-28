@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef } from 'react';
 import { useScheduleConfig } from '../../ScheduleConfig/ScheduleConfigContext';
-import { FmtBooking, FmtModalState, FmtSlotKey } from './types';
+import { FmtBooking, FmtSlotKey } from './types';
 import {
   FMT_MOCK_BOOKINGS,
   FMT_MOCK_COMPANIES,
@@ -10,15 +10,10 @@ import FmtScheduleGrid, {
   TruckIcon,
   CalendarIcon,
 } from './components/FmtScheduleGrid/FmtScheduleGrid';
-import FmtAssignSlotModal from './components/FmtAssignSlotModal/FmtAssignSlotModal';
+import FmtBookingViewModal from './components/FmtBookingViewModal/FmtBookingViewModal';
 import PageHeader from '../../../Components/Layouts/PageHeader/PageHeader';
 import PageHero from '../../../Components/Layouts/PageHero/PageHero';
 import './Dashboard.scss';
-
-interface ConfirmData {
-  movementCount: number;
-  notes: string;
-}
 
 function getTodayString(): string {
   return new Date().toISOString().split('T')[0];
@@ -40,8 +35,6 @@ function buildInitialBookings(): Map<FmtSlotKey, FmtBooking> {
   });
   return map;
 }
-
-let idCounter = FMT_MOCK_BOOKINGS.length + 1;
 
 function BoxIcon() {
   return (
@@ -85,6 +78,20 @@ function GridIcon() {
   );
 }
 
+function CapacityIcon() {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h4v4H7v-4z" />
+    </svg>
+  );
+}
+
 export default function FmtDashboard() {
   const { getConfigForDate } = useScheduleConfig();
 
@@ -92,17 +99,12 @@ export default function FmtDashboard() {
   const [showEarlyHours, setShowEarlyHours] = useState(false);
   const [showLateHours, setShowLateHours] = useState(false);
   const dayConfig = getConfigForDate(selectedDate);
-  const TOTAL_SLOT_CAPACITY = dayConfig.totalCapacity;
   const HOUR_LIMITS = dayConfig.hourLimits;
+  const totalSlotCapacityToday = dayConfig.totalCapacity;
 
-  const [bookings, setBookings] =
+  const [bookings] =
     useState<Map<FmtSlotKey, FmtBooking>>(buildInitialBookings);
-  const [modalState, setModalState] = useState<FmtModalState>({
-    open: false,
-    mode: 'create',
-    companyId: '',
-    hour: 0,
-  });
+  const [viewBooking, setViewBooking] = useState<FmtBooking | null>(null);
 
   const dateInputRef = useRef<HTMLInputElement>(null);
 
@@ -117,18 +119,26 @@ export default function FmtDashboard() {
     return counts;
   }, [bookings, selectedDate]);
 
-  // Distributed = sum of movementCount already assigned to hours from the company's Allocated capacity
-  const distributedCountsByCompany = useMemo(() => {
-    const counts = new Map<string, number>();
+  // Breakdown of Booked totals per company (for the Booked stat column)
+  const bookedBreakdownByCompany = useMemo(() => {
+    const breakdown = new Map<
+      string,
+      { inbound: number; outbound: number; twoWay: number }
+    >();
     bookings.forEach((b) => {
-      if (b.date === selectedDate) {
-        counts.set(
-          b.companyId,
-          (counts.get(b.companyId) ?? 0) + b.movementCount
-        );
-      }
+      if (b.date !== selectedDate) return;
+      const prev = breakdown.get(b.companyId) ?? {
+        inbound: 0,
+        outbound: 0,
+        twoWay: 0,
+      };
+      breakdown.set(b.companyId, {
+        inbound: prev.inbound + b.inbound,
+        outbound: prev.outbound + b.outbound,
+        twoWay: prev.twoWay + b.twoWay,
+      });
     });
-    return counts;
+    return breakdown;
   }, [bookings, selectedDate]);
 
   const totalAllocated = FMT_MOCK_COMPANIES.reduce(
@@ -154,87 +164,17 @@ export default function FmtDashboard() {
 
   const isToday = selectedDate === getTodayString();
 
-  function handleAvailableSlotClick(companyId: string, hour: number) {
-    setModalState({ open: true, mode: 'create', companyId, hour });
+  function handleViewBooking(booking: FmtBooking) {
+    setViewBooking(booking);
   }
 
-  function handleOccupiedSlotClick(booking: FmtBooking) {
-    setModalState({
-      open: true,
-      mode: 'edit',
-      companyId: booking.companyId,
-      hour: booking.hour,
-      existingBooking: booking,
-    });
+  function handleCloseView() {
+    setViewBooking(null);
   }
 
-  function handleModalClose() {
-    setModalState((prev) => ({ ...prev, open: false }));
-  }
-
-  function handleConfirm(data: ConfirmData) {
-    const company = FMT_MOCK_COMPANIES.find(
-      (c) => c.id === modalState.companyId
-    );
-    if (!company) return;
-    const key = buildFmtSlotKey(
-      modalState.companyId,
-      selectedDate,
-      modalState.hour
-    );
-
-    if (modalState.mode === 'edit' && modalState.existingBooking) {
-      setBookings((prev) =>
-        new Map(prev).set(key, {
-          ...modalState.existingBooking!,
-          movementCount: data.movementCount,
-          notes: data.notes,
-          // bookedCount is API-sourced and left untouched here
-        })
-      );
-    } else {
-      setBookings((prev) =>
-        new Map(prev).set(key, {
-          id: `f-b${idCounter++}`,
-          companyId: modalState.companyId,
-          companyName: company.name,
-          date: selectedDate,
-          hour: modalState.hour,
-          movementCount: data.movementCount,
-          bookedCount: 0,
-          notes: data.notes,
-          createdAt: new Date().toISOString(),
-        })
-      );
-    }
-    handleModalClose();
-  }
-
-  const modalCompany =
-    FMT_MOCK_COMPANIES.find((c) => c.id === modalState.companyId) ?? null;
-  const modalCurrentDistributed =
-    distributedCountsByCompany.get(modalState.companyId) ?? 0;
-
-  const modalCurrentHourTotal = useMemo(() => {
-    let sum = 0;
-    FMT_MOCK_COMPANIES.forEach((c) => {
-      const b = bookings.get(
-        buildFmtSlotKey(c.id, selectedDate, modalState.hour)
-      );
-      if (b) {
-        const skip =
-          modalState.mode === 'edit' && c.id === modalState.companyId;
-        if (!skip) sum += b.movementCount;
-      }
-    });
-    return sum;
-  }, [
-    bookings,
-    selectedDate,
-    modalState.hour,
-    modalState.mode,
-    modalState.companyId,
-  ]);
+  const viewCompany = viewBooking
+    ? FMT_MOCK_COMPANIES.find((c) => c.id === viewBooking.companyId) ?? null
+    : null;
 
   return (
     <div className="fmtd">
@@ -243,13 +183,27 @@ export default function FmtDashboard() {
       <PageHero
         icon={<TruckIcon />}
         eyebrow="FMT"
-        title="Delivery Distribution"
+        title="Bookings Dashboard"
         subtitle=""
         actions={null}
       />
 
       <div className="fmtd__header">
         <div className="fmtd__kpi-row">
+          <div className="fmtd__kpi-tile">
+            <div className="fmtd__kpi-tile-top">
+              <div className="fmtd__kpi-icon fmtd__kpi-icon--navy">
+                <CapacityIcon />
+              </div>
+              <div className="fmtd__kpi-text">
+                <span className="fmtd__kpi-num fmtd__kpi-num--navy">
+                  {totalSlotCapacityToday}
+                </span>
+                <span className="fmtd__kpi-label">Slot Capacity</span>
+              </div>
+            </div>
+          </div>
+
           <div className="fmtd__kpi-tile">
             <div className="fmtd__kpi-tile-top">
               <div className="fmtd__kpi-icon fmtd__kpi-icon--purple">
@@ -321,9 +275,8 @@ export default function FmtDashboard() {
               </button>
               <button
                 type="button"
-                className={`fmtd__today-btn${
-                  isToday ? ' fmtd__today-btn--active' : ''
-                }`}
+                className={`fmtd__today-btn${isToday ? ' fmtd__today-btn--active' : ''
+                  }`}
                 onClick={() => setSelectedDate(getTodayString())}
               >
                 Today
@@ -355,11 +308,24 @@ export default function FmtDashboard() {
               Booked
             </span>
             <span className="fmtd__legend-item">
-              <span className="fmtd__legend-dot fmtd__legend-dot--available" />
-              Available
+              <span className="fmtd__legend-dot fmtd__legend-dot--constrained" />
+              Shoulder / Peak Hour
+            </span>
+            <div className="fmtd__legend-divider-v" />
+            <span className="fmtd__legend-item">
+              <span className="fmtd__legend-dot fmtd__legend-dot--twoway" />
+              Two-way
+            </span>
+            <span className="fmtd__legend-item">
+              <span className="fmtd__legend-dot fmtd__legend-dot--inbound" />
+              Inbound
+            </span>
+            <span className="fmtd__legend-item">
+              <span className="fmtd__legend-dot fmtd__legend-dot--outbound" />
+              Outbound
             </span>
             <span className="fmtd__legend-note">
-              Every slot on this board represents a single movement
+              click a booked slot for details
             </span>
           </div>
         </div>
@@ -369,32 +335,23 @@ export default function FmtDashboard() {
         <FmtScheduleGrid
           companies={FMT_MOCK_COMPANIES}
           bookings={bookings}
-          distributedCounts={distributedCountsByCompany}
           bookedCounts={bookedCountsByCompany}
+          bookedBreakdown={bookedBreakdownByCompany}
           selectedDate={selectedDate}
           hourLimits={HOUR_LIMITS}
           showEarlyHours={showEarlyHours}
           showLateHours={showLateHours}
           onToggleEarlyHours={() => setShowEarlyHours((v) => !v)}
           onToggleLateHours={() => setShowLateHours((v) => !v)}
-          onAvailableSlotClick={handleAvailableSlotClick}
-          onOccupiedSlotClick={handleOccupiedSlotClick}
+          onViewBooking={handleViewBooking}
         />
       </div>
 
-      <FmtAssignSlotModal
-        open={modalState.open}
-        mode={modalState.mode}
-        hour={modalState.hour}
-        selectedDate={selectedDate}
-        company={modalCompany}
-        currentDistributed={modalCurrentDistributed}
-        currentHourTotal={modalCurrentHourTotal}
-        hourCapacity={HOUR_LIMITS[modalState.hour] ?? 0}
-        totalSlotCapacity={TOTAL_SLOT_CAPACITY}
-        existingBooking={modalState.existingBooking}
-        onConfirm={handleConfirm}
-        onClose={handleModalClose}
+      <FmtBookingViewModal
+        open={viewBooking !== null}
+        booking={viewBooking}
+        company={viewCompany}
+        onClose={handleCloseView}
       />
     </div>
   );

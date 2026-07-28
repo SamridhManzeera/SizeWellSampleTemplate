@@ -16,20 +16,13 @@ export interface FmtBooking {
   companyName: string;
   date: string;
   hour: number;
-  movementCount: number; // distributed from the company's Allocated capacity, set via Assign Slot
-  bookedCount: number; // reported by the booking API (mock data here) — independent of movementCount
+  movementCount: number; // distributed from the company's Allocated capacity
+  bookedCount: number; // reported by the booking API (mock data here) — independent of movementCount; equals inbound + outbound + twoWay*2
+  inbound: number;
+  outbound: number;
+  twoWay: number;
   notes: string;
   createdAt: string;
 }
 
 export type FmtSlotKey = string; // `${companyId}-${date}-${hour}`
-
-export type FmtModalMode = 'create' | 'edit';
-
-export interface FmtModalState {
-  open: boolean;
-  mode: FmtModalMode;
-  companyId: string;
-  hour: number;
-  existingBooking?: FmtBooking;
-}

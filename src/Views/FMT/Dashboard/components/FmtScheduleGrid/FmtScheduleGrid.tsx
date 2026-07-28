@@ -1,21 +1,27 @@
 import { CSSProperties } from 'react';
 import { FmtCompany, FmtBooking, FmtSlotKey } from '../../types';
 import { buildFmtSlotKey } from '../../mockData';
+import { DCO_HOUR_CONSTRAINTS } from '../../../../ScheduleConfig/ScheduleConfigContext';
 import './FmtScheduleGrid.scss';
+
+interface BookedBreakdown {
+  inbound: number;
+  outbound: number;
+  twoWay: number;
+}
 
 interface FmtScheduleGridProps {
   companies: FmtCompany[];
   bookings: Map<FmtSlotKey, FmtBooking>;
-  distributedCounts: Map<string, number>;
   bookedCounts: Map<string, number>;
+  bookedBreakdown: Map<string, BookedBreakdown>;
   selectedDate: string;
   hourLimits: Record<number, number>;
   showEarlyHours: boolean;
   showLateHours: boolean;
   onToggleEarlyHours: () => void;
   onToggleLateHours: () => void;
-  onAvailableSlotClick: (companyId: string, hour: number) => void;
-  onOccupiedSlotClick: (booking: FmtBooking) => void;
+  onViewBooking: (booking: FmtBooking) => void;
 }
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
@@ -37,6 +43,14 @@ const ROW_COLORS = [
 
 function formatHour(hour: number): string {
   return `${String(hour).padStart(2, '0')}:00`;
+}
+
+function getHourConstraintLabel(hour: number): string | null {
+  const constraint = DCO_HOUR_CONSTRAINTS[hour];
+  if (!constraint) return null;
+  const period = hour < 12 ? 'AM' : 'PM';
+  const kind = constraint.type === 'peak' ? 'Peak' : 'Shoulder';
+  return `${period} ${kind}`;
 }
 
 export function TruckIcon() {
@@ -70,16 +84,15 @@ export function CalendarIcon() {
 function FmtScheduleGrid({
   companies,
   bookings,
-  distributedCounts,
   bookedCounts,
+  bookedBreakdown,
   selectedDate,
   hourLimits,
   showEarlyHours,
   showLateHours,
   onToggleEarlyHours,
   onToggleLateHours,
-  onAvailableSlotClick,
-  onOccupiedSlotClick,
+  onViewBooking,
 }: FmtScheduleGridProps) {
   const visibleHours = [
     ...(showEarlyHours ? EARLY_HOURS : []),
@@ -149,7 +162,7 @@ function FmtScheduleGrid({
             })}
           </tr>
           <tr>
-            <th className="fsg__th fsg__th--company">Company / Structure</th>
+            <th className="fsg__th fsg__th--company">Contractor</th>
             <th className="fsg__th fsg__th--stat fsg__th--allocated">
               Allocated
             </th>
@@ -170,37 +183,54 @@ function FmtScheduleGrid({
                 {showEarlyHours ? '−' : '+'}
               </button>
             </th>
-            {visibleHours.map((hour) => (
-              <th key={hour} className="fsg__th fsg__th--hour">
-                <span className="fsg__time">{formatHour(hour)}</span>
-                {(hourLimits[hour] ?? 0) > 0 && (
-                  <span className="fsg__hour-cap">Max {hourLimits[hour]}</span>
-                )}
-                {!showLateHours &&
-                  hour === PEAK_HOURS[PEAK_HOURS.length - 1] && (
-                    <button
-                      type="button"
-                      className="fsg__hour-handle fsg__hour-handle--right"
-                      onClick={onToggleLateHours}
-                      title="Show 19:00–23:00"
-                      aria-label="Show 19:00–23:00"
-                    >
-                      +
-                    </button>
+            {visibleHours.map((hour) => {
+              const isConstrained = !!DCO_HOUR_CONSTRAINTS[hour];
+              const constraintLabel = getHourConstraintLabel(hour);
+              return (
+                <th
+                  key={hour}
+                  className={`fsg__th fsg__th--hour${
+                    isConstrained ? ' fsg__th--constrained' : ''
+                  }`}
+                >
+                  {constraintLabel && (
+                    <span className="fsg__hour-constraint-label">
+                      {constraintLabel}
+                    </span>
                   )}
-                {showLateHours && hour === LATE_HOURS[LATE_HOURS.length - 1] && (
-                  <button
-                    type="button"
-                    className="fsg__hour-handle fsg__hour-handle--right"
-                    onClick={onToggleLateHours}
-                    title="Hide 19:00–23:00"
-                    aria-label="Hide 19:00–23:00"
-                  >
-                    −
-                  </button>
-                )}
-              </th>
-            ))}
+                  <span className="fsg__time">{formatHour(hour)}</span>
+                  {(hourLimits[hour] ?? 0) > 0 && (
+                    <span className="fsg__hour-cap">
+                      Max {hourLimits[hour]}
+                    </span>
+                  )}
+                  {!showLateHours &&
+                    hour === PEAK_HOURS[PEAK_HOURS.length - 1] && (
+                      <button
+                        type="button"
+                        className="fsg__hour-handle fsg__hour-handle--right"
+                        onClick={onToggleLateHours}
+                        title="Show 19:00–23:00"
+                        aria-label="Show 19:00–23:00"
+                      >
+                        +
+                      </button>
+                    )}
+                  {showLateHours &&
+                    hour === LATE_HOURS[LATE_HOURS.length - 1] && (
+                      <button
+                        type="button"
+                        className="fsg__hour-handle fsg__hour-handle--right"
+                        onClick={onToggleLateHours}
+                        title="Hide 19:00–23:00"
+                        aria-label="Hide 19:00–23:00"
+                      >
+                        −
+                      </button>
+                    )}
+                </th>
+              );
+            })}
           </tr>
         </thead>
 
@@ -209,8 +239,7 @@ function FmtScheduleGrid({
             const allocated = company.allocatedCapacity;
             const booked = bookedCounts.get(company.id) ?? 0;
             const remaining = allocated - booked;
-            const distributed = distributedCounts.get(company.id) ?? 0;
-            const isFull = distributed >= allocated;
+            const breakdown = bookedBreakdown.get(company.id);
             const accentColor = ROW_COLORS[idx % ROW_COLORS.length];
 
             return (
@@ -235,6 +264,28 @@ function FmtScheduleGrid({
                   <span className="fsg__stat-num fsg__stat-num--booked">
                     {booked}
                   </span>
+                  {booked > 0 && breakdown && (
+                    <div className="fsg__stat-breakdown">
+                      <span
+                        className="fsg__stat-breakdown-item fsg__stat-breakdown-item--twoway"
+                        title={`Two-way: ${breakdown.twoWay}`}
+                      >
+                        {breakdown.twoWay}
+                      </span>
+                      <span
+                        className="fsg__stat-breakdown-item fsg__stat-breakdown-item--inbound"
+                        title={`Inbound: ${breakdown.inbound}`}
+                      >
+                        {breakdown.inbound}
+                      </span>
+                      <span
+                        className="fsg__stat-breakdown-item fsg__stat-breakdown-item--outbound"
+                        title={`Outbound: ${breakdown.outbound}`}
+                      >
+                        {breakdown.outbound}
+                      </span>
+                    </div>
+                  )}
                 </td>
                 <td className="fsg__td fsg__td--stat-3">
                   <span
@@ -249,32 +300,23 @@ function FmtScheduleGrid({
                   const key = buildFmtSlotKey(company.id, selectedDate, hour);
                   const booking = bookings.get(key);
                   const isOccupied = !!booking;
-                  const isDisabled = !isOccupied && isFull;
+                  const isConstrained = !!DCO_HOUR_CONSTRAINTS[hour];
 
                   return (
-                    <td key={hour} className="fsg__td fsg__td--slot">
-                      <button
-                        type="button"
-                        className={`fsg__slot${isOccupied
-                          ? ' fsg__slot--occupied'
-                          : ' fsg__slot--available'
-                          }${isDisabled ? ' fsg__slot--disabled' : ''}`}
-                        onClick={() => {
-                          isOccupied
-                            ? onOccupiedSlotClick(booking!)
-                            : onAvailableSlotClick(company.id, hour);
-                        }}
-                        disabled={isDisabled}
-                        title={
-                          isDisabled
-                            ? 'No remaining allocated capacity'
-                            : isOccupied
-                              ? `${booking!.movementCount} allocated · ${booking!.bookedCount
-                              } booked — click to edit`
-                              : 'Available — click to assign slot'
-                        }
-                      >
-                        {isOccupied && (
+                    <td
+                      key={hour}
+                      className={`fsg__td fsg__td--slot${
+                        isConstrained ? ' fsg__td--constrained' : ''
+                      }`}
+                    >
+                      {isOccupied ? (
+                        <button
+                          type="button"
+                          className="fsg__slot fsg__slot--occupied"
+                          onClick={() => onViewBooking(booking!)}
+                          title={`${booking!.movementCount} allocated · ${booking!.bookedCount
+                            } booked — click to view`}
+                        >
                           <div className="fsg__slot-combo">
                             <span className="fsg__combo-badge fsg__combo-badge--alloc">
                               <TruckIcon /> {booking!.movementCount}
@@ -283,8 +325,10 @@ function FmtScheduleGrid({
                               <CalendarIcon /> {booking!.bookedCount}
                             </span>
                           </div>
-                        )}
-                      </button>
+                        </button>
+                      ) : (
+                        <div className="fsg__slot fsg__slot--empty" />
+                      )}
                     </td>
                   );
                 })}

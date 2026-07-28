@@ -77,6 +77,11 @@ $gutter: 28px;
       background: #f3f0ff;
       color: #7048e8;
     }
+
+    &--navy {
+      background: #e8edf7;
+      color: $navy;
+    }
   }
 
   &__kpi-text {
@@ -102,6 +107,10 @@ $gutter: 28px;
 
     &--purple {
       color: #7048e8;
+    }
+
+    &--navy {
+      color: $navy;
     }
   }
 
@@ -291,9 +300,24 @@ $gutter: 28px;
     border-radius: 50%;
     flex-shrink: 0;
 
-    &--available {
-      background: #e0f2fe;
-      border: 1.5px solid #7dd3fc;
+    &--constrained {
+      background: #fbe0c4;
+      border: 1.5px solid #f0b878;
+    }
+
+    &--twoway {
+      background: rgba(214, 51, 108, 0.15);
+      border: 1.5px solid rgba(214, 51, 108, 0.5);
+    }
+
+    &--inbound {
+      background: rgba(22, 163, 74, 0.15);
+      border: 1.5px solid rgba(22, 163, 74, 0.5);
+    }
+
+    &--outbound {
+      background: rgba(217, 119, 6, 0.15);
+      border: 1.5px solid rgba(217, 119, 6, 0.5);
     }
   }
 

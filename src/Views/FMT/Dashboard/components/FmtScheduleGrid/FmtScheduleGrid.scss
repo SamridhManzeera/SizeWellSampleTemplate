@@ -7,7 +7,13 @@ $navy: #1a3a6b;
 $navy-hover: #1e4a8a;
 $teal: #26a69a;
 $full-red: #ef4444;
+$constrained-bg: #fbe0c4;
+$constrained-bg-soft: #fdf0e2;
 $sticky-shadow: 2px 0 8px rgba(0, 0, 0, 0.07);
+
+$twoway:   #d6336c;
+$inbound:  #16a34a;
+$outbound: #d97706;
 
 // Company col: 210px  |  each stat col: 145px  |  each hour col: 140px
 $col-company:    210px;
@@ -98,6 +104,10 @@ $left-remaining: $col-company + $col-stat * 2; // 500px
       padding: 8px 4px;
       vertical-align: middle;
     }
+
+    &--constrained {
+      background: $constrained-bg;
+    }
   }
 
   // ── Column totals row ──────────────────────────────────────
@@ -172,6 +182,16 @@ $left-remaining: $col-company + $col-stat * 2; // 500px
     font-weight: 700;
     color: $text-dark;
     line-height: 1.3;
+  }
+
+  &__hour-constraint-label {
+    display: block;
+    font-size: 9px;
+    font-weight: 800;
+    color: #9a5416;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
   }
 
   &__hour-cap {
@@ -332,6 +352,10 @@ $left-remaining: $col-company + $col-stat * 2; // 500px
       position: relative;
       z-index: 0;
     }
+
+    &--constrained {
+      background: $constrained-bg-soft;
+    }
   }
 
   &__row:hover &__td--company,
@@ -383,7 +407,46 @@ $left-remaining: $col-company + $col-stat * 2; // 500px
     &--full { color: $full-red; }
   }
 
-  // ── Slot button ────────────────────────────────────────────
+  &__stat-breakdown {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 5px;
+  }
+
+  &__stat-breakdown-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1;
+
+    &--twoway {
+      background: rgba($twoway, 0.12);
+      border: 1px solid rgba($twoway, 0.35);
+      color: $twoway;
+    }
+
+    &--inbound {
+      background: rgba($inbound, 0.12);
+      border: 1px solid rgba($inbound, 0.35);
+      color: $inbound;
+    }
+
+    &--outbound {
+      background: rgba($outbound, 0.12);
+      border: 1px solid rgba($outbound, 0.35);
+      color: $outbound;
+    }
+  }
+
+  // ── Slot (view-only) ─────────────────────────────────────────
   &__slot {
     display: inline-flex;
     align-items: center;
@@ -392,27 +455,20 @@ $left-remaining: $col-company + $col-stat * 2; // 500px
     height: 80px;
     border-radius: 10px;
     border: none;
-    cursor: pointer;
     transition: background 0.15s, box-shadow 0.15s;
     padding: 6px 4px;
     font-family: inherit;
 
-    &--available {
-      background: #e0f2fe;
-      border: 1.5px solid #7dd3fc;
-      &:hover { background: #bae6fd; }
-    }
-
     &--occupied {
       background: #eef2fb;
       border: 1.5px solid #dbe4f5;
+      cursor: pointer;
       &:hover { background: #e2e9f8; }
     }
 
-    &--disabled {
-      background: #f3f4f6;
-      cursor: not-allowed;
-      opacity: 0.5;
+    &--empty {
+      background: transparent;
+      border: none;
     }
   }
 

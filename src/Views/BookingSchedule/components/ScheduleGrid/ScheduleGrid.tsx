@@ -120,7 +120,7 @@ function ScheduleGrid({
             ))}
           </tr>
           <tr>
-            <th className="sg__th sg__th--company">Company / Structure</th>
+            <th className="sg__th sg__th--company">Contractor</th>
             <th className="sg__th sg__th--stat sg__th--assigned">Requested</th>
             {isCombined ? (
               <>
