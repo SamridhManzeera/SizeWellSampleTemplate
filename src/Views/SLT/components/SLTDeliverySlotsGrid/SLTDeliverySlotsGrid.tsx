@@ -15,6 +15,7 @@ import './SLTDeliverySlotsGrid.scss';
 interface SLTDeliverySlotsGridProps {
   requests: DeliveryRequest[];
   dateColumns: string[];
+  capacityByDate: Record<string, number>;
   onCellClick: (request: DeliveryRequest, date: string) => void;
   onViewRequest: (request: DeliveryRequest) => void;
 }
@@ -72,6 +73,7 @@ function isDateInRange(date: string, start: string, end: string): boolean {
 function SLTDeliverySlotsGrid({
   requests,
   dateColumns,
+  capacityByDate,
   onCellClick,
   onViewRequest,
 }: SLTDeliverySlotsGridProps) {
@@ -152,6 +154,9 @@ function SLTDeliverySlotsGrid({
               <th key={date} className="dsg__th dsg__th--day">
                 <span className="dsg__day-date">{formatDateShort(date)}</span>
                 <span className="dsg__day-name">{formatDayName(date)}</span>
+                <span className="dsg__day-capacity">
+                  Cap {capacityByDate[date] ?? 0}
+                </span>
               </th>
             ))}
           </tr>

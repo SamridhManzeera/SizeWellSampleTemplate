@@ -94,6 +94,20 @@ $left-allocated: $col-company + $col-stat;
     color: $text-muted;
   }
 
+  &__day-capacity {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 5px;
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    background: #e8edf7;
+    color: $navy;
+    letter-spacing: 0.02em;
+  }
+
   // ── Column totals row ──────────────────────────────────────
   &__totals-row { background: $navy; }
 

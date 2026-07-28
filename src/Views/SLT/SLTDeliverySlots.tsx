@@ -150,6 +150,11 @@ export default function SLTDeliverySlots() {
     (sum, d) => sum + d.capacity,
     0
   );
+  const capacityByDate = useMemo(
+    () =>
+      Object.fromEntries(weeklyCapacityDays.map((d) => [d.date, d.capacity])),
+    [weeklyCapacityDays]
+  );
 
   function handleCellClick(request: DeliveryRequest, date: string) {
     setModalState({ open: true, request, date });
@@ -285,6 +290,7 @@ export default function SLTDeliverySlots() {
         <SLTDeliverySlotsGrid
           requests={filteredRequests}
           dateColumns={dateColumns}
+          capacityByDate={capacityByDate}
           onCellClick={handleCellClick}
           onViewRequest={handleViewRequest}
         />
