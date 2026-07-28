@@ -4,6 +4,36 @@ $dark:    #111827;
 $mid:     #374151;
 $muted:   #9ca3af;
 
+.slt-ds .rq__stats {
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.slt-ds__stat--capacity {
+  position: relative;
+}
+
+.slt-ds__capacity-eye {
+  position: absolute;
+  top: 14px;
+  right: 12px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid $border;
+  border-radius: 7px;
+  background: #fff;
+  color: $navy;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+
+  &:hover {
+    background: #eef2f9;
+    border-color: rgba($navy, 0.4);
+  }
+}
+
 .slt-ds__filters {
   display: flex;
   flex-direction: column;

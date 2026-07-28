@@ -4,6 +4,7 @@ import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
 import PageHero from '../../Components/Layouts/PageHero/PageHero';
 import { useRequests } from '../Requests/RequestsContext';
 import { DeliveryRequest } from '../Requests/requestTypes';
+import { useScheduleConfig } from '../ScheduleConfig/ScheduleConfigContext';
 import {
   addDays,
   emptyCounts,
@@ -17,6 +18,7 @@ import SLTDeliverySlotsGrid, {
   AllocatedIcon,
 } from './components/SLTDeliverySlotsGrid/SLTDeliverySlotsGrid';
 import SLTAllocationModal from './components/SLTAllocationModal/SLTAllocationModal';
+import SLTCapacityModal from './components/SLTCapacityModal/SLTCapacityModal';
 import '../Requests/Requests.scss';
 import './SLTDeliverySlots.scss';
 
@@ -26,6 +28,14 @@ function CompaniesIcon() {
   return (
     <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" />
+    </svg>
+  );
+}
+
+function EyeIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
     </svg>
   );
 }
@@ -76,11 +86,13 @@ interface ModalState {
 export default function SLTDeliverySlots() {
   const navigate = useNavigate();
   const { requests, updateRequest } = useRequests();
+  const { getConfigForDate } = useScheduleConfig();
   const [modalState, setModalState] = useState<ModalState>({
     open: false,
     request: null,
     date: '',
   });
+  const [capacityModalOpen, setCapacityModalOpen] = useState(false);
 
   const weekOptions = useMemo(() => getWeekOptions(requests), [requests]);
   const [selectedWeekStart, setSelectedWeekStart] = useState<string>(() => {
@@ -126,6 +138,19 @@ export default function SLTDeliverySlots() {
     'allocatedSlots'
   );
 
+  const weeklyCapacityDays = useMemo(
+    () =>
+      dateColumns.map((date) => ({
+        date,
+        capacity: getConfigForDate(date).totalCapacity,
+      })),
+    [dateColumns, getConfigForDate]
+  );
+  const totalWeeklyCapacity = weeklyCapacityDays.reduce(
+    (sum, d) => sum + d.capacity,
+    0
+  );
+
   function handleCellClick(request: DeliveryRequest, date: string) {
     setModalState({ open: true, request, date });
   }
@@ -165,6 +190,19 @@ export default function SLTDeliverySlots() {
 
       {/* ── Stats ───────────────────────────────────────────── */}
       <div className="rq__stats">
+        <div className="rq__stat slt-ds__stat--capacity">
+          <button
+            type="button"
+            className="slt-ds__capacity-eye"
+            onClick={() => setCapacityModalOpen(true)}
+            title="View daily slot capacity"
+            aria-label="View daily slot capacity"
+          >
+            <EyeIcon />
+          </button>
+          <span className="rq__stat-num">{totalWeeklyCapacity}</span>
+          <span className="rq__stat-label">Total Slot Capacity (Week)</span>
+        </div>
         <div className="rq__stat">
           <span className="rq__stat-num">{totalCompanies}</span>
           <span className="rq__stat-label">Companies</span>
@@ -258,6 +296,16 @@ export default function SLTDeliverySlots() {
         date={modalState.date}
         onConfirm={handleConfirm}
         onClose={handleModalClose}
+      />
+
+      <SLTCapacityModal
+        open={capacityModalOpen}
+        weekLabel={
+          selectedWeekStart ? formatDateRange(selectedWeekStart, weekEnd) : ''
+        }
+        totalCapacity={totalWeeklyCapacity}
+        days={weeklyCapacityDays}
+        onClose={() => setCapacityModalOpen(false)}
       />
     </div>
   );
