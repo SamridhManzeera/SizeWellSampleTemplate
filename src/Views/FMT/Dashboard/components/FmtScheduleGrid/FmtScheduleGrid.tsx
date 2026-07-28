@@ -10,11 +10,18 @@ interface FmtScheduleGridProps {
   bookedCounts: Map<string, number>;
   selectedDate: string;
   hourLimits: Record<number, number>;
+  showEarlyHours: boolean;
+  showLateHours: boolean;
+  onToggleEarlyHours: () => void;
+  onToggleLateHours: () => void;
   onAvailableSlotClick: (companyId: string, hour: number) => void;
   onOccupiedSlotClick: (booking: FmtBooking) => void;
 }
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
+const EARLY_HOURS = HOURS.filter((h) => h <= 5);
+const PEAK_HOURS = HOURS.filter((h) => h >= 6 && h <= 18);
+const LATE_HOURS = HOURS.filter((h) => h >= 19);
 
 const ROW_COLORS = [
   '#6c5ce7',
@@ -67,10 +74,20 @@ function FmtScheduleGrid({
   bookedCounts,
   selectedDate,
   hourLimits,
+  showEarlyHours,
+  showLateHours,
+  onToggleEarlyHours,
+  onToggleLateHours,
   onAvailableSlotClick,
   onOccupiedSlotClick,
 }: FmtScheduleGridProps) {
-  const hourTotals = HOURS.map((hour) => {
+  const visibleHours = [
+    ...(showEarlyHours ? EARLY_HOURS : []),
+    ...PEAK_HOURS,
+    ...(showLateHours ? LATE_HOURS : []),
+  ];
+
+  const hourTotals = visibleHours.map((hour) => {
     let allocated = 0;
     let booked = 0;
     companies.forEach((company) => {
@@ -98,7 +115,7 @@ function FmtScheduleGrid({
           <col className="fsg__col-stat" />
           <col className="fsg__col-stat" />
           <col className="fsg__col-stat" />
-          {HOURS.map((h) => (
+          {visibleHours.map((h) => (
             <col key={h} className="fsg__col-hour" />
           ))}
         </colgroup>
@@ -115,18 +132,21 @@ function FmtScheduleGrid({
             <th className="fsg__totals-stat fsg__totals-stat--remaining">
               <span className="fsg__totals-single">{totalRemaining}</span>
             </th>
-            {hourTotals.map(({ allocated, booked }, hour) => (
-              <th key={hour} className="fsg__totals-cell">
-                <div className="fsg__totals-combo">
-                  <span className="fsg__totals-chip fsg__totals-chip--alloc">
-                    <TruckIcon /> {allocated}
-                  </span>
-                  <span className="fsg__totals-chip fsg__totals-chip--booked">
-                    <CalendarIcon /> {booked}
-                  </span>
-                </div>
-              </th>
-            ))}
+            {visibleHours.map((hour, i) => {
+              const { allocated, booked } = hourTotals[i];
+              return (
+                <th key={hour} className="fsg__totals-cell">
+                  <div className="fsg__totals-combo">
+                    <span className="fsg__totals-chip fsg__totals-chip--alloc">
+                      <TruckIcon /> {allocated}
+                    </span>
+                    <span className="fsg__totals-chip fsg__totals-chip--booked">
+                      <CalendarIcon /> {booked}
+                    </span>
+                  </div>
+                </th>
+              );
+            })}
           </tr>
           <tr>
             <th className="fsg__th fsg__th--company">Company / Structure</th>
@@ -136,12 +156,48 @@ function FmtScheduleGrid({
             <th className="fsg__th fsg__th--stat fsg__th--booked">Booked</th>
             <th className="fsg__th fsg__th--stat fsg__th--remaining">
               Unbooked Allocation
+              <button
+                type="button"
+                className="fsg__hour-handle fsg__hour-handle--right"
+                onClick={onToggleEarlyHours}
+                title={
+                  showEarlyHours ? 'Hide 00:00–05:00' : 'Show 00:00–05:00'
+                }
+                aria-label={
+                  showEarlyHours ? 'Hide 00:00–05:00' : 'Show 00:00–05:00'
+                }
+              >
+                {showEarlyHours ? '−' : '+'}
+              </button>
             </th>
-            {HOURS.map((hour) => (
+            {visibleHours.map((hour) => (
               <th key={hour} className="fsg__th fsg__th--hour">
                 <span className="fsg__time">{formatHour(hour)}</span>
                 {(hourLimits[hour] ?? 0) > 0 && (
                   <span className="fsg__hour-cap">Max {hourLimits[hour]}</span>
+                )}
+                {!showLateHours &&
+                  hour === PEAK_HOURS[PEAK_HOURS.length - 1] && (
+                    <button
+                      type="button"
+                      className="fsg__hour-handle fsg__hour-handle--right"
+                      onClick={onToggleLateHours}
+                      title="Show 19:00–23:00"
+                      aria-label="Show 19:00–23:00"
+                    >
+                      +
+                    </button>
+                  )}
+                {showLateHours && hour === LATE_HOURS[LATE_HOURS.length - 1] && (
+                  <button
+                    type="button"
+                    className="fsg__hour-handle fsg__hour-handle--right"
+                    onClick={onToggleLateHours}
+                    title="Hide 19:00–23:00"
+                    aria-label="Hide 19:00–23:00"
+                  >
+                    −
+                  </button>
                 )}
               </th>
             ))}
@@ -189,7 +245,7 @@ function FmtScheduleGrid({
                   </span>
                 </td>
 
-                {HOURS.map((hour) => {
+                {visibleHours.map((hour) => {
                   const key = buildFmtSlotKey(company.id, selectedDate, hour);
                   const booking = bookings.get(key);
                   const isOccupied = !!booking;

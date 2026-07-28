@@ -11,8 +11,8 @@ $left-requested: $col-company;
 $left-allocated: $col-company + $col-stat;
 
 .dsg-wrapper {
-  overflow: auto;
-  max-height: calc(100vh - 300px);
+  overflow-x: auto;
+  overflow-y: visible;
   border: 1px solid $border;
   border-radius: 12px;
   background: #fff;

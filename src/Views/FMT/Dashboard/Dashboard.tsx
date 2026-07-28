@@ -89,6 +89,8 @@ export default function FmtDashboard() {
   const { getConfigForDate } = useScheduleConfig();
 
   const [selectedDate, setSelectedDate] = useState(getTodayString());
+  const [showEarlyHours, setShowEarlyHours] = useState(false);
+  const [showLateHours, setShowLateHours] = useState(false);
   const dayConfig = getConfigForDate(selectedDate);
   const TOTAL_SLOT_CAPACITY = dayConfig.totalCapacity;
   const HOUR_LIMITS = dayConfig.hourLimits;
@@ -371,6 +373,10 @@ export default function FmtDashboard() {
           bookedCounts={bookedCountsByCompany}
           selectedDate={selectedDate}
           hourLimits={HOUR_LIMITS}
+          showEarlyHours={showEarlyHours}
+          showLateHours={showLateHours}
+          onToggleEarlyHours={() => setShowEarlyHours((v) => !v)}
+          onToggleLateHours={() => setShowLateHours((v) => !v)}
           onAvailableSlotClick={handleAvailableSlotClick}
           onOccupiedSlotClick={handleOccupiedSlotClick}
         />
