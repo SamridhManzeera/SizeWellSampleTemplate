@@ -207,7 +207,20 @@ function AllocationEditModal({
                 </svg>
               </button>
               <div className="aem__stepper-display">
-                <span className="aem__stepper-num">{movementCount}</span>
+                <input
+                  type="number"
+                  className="aem__stepper-input"
+                  value={movementCount}
+                  min={0}
+                  max={maxAllowed}
+                  onChange={(e) => {
+                    const v = parseInt(e.target.value, 10);
+                    setMovementCount(
+                      isNaN(v) ? 0 : Math.min(maxAllowed, Math.max(0, v))
+                    );
+                  }}
+                  aria-label="Movement count"
+                />
                 <span className="aem__stepper-of">
                   of {maxAllowed} available
                 </span>

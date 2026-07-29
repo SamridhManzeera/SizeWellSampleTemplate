@@ -129,7 +129,20 @@ function SLTAllocationModal({
                 </svg>
               </button>
               <div className="sam__stepper-display">
-                <span className="sam__stepper-num">{allocatedTotal}</span>
+                <input
+                  type="number"
+                  className="sam__stepper-input"
+                  value={allocatedTotal}
+                  min={0}
+                  max={requestedTotal}
+                  onChange={(e) => {
+                    const v = parseInt(e.target.value, 10);
+                    setAllocatedTotal(
+                      isNaN(v) ? 0 : Math.min(requestedTotal, Math.max(0, v))
+                    );
+                  }}
+                  aria-label="Allocated slots"
+                />
                 <span className="sam__stepper-of">of {requestedTotal} requested</span>
               </div>
               <button

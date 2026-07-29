@@ -234,13 +234,33 @@ $radius:    16px;
     min-width: 90px;
   }
 
-  &__stepper-num {
+  &__stepper-input {
+    width: 100%;
+    max-width: 110px;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-family: inherit;
     font-size: 52px;
     font-weight: 800;
     color: $navy;
     line-height: 1;
     letter-spacing: -2px;
     font-variant-numeric: tabular-nums;
+    border-radius: 8px;
+    transition: background 0.12s;
+
+    &:focus {
+      outline: none;
+      background: rgba($navy, 0.06);
+    }
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    &[type='number'] { -moz-appearance: textfield; }
   }
 
   &__stepper-of {

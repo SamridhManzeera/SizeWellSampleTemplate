@@ -319,9 +319,17 @@ export default function SLTRequestView() {
                               >
                                 −
                               </button>
-                              <span className="slv__counter-val">
-                                {allocated}
-                              </span>
+                              <input
+                                type="number"
+                                className="slv__counter-input"
+                                value={allocated}
+                                min={0}
+                                onChange={(e) => {
+                                  const v = parseInt(e.target.value, 10);
+                                  setAllocatedTotal(date, isNaN(v) ? 0 : v);
+                                }}
+                                aria-label={`Allocated for ${date}`}
+                              />
                               <button
                                 type="button"
                                 className="slv__counter-btn"

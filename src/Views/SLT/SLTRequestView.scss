@@ -174,6 +174,32 @@ $green:   #16a34a;
     color: $dark;
   }
 
+  &__counter-input {
+    width: 36px;
+    min-width: 36px;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    color: $dark;
+    border-radius: 4px;
+    transition: background 0.12s;
+
+    &:focus {
+      outline: none;
+      background: rgba($navy, 0.08);
+    }
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    &[type='number'] { -moz-appearance: textfield; }
+  }
+
   &__total-row {
     font-weight: 800;
     background: rgba(#eef2f9, 0.6);
