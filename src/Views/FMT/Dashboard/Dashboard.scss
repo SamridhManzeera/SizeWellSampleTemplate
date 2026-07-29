@@ -321,6 +321,16 @@ $gutter: 28px;
       border: 1.5px solid #f0b878;
     }
 
+    &--peak {
+      background: rgba(234, 88, 12, 0.18);
+      border: 1.5px solid #ea580c;
+    }
+
+    &--shoulder {
+      background: rgba(124, 58, 237, 0.18);
+      border: 1.5px solid #7c3aed;
+    }
+
     &--available {
       background: #e0f2fe;
       border: 1.5px solid #7dd3fc;

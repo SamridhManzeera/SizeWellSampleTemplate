@@ -306,8 +306,12 @@ export default function FmtDashboard() {
               Booked
             </span>
             <span className="fmtd__legend-item">
-              <span className="fmtd__legend-dot fmtd__legend-dot--constrained" />
-              Shoulder / Peak Hour
+              <span className="fmtd__legend-dot fmtd__legend-dot--peak" />
+              Peak Hour
+            </span>
+            <span className="fmtd__legend-item">
+              <span className="fmtd__legend-dot fmtd__legend-dot--shoulder" />
+              Shoulder Hour
             </span>
             <div className="fmtd__legend-divider-v" />
             <span className="fmtd__legend-item">

@@ -294,8 +294,12 @@ export default function AllocationTable() {
               Allocated — click to edit
             </span>
             <span className="fmtd__legend-item">
-              <span className="fmtd__legend-dot fmtd__legend-dot--constrained" />
-              Shoulder / Peak Hour
+              <span className="fmtd__legend-dot fmtd__legend-dot--peak" />
+              Peak Hour
+            </span>
+            <span className="fmtd__legend-item">
+              <span className="fmtd__legend-dot fmtd__legend-dot--shoulder" />
+              Shoulder Hour
             </span>
             <span className="fmtd__legend-note">
               Click any slot to allocate or edit movements

@@ -166,17 +166,16 @@ function AllocationGrid({
             </th>
             {visibleHours.map((hour) => {
               const hourType = hourTypes[hour] ?? null;
-              const isConstrained = !!hourType;
               const constraintLabel = getHourConstraintLabel(hour, hourType);
               return (
                 <th
                   key={hour}
                   className={`alg__th alg__th--hour${
-                    isConstrained ? ' alg__th--constrained' : ''
+                    hourType ? ` alg__th--constrained alg__th--${hourType}` : ''
                   }`}
                 >
                   {constraintLabel && (
-                    <span className="alg__hour-constraint-label">
+                    <span className={`alg__hour-constraint-label alg__hour-constraint-label--${hourType}`}>
                       {constraintLabel}
                     </span>
                   )}
@@ -262,13 +261,13 @@ function AllocationGrid({
                   const key = buildFmtSlotKey(company.id, selectedDate, hour);
                   const booking = bookings.get(key);
                   const isOccupied = !!booking;
-                  const isConstrained = !!hourTypes[hour];
+                  const hourType = hourTypes[hour] ?? null;
 
                   return (
                     <td
                       key={hour}
                       className={`alg__td alg__td--slot${
-                        isConstrained ? ' alg__td--constrained' : ''
+                        hourType ? ` alg__td--constrained alg__td--${hourType}` : ''
                       }`}
                     >
                       <button

@@ -188,17 +188,16 @@ function FmtScheduleGrid({
             </th>
             {visibleHours.map((hour) => {
               const hourType = hourTypes[hour] ?? null;
-              const isConstrained = !!hourType;
               const constraintLabel = getHourConstraintLabel(hour, hourType);
               return (
                 <th
                   key={hour}
                   className={`fsg__th fsg__th--hour${
-                    isConstrained ? ' fsg__th--constrained' : ''
+                    hourType ? ` fsg__th--constrained fsg__th--${hourType}` : ''
                   }`}
                 >
                   {constraintLabel && (
-                    <span className="fsg__hour-constraint-label">
+                    <span className={`fsg__hour-constraint-label fsg__hour-constraint-label--${hourType}`}>
                       {constraintLabel}
                     </span>
                   )}
@@ -304,13 +303,13 @@ function FmtScheduleGrid({
                   const key = buildFmtSlotKey(company.id, selectedDate, hour);
                   const booking = bookings.get(key);
                   const isOccupied = !!booking;
-                  const isConstrained = !!hourTypes[hour];
+                  const hourType = hourTypes[hour] ?? null;
 
                   return (
                     <td
                       key={hour}
                       className={`fsg__td fsg__td--slot${
-                        isConstrained ? ' fsg__td--constrained' : ''
+                        hourType ? ` fsg__td--constrained fsg__td--${hourType}` : ''
                       }`}
                     >
                       {isOccupied ? (

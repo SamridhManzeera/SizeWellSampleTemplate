@@ -9,6 +9,11 @@ $teal: #26a69a;
 $full-red: #ef4444;
 $constrained-bg: #fbe0c4;
 $constrained-bg-soft: #fdf0e2;
+// Matches the Peak / Shoulder colors used in Schedule Config — two distinct
+// hues (orange vs violet) so the two states stay distinguishable even as
+// low-opacity background tints.
+$peak: #ea580c;
+$shoulder: #7c3aed;
 $sticky-shadow: 2px 0 8px rgba(0, 0, 0, 0.07);
 
 $twoway:   #d6336c;
@@ -111,6 +116,9 @@ $left-remaining: $col-company + $col-stat * 2; // 500px
     &--constrained {
       background: $constrained-bg;
     }
+
+    &--peak     { background: rgba($peak, 0.16); border-bottom: 2px solid rgba($peak, 0.5); }
+    &--shoulder { background: rgba($shoulder, 0.14); border-bottom: 2px solid rgba($shoulder, 0.5); }
   }
 
   // ── Column totals row ──────────────────────────────────────
@@ -195,6 +203,9 @@ $left-remaining: $col-company + $col-stat * 2; // 500px
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-bottom: 4px;
+
+    &--peak     { color: $peak; }
+    &--shoulder { color: $shoulder; }
   }
 
   &__hour-cap {
@@ -359,6 +370,9 @@ $left-remaining: $col-company + $col-stat * 2; // 500px
     &--constrained {
       background: $constrained-bg-soft;
     }
+
+    &--peak     { background: rgba($peak, 0.08); }
+    &--shoulder { background: rgba($shoulder, 0.08); }
   }
 
   &__row:hover &__td--company,
