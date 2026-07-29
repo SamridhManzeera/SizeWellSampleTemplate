@@ -52,6 +52,24 @@ function AlertIcon() {
   );
 }
 
+function LayoutStackIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="8" rx="1.5"></rect>
+      <rect x="3" y="13" width="18" height="8" rx="1.5"></rect>
+    </svg>
+  );
+}
+
+function LayoutSideIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="8" height="18" rx="1.5"></rect>
+      <rect x="13" y="3" width="8" height="18" rx="1.5"></rect>
+    </svg>
+  );
+}
+
 function ClearIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -260,6 +278,7 @@ export default function RequestForm() {
   const attachmentInputRef = useRef<HTMLInputElement>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [deadlinePosition, setDeadlinePosition] = useState<'below' | 'side'>('below');
 
   const isView = mode === 'view';
   const isCreate = mode === 'create';
@@ -467,27 +486,53 @@ export default function RequestForm() {
 
         {/* ── Section 1: Request Details ───────────────────── */}
         <section className="rf__section">
-          <h2 className="rf__section-title" style={{ marginBottom: 16 }}>Request Details</h2>
+          <div className="rf__section-header-row">
+            <h2 className="rf__section-title" style={{ marginBottom: 0 }}>Request Details</h2>
+            {!isView && (
+              <div className="rf__layout-toggle" role="group" aria-label="Deadline info layout">
+                <button
+                  type="button"
+                  className={`rf__layout-toggle-btn${deadlinePosition === 'below' ? ' rf__layout-toggle-btn--active' : ''}`}
+                  onClick={() => setDeadlinePosition('below')}
+                  title="Show deadline info below the field"
+                  aria-pressed={deadlinePosition === 'below'}
+                >
+                  <LayoutStackIcon /> Below
+                </button>
+                <button
+                  type="button"
+                  className={`rf__layout-toggle-btn${deadlinePosition === 'side' ? ' rf__layout-toggle-btn--active' : ''}`}
+                  onClick={() => setDeadlinePosition('side')}
+                  title="Show deadline info beside the field"
+                  aria-pressed={deadlinePosition === 'side'}
+                >
+                  <LayoutSideIcon /> Side
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* Delivery Week */}
           {isView ? (
             <ReadField label="Delivery Week" value={formatDateRange(startDate, endDate)} />
           ) : (
-            <div className="rf__field rf__field--full">
-              <label className="rf__label">Delivery Week *</label>
-              <WeekPicker
-                value={{ startDate, endDate }}
-                minDate={minWeekStart}
-                onChange={week => {
-                  setStartDate(week.startDate);
-                  setEndDate(week.endDate);
-                  setErrors(p => ({ ...p, deliveryDate: '' }));
-                }}
-              />
-              <p className="rf__date-range-summary">
-                {dayDates.length} {dayDates.length === 1 ? 'day' : 'days'} selected ({formatDateFull(startDate)} – {formatDateFull(endDate)})
-              </p>
-              {errors.deliveryDate && <span className="rf__err">{errors.deliveryDate}</span>}
+            <div className={`rf__req-details-layout${deadlinePosition === 'side' ? ' rf__req-details-layout--side' : ''}`}>
+              <div className="rf__field rf__field--full">
+                <label className="rf__label">Delivery Week *</label>
+                <WeekPicker
+                  value={{ startDate, endDate }}
+                  minDate={minWeekStart}
+                  onChange={week => {
+                    setStartDate(week.startDate);
+                    setEndDate(week.endDate);
+                    setErrors(p => ({ ...p, deliveryDate: '' }));
+                  }}
+                />
+                <p className="rf__date-range-summary">
+                  {dayDates.length} {dayDates.length === 1 ? 'day' : 'days'} selected ({formatDateFull(startDate)} – {formatDateFull(endDate)})
+                </p>
+                {errors.deliveryDate && <span className="rf__err">{errors.deliveryDate}</span>}
+              </div>
 
               <div className={`rf__deadline${slotDeadlinePassed ? ' rf__deadline--passed' : ''}`}>
                 <div className="rf__deadline-header">
@@ -503,7 +548,7 @@ export default function RequestForm() {
                 </div>
                 <div className="rf__deadline-live">
                   <div className="rf__deadline-row">
-                    <span className="rf__deadline-label"> Slot Window</span>
+                    <span className="rf__deadline-label">Next Slot Window</span>
                     <span className="rf__deadline-value">{formatDayMonth(parseDate(startDate))} – {formatDayMonth(parseDate(endDate))}</span>
                   </div>
                   <div className="rf__deadline-row">
