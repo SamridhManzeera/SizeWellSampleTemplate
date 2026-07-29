@@ -9,9 +9,9 @@ $constrained-bg: #fbe0c4;
 $constrained-bg-soft: #fdf0e2;
 $sticky-shadow: 2px 0 8px rgba(0, 0, 0, 0.07);
 
-// Company col: 210px | each stat col: 155px | each hour col: 150px
+// Company col: 210px | each stat col: 110px | each hour col: 150px
 $col-company:    210px;
-$col-stat:       155px;
+$col-stat:       110px;
 $left-allocated: $col-company;                 // 210px
 $left-distributed: $col-company + $col-stat;   // 365px
 $left-remaining: $col-company + $col-stat * 2; // 520px
@@ -63,9 +63,12 @@ $left-remaining: $col-company + $col-stat * 2; // 520px
       text-align: center;
       font-size: 11px;
       font-weight: 700;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.02em;
       border-right: 1px solid $border;
       background: $header-bg;
+      white-space: normal;
+      line-height: 1.3;
+      padding: 12px 6px;
     }
 
     &--allocated   { left: $left-allocated;   z-index: 42; }
@@ -224,6 +227,11 @@ $left-remaining: $col-company + $col-stat * 2; // 520px
     background: rgba(255, 255, 255, 0.18);
     border: 1px solid rgba(255, 255, 255, 0.25);
     letter-spacing: -0.2px;
+
+    &--over {
+      background: rgba($full-red, 0.3);
+      border-color: rgba($full-red, 0.55);
+    }
   }
 
   // ── Rows ───────────────────────────────────────────────────
@@ -350,6 +358,15 @@ $left-remaining: $col-company + $col-stat * 2; // 520px
     color: $text-dark;
 
     &--full { color: $full-red; }
+  }
+
+  &__stat-over {
+    display: block;
+    margin-top: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    color: $full-red;
+    letter-spacing: 0.01em;
   }
 
   // ── Slot button (editable) ──────────────────────────────────

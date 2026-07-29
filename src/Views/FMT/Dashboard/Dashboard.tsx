@@ -141,6 +141,7 @@ export default function FmtDashboard() {
     return sum;
   }, [bookedCountsByCompany]);
   const totalRemainingToday = totalAllocated - totalBookedToday;
+  const isTodayOverAllocated = totalRemainingToday < 0;
   // const bookedPct =
   //   totalAllocated > 0
   //     ? Math.round((totalBookedToday / totalAllocated) * 100)
@@ -228,14 +229,23 @@ export default function FmtDashboard() {
 
           <div className="fmtd__kpi-tile">
             <div className="fmtd__kpi-tile-top">
-              <div className="fmtd__kpi-icon fmtd__kpi-icon--orange">
+              <div
+                className={`fmtd__kpi-icon${isTodayOverAllocated ? ' fmtd__kpi-icon--danger' : ' fmtd__kpi-icon--orange'}`}
+              >
                 <GridIcon />
               </div>
               <div className="fmtd__kpi-text">
-                <span className="fmtd__kpi-num fmtd__kpi-num--orange">
-                  {totalRemainingToday}
+                <span
+                  className={`fmtd__kpi-num${isTodayOverAllocated ? ' fmtd__kpi-num--danger' : ' fmtd__kpi-num--orange'}`}
+                >
+                  {isTodayOverAllocated ? 0 : totalRemainingToday}
                 </span>
                 <span className="fmtd__kpi-label">Available Slots </span>
+                {isTodayOverAllocated && (
+                  <span className="fmtd__kpi-over">
+                    +{Math.abs(totalRemainingToday)} over
+                  </span>
+                )}
               </div>
             </div>
             {/* <p className="fmtd__kpi-caption">

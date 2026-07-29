@@ -140,6 +140,7 @@ $radius:    16px;
 
     &--warn { color: $error; }
     &--low  { color: $warn; }
+    &--over { color: $error; }
   }
 
   &__cap-bar {
@@ -154,9 +155,10 @@ $radius:    16px;
     height: 100%;
     background: $navy;
     border-radius: 3px;
-    transition: width 0.25s ease;
+    transition: width 0.25s ease, background 0.15s ease;
 
     &--hour { background: $teal; }
+    &--over { background: $error; }
   }
 
   &__form {
@@ -261,6 +263,12 @@ $radius:    16px;
       margin: 0;
     }
     &[type='number'] { -moz-appearance: textfield; }
+
+    &--over {
+      color: $error;
+
+      &:focus { background: rgba($error, 0.08); }
+    }
   }
 
   &__stepper-of {
@@ -268,6 +276,11 @@ $radius:    16px;
     font-weight: 500;
     color: $text-muted;
     margin-top: 4px;
+
+    &--over {
+      color: $error;
+      font-weight: 700;
+    }
   }
 
   &__stepper-progress {

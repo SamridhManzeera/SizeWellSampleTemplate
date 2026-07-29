@@ -15,9 +15,9 @@ $twoway:   #d6336c;
 $inbound:  #16a34a;
 $outbound: #d97706;
 
-// Company col: 210px  |  each stat col: 145px  |  each hour col: 140px
+// Company col: 210px  |  each stat col: 110px  |  each hour col: 140px
 $col-company:    210px;
-$col-stat:       145px;
+$col-stat:       110px;
 $left-allocated: $col-company;                 // 210px
 $left-booked:    $col-company + $col-stat;     // 355px
 $left-remaining: $col-company + $col-stat * 2; // 500px
@@ -71,8 +71,11 @@ $left-remaining: $col-company + $col-stat * 2; // 500px
       text-align: center;
       font-size: 11px;
       font-weight: 700;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.02em;
       border-right: 1px solid $border;
+      white-space: normal;
+      line-height: 1.3;
+      padding: 12px 6px;
     }
 
     &--allocated {

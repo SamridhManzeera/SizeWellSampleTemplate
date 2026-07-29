@@ -63,10 +63,15 @@ function AllocationEditModal({
       ? totalSlotCapacity
       : hourCapacity;
   const hourRemaining = effectiveHourLimit - currentHourTotal;
-  const maxAllowed = Math.max(0, Math.min(remaining, hourRemaining));
+  // Hour capacity is a hard physical limit; the daily allocated quota is not —
+  // movements can exceed it, but the UI flags it in red when they do.
+  const maxAllowed = Math.max(0, hourRemaining);
 
   const canIncrease = movementCount < maxAllowed;
   const canDecrease = movementCount > 0;
+
+  const displayRemaining = remaining - movementCount;
+  const isOverAllocated = displayRemaining < 0;
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -125,25 +130,30 @@ function AllocationEditModal({
           <div className="aem__cap-item">
             <span className="aem__cap-label">Daily Allocated</span>
             <span
-              className={`aem__cap-val${remaining === 0
-                ? ' aem__cap-val--warn'
-                : remaining <= 2
-                  ? ' aem__cap-val--low'
-                  : ''
+              className={`aem__cap-val${isOverAllocated
+                ? ' aem__cap-val--over'
+                : displayRemaining === 0
+                  ? ' aem__cap-val--warn'
+                  : displayRemaining <= 2
+                    ? ' aem__cap-val--low'
+                    : ''
                 }`}
             >
-              {remaining - movementCount < 0 ? 0 : remaining - movementCount}{' '}
-              remaining of {company.allocatedCapacity}
+              {isOverAllocated
+                ? `${Math.abs(displayRemaining)} over allocated (${company.allocatedCapacity})`
+                : `${displayRemaining} remaining of ${company.allocatedCapacity}`}
             </span>
             <div className="aem__cap-bar">
               <div
-                className="aem__cap-fill"
+                className={`aem__cap-fill${isOverAllocated ? ' aem__cap-fill--over' : ''}`}
                 style={{
-                  width: `${usedPct +
+                  width: `${Math.min(
+                    100,
+                    usedPct +
                     Math.round(
                       (movementCount / company.allocatedCapacity) * 100
                     )
-                    }%`,
+                  )}%`,
                 }}
               />
             </div>
@@ -209,7 +219,7 @@ function AllocationEditModal({
               <div className="aem__stepper-display">
                 <input
                   type="number"
-                  className="aem__stepper-input"
+                  className={`aem__stepper-input${isOverAllocated ? ' aem__stepper-input--over' : ''}`}
                   value={movementCount}
                   min={0}
                   max={maxAllowed}
@@ -221,8 +231,12 @@ function AllocationEditModal({
                   }}
                   aria-label="Movement count"
                 />
-                <span className="aem__stepper-of">
-                  of {maxAllowed} available
+                <span
+                  className={`aem__stepper-of${isOverAllocated ? ' aem__stepper-of--over' : ''}`}
+                >
+                  {isOverAllocated
+                    ? `${Math.abs(displayRemaining)} over daily allocation`
+                    : `of ${maxAllowed} available`}
                 </span>
               </div>
               <button
@@ -287,7 +301,7 @@ function AllocationEditModal({
             <button
               type="submit"
               className="aem__btn aem__btn--confirm"
-              disabled={remaining === 0 && !isEdit}
+              disabled={movementCount === 0 && !isEdit}
             >
               {isEdit ? 'Save Changes' : 'Allocate'}
             </button>

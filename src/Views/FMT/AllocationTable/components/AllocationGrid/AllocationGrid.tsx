@@ -99,6 +99,7 @@ function AllocationGrid({
     0
   );
   const totalRemaining = totalDailyAllocated - totalHourlyAllocation;
+  const isTotalOverAllocated = totalRemaining < 0;
 
   return (
     <div className="alg-wrapper">
@@ -125,7 +126,13 @@ function AllocationGrid({
               </span>
             </th>
             <th className="alg__totals-stat alg__totals-stat--remaining">
-              <span className="alg__totals-single">{totalRemaining}</span>
+              <span
+                className={`alg__totals-single${isTotalOverAllocated ? ' alg__totals-single--over' : ''}`}
+              >
+                {isTotalOverAllocated
+                  ? `${Math.abs(totalRemaining)} over`
+                  : totalRemaining}
+              </span>
             </th>
             {visibleHours.map((hour, i) => (
               <th key={hour} className="alg__totals-cell">
@@ -214,6 +221,7 @@ function AllocationGrid({
             const allocated = company.allocatedCapacity;
             const distributed = distributedCounts.get(company.id) ?? 0;
             const remaining = allocated - distributed;
+            const isOverAllocated = remaining < 0;
             const accentColor = ROW_COLORS[idx % ROW_COLORS.length];
 
             return (
@@ -241,8 +249,13 @@ function AllocationGrid({
                       remaining <= 0 ? ' alg__stat-num--full' : ''
                     }`}
                   >
-                    {remaining}
+                    {isOverAllocated ? 0 : remaining}
                   </span>
+                  {isOverAllocated && (
+                    <span className="alg__stat-over">
+                      +{Math.abs(remaining)} over
+                    </span>
+                  )}
                 </td>
 
                 {visibleHours.map((hour) => {
