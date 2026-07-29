@@ -143,7 +143,7 @@ function SLTDeliverySlotsGrid({
             ))}
           </tr>
           <tr>
-            <th className="dsg__th dsg__th--company">Company / Request</th>
+            <th className="dsg__th dsg__th--company">Contractor</th>
             <th className="dsg__th dsg__th--stat dsg__th--requested">
               Requested
             </th>
@@ -242,11 +242,10 @@ function SLTDeliverySlotsGrid({
                     <td key={date} className="dsg__td dsg__td--slot">
                       <button
                         type="button"
-                        className={`dsg__slot${
-                          isOccupied
+                        className={`dsg__slot${isOccupied
                             ? ' dsg__slot--occupied'
                             : ' dsg__slot--available'
-                        }`}
+                          }`}
                         onClick={() => onCellClick(req, date)}
                         title={`${requested} requested · ${allocated} allocated — click to edit`}
                       >

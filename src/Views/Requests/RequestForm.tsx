@@ -91,8 +91,6 @@ function RemoveIcon() {
 
 // ── Helpers ───────────────────────────────────────────────────────
 
-function todayString() { return new Date().toISOString().split('T')[0]; }
-
 function nextId(count: number) { return `REQ-${String(count + 1).padStart(3, '0')}`; }
 
 function parseDate(dateStr: string): Date {
@@ -107,12 +105,15 @@ function dateToString(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
-function currentWeekRange(): { startDate: string; endDate: string } {
-  const today = new Date();
+function weekRangeContaining(date: Date): { startDate: string; endDate: string } {
   return {
-    startDate: dateToString(startOfWeek(today, { weekStartsOn: 1 })),
-    endDate: dateToString(endOfWeek(today, { weekStartsOn: 1 })),
+    startDate: dateToString(startOfWeek(date, { weekStartsOn: 1 })),
+    endDate: dateToString(endOfWeek(date, { weekStartsOn: 1 })),
   };
+}
+
+function currentWeekRange(): { startDate: string; endDate: string } {
+  return weekRangeContaining(new Date());
 }
 
 function formatDate(dateStr: string) {
@@ -130,6 +131,35 @@ function formatDayName(dateStr: string) {
 
 function formatDateFull(dateStr: string) {
   return parseDate(dateStr).toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+// Counts every calendar day, including Saturdays and Sundays.
+function subtractDays(date: Date, days: number): Date {
+  const result = new Date(date);
+  result.setDate(result.getDate() - days);
+  return result;
+}
+
+function addDays(date: Date, days: number): Date {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+}
+
+function formatDayMonth(d: Date) {
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
+}
+
+// Earliest Monday whose delivery week still has a request deadline (10:00, one
+// week — including weekends — before the week starts) that hasn't already passed.
+function earliestValidWeekStart(): Date {
+  const now = new Date();
+  const refDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  if (now.getHours() >= 10) refDate.setDate(refDate.getDate() + 1);
+
+  const earliestStart = addDays(refDate, 8);
+  const weekStart = startOfWeek(earliestStart, { weekStartsOn: 1 });
+  return weekStart < earliestStart ? new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + 7) : weekStart;
 }
 
 function getDatesInRange(startStr: string, endStr: string): string[] {
@@ -216,9 +246,12 @@ export default function RequestForm() {
 
   const [mode, setMode] = useState<Mode>(initMode);
   const kind: RequestKind = existing?.kind ?? 'normal';
+  const minWeekStart = earliestValidWeekStart();
+  const minWeek = weekRangeContaining(minWeekStart);
   const defaultWeek = currentWeekRange();
-  const [startDate, setStartDate] = useState(existing?.startDate ?? defaultWeek.startDate);
-  const [endDate, setEndDate] = useState(existing?.endDate ?? defaultWeek.endDate);
+  const initialWeek = defaultWeek.startDate < minWeek.startDate ? minWeek : defaultWeek;
+  const [startDate, setStartDate] = useState(existing?.startDate ?? initialWeek.startDate);
+  const [endDate, setEndDate] = useState(existing?.endDate ?? initialWeek.endDate);
   const [dailySlots, setDailySlots] = useState<Record<string, DaySlotCounts>>(existing?.dailySlots ?? {});
   const vehicleType: VehicleType = existing?.vehicleType ?? 'HGV_ACA_MDS';
   const driverRoute: DriverRoute = existing?.driverRoute ?? 'route1a';
@@ -232,6 +265,13 @@ export default function RequestForm() {
   const isCreate = mode === 'create';
 
   const dayDates = getDatesInRange(startDate, endDate);
+
+  // Slot requests are due 10:00, one week before the delivery week starts.
+  const slotDeadlineDate = subtractDays(parseDate(startDate), 8);
+  const slotDeadlineDateTime = new Date(
+    slotDeadlineDate.getFullYear(), slotDeadlineDate.getMonth(), slotDeadlineDate.getDate(), 10, 0, 0
+  );
+  const slotDeadlinePassed = new Date() > slotDeadlineDateTime;
 
   // Keep the per-day slot map in sync with the selected date range while editing.
   useEffect(() => {
@@ -344,6 +384,7 @@ export default function RequestForm() {
     const errs: Record<string, string> = {};
     if (!startDate || !endDate) errs.deliveryDate = 'Delivery week is required.';
     else if (endDate < startDate) errs.deliveryDate = 'End date must be on or after start date.';
+    else if (slotDeadlinePassed) errs.deliveryDate = 'The request deadline for this delivery week has passed. Please choose a later week.';
     if (totalSlots === 0) errs.slots = 'Add at least 1 slot (inbound, outbound, or two-way) on any day.';
     return errs;
   }
@@ -436,7 +477,7 @@ export default function RequestForm() {
               <label className="rf__label">Delivery Week *</label>
               <WeekPicker
                 value={{ startDate, endDate }}
-                minDate={parseDate(todayString())}
+                minDate={minWeekStart}
                 onChange={week => {
                   setStartDate(week.startDate);
                   setEndDate(week.endDate);
@@ -447,6 +488,35 @@ export default function RequestForm() {
                 {dayDates.length} {dayDates.length === 1 ? 'day' : 'days'} selected ({formatDateFull(startDate)} – {formatDateFull(endDate)})
               </p>
               {errors.deliveryDate && <span className="rf__err">{errors.deliveryDate}</span>}
+
+              <div className={`rf__deadline${slotDeadlinePassed ? ' rf__deadline--passed' : ''}`}>
+                <div className="rf__deadline-header">
+                  <span className="rf__deadline-icon"><AlertIcon /></span>
+                  <div>
+                    <p className="rf__deadline-title">Plan ahead when requesting SZC delivery slots</p>
+                    <p className="rf__deadline-desc">
+                      Slot requests must be submitted by 10:00, one week before the start of the required
+                      delivery week. Requests received after the deadline may not be reviewed or allocated for that
+                      slot window.
+                    </p>
+                  </div>
+                </div>
+                <div className="rf__deadline-live">
+                  <div className="rf__deadline-row">
+                    <span className="rf__deadline-label"> Slot Window</span>
+                    <span className="rf__deadline-value">{formatDayMonth(parseDate(startDate))} – {formatDayMonth(parseDate(endDate))}</span>
+                  </div>
+                  <div className="rf__deadline-row">
+                    <span className="rf__deadline-label">Request Deadline</span>
+                    <span className="rf__deadline-value">10:00 on {formatDayMonth(slotDeadlineDate)}</span>
+                  </div>
+                  <p className="rf__deadline-note">
+                    {slotDeadlinePassed
+                      ? 'The deadline for this slot window has passed — requests may not be reviewed or allocated.'
+                      : 'Submit your slot requests before the deadline to ensure they can be reviewed and allocated.'}
+                  </p>
+                </div>
+              </div>
             </div>
           )}
         </section>
