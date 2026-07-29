@@ -328,8 +328,21 @@ $left-remaining: $col-company + $col-stat * 2; // 520px
       background: $constrained-bg-soft;
     }
 
-    &--peak     { background: rgba($peak, 0.08); }
-    &--shoulder { background: rgba($shoulder, 0.08); }
+    &--peak {
+      background: rgba($peak, 0.08);
+      border-left: 2px solid rgba($peak, 0.35);
+      border-right: 2px solid rgba($peak, 0.35);
+
+      .alg__slot { border-color: rgba($peak, 0.55); }
+    }
+
+    &--shoulder {
+      background: rgba($shoulder, 0.08);
+      border-left: 2px solid rgba($shoulder, 0.35);
+      border-right: 2px solid rgba($shoulder, 0.35);
+
+      .alg__slot { border-color: rgba($shoulder, 0.55); }
+    }
   }
 
   &__company-inner {
