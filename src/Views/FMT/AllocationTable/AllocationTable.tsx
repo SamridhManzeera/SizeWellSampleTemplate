@@ -188,7 +188,7 @@ export default function AllocationTable() {
                 <span className="fmtd__kpi-num fmtd__kpi-num--navy">
                   {totalSlotCapacityToday}
                 </span>
-                <span className="fmtd__kpi-label">Slot Capacity</span>
+                <span className="fmtd__kpi-label">Daily Cap </span>
               </div>
             </div>
           </div>

@@ -177,13 +177,26 @@ interface DaySlotCounterProps {
   colorClass: 'in' | 'out' | 'tw';
   onIncrease: () => void;
   onDecrease: () => void;
+  onChange: (value: number) => void;
 }
 
-function DaySlotCounter({ value, colorClass, onIncrease, onDecrease }: DaySlotCounterProps) {
+function DaySlotCounter({ value, colorClass, onIncrease, onDecrease, onChange }: DaySlotCounterProps) {
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const raw = e.target.value.replace(/\D/g, '');
+    onChange(raw === '' ? 0 : parseInt(raw, 10));
+  }
+
   return (
     <div className={`rf__ds-counter rf__ds-counter--${colorClass}`}>
       <button type="button" className="rf__ds-counter-btn" onClick={onDecrease} disabled={value === 0}>−</button>
-      <span className="rf__ds-counter-val">{value}</span>
+      <input
+        type="text"
+        inputMode="numeric"
+        className="rf__ds-counter-val"
+        value={value}
+        onChange={handleChange}
+        onFocus={e => e.target.select()}
+      />
       <button type="button" className="rf__ds-counter-btn" onClick={onIncrease}>+</button>
     </div>
   );
@@ -464,10 +477,10 @@ export default function RequestForm() {
               <thead>
                 <tr>
                   <th>Date</th>
-                  <th className="rf__ds-th--tw">↕ Two Way (x2)</th>
-                  <th className="rf__ds-th--in">↑ Inbound</th>
-                  <th className="rf__ds-th--out">↓ Outbound</th>
-                  <th>Total Slots</th>
+                  <th className="rf__ds-th--tw">↕ Two Way (<span className="rf__ds-mult">x2</span>)</th>
+                  <th className="rf__ds-th--in">↑ Inbound (<span className="rf__ds-mult">x1</span>)</th>
+                  <th className="rf__ds-th--out">↓ Outbound (<span className="rf__ds-mult">x1</span>)</th>
+                  <th>Total Movement (<span className="rf__ds-mult">x1</span>)</th>
                 </tr>
               </thead>
               <tbody>
@@ -487,6 +500,7 @@ export default function RequestForm() {
                             value={counts.twoWay} colorClass="tw"
                             onDecrease={() => setDayCount(date, 'twoWay', counts.twoWay - 1)}
                             onIncrease={() => setDayCount(date, 'twoWay', counts.twoWay + 1)}
+                            onChange={v => setDayCount(date, 'twoWay', v)}
                           />
                         )}
                       </td>
@@ -498,6 +512,7 @@ export default function RequestForm() {
                             value={counts.inbound} colorClass="in"
                             onDecrease={() => setDayCount(date, 'inbound', counts.inbound - 1)}
                             onIncrease={() => setDayCount(date, 'inbound', counts.inbound + 1)}
+                            onChange={v => setDayCount(date, 'inbound', v)}
                           />
                         )}
                       </td>
@@ -509,6 +524,7 @@ export default function RequestForm() {
                             value={counts.outbound} colorClass="out"
                             onDecrease={() => setDayCount(date, 'outbound', counts.outbound - 1)}
                             onIncrease={() => setDayCount(date, 'outbound', counts.outbound + 1)}
+                            onChange={v => setDayCount(date, 'outbound', v)}
                           />
                         )}
                       </td>

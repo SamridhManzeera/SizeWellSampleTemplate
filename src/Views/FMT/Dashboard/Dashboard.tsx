@@ -187,7 +187,7 @@ export default function FmtDashboard() {
                 <span className="fmtd__kpi-num fmtd__kpi-num--navy">
                   {totalSlotCapacityToday}
                 </span>
-                <span className="fmtd__kpi-label">Slot Capacity</span>
+                <span className="fmtd__kpi-label">Daily Cap </span>
               </div>
             </div>
           </div>
@@ -201,7 +201,7 @@ export default function FmtDashboard() {
                 <span className="fmtd__kpi-num fmtd__kpi-num--purple">
                   {totalAllocated}
                 </span>
-                <span className="fmtd__kpi-label">Allocated</span>
+                <span className="fmtd__kpi-label">Allocated Slots</span>
               </div>
             </div>
             {/* <p className="fmtd__kpi-caption">
@@ -218,7 +218,7 @@ export default function FmtDashboard() {
                 <span className="fmtd__kpi-num fmtd__kpi-num--teal">
                   {totalBookedToday}
                 </span>
-                <span className="fmtd__kpi-label">Booked</span>
+                <span className="fmtd__kpi-label">Booked Slots</span>
               </div>
             </div>
             {/* <p className="fmtd__kpi-caption">
@@ -235,7 +235,7 @@ export default function FmtDashboard() {
                 <span className="fmtd__kpi-num fmtd__kpi-num--orange">
                   {totalRemainingToday}
                 </span>
-                <span className="fmtd__kpi-label">Remaining</span>
+                <span className="fmtd__kpi-label">Available Slots </span>
               </div>
             </div>
             {/* <p className="fmtd__kpi-caption">
