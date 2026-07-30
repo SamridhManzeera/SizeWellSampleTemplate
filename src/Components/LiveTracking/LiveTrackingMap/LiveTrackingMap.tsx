@@ -3,6 +3,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { EnhancedVehicle, GeoFence } from '../../../types/liveTracking';
 import Legend from '../Legend/Legend';
+import VehicleDetailsPanel from '../VehicleDetailsPanel/VehicleDetailsPanel';
 import './LiveTrackingMap.scss';
 
 // Configure Mapbox access token from environment, with public fallback
@@ -37,8 +38,14 @@ interface LiveTrackingMapProps {
   filteredVehicles: EnhancedVehicle[];
   selectedVehicleId: string | null;
   filterVehicleId: string; // The filter dropdown selected vehicle ID
-  onSelectVehicle: (id: string) => void;
+  onSelectVehicle: (id: string | null) => void;
   geofences: GeoFence[];
+  metrics: {
+    total: number;
+    correct: number;
+    incorrect: number;
+    pending: number;
+  };
 }
 
 export default function LiveTrackingMap({
@@ -48,6 +55,7 @@ export default function LiveTrackingMap({
   filterVehicleId,
   onSelectVehicle,
   geofences,
+  metrics,
 }: LiveTrackingMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -55,6 +63,7 @@ export default function LiveTrackingMap({
   const [activeStyle, setActiveStyle] = useState('mapbox://styles/mapbox/light-v10');
   const [mapLoaded, setMapLoaded] = useState(false);
   const [showPlannedRoute, setShowPlannedRoute] = useState(true);
+  const [isZoomEnabled, setIsZoomEnabled] = useState(false);
 
   // Initialize Map
   useEffect(() => {
@@ -66,10 +75,22 @@ export default function LiveTrackingMap({
       center: [1.42, 52.12], // Suffolk center
       zoom: 9.8,
       attributionControl: false,
+      scrollZoom: false, // Disabled by default to allow natural page scrolling
     });
 
-    map.addControl(new mapboxgl.NavigationControl(), 'top-left');
+    map.addControl(new mapboxgl.NavigationControl(), 'top-right');
     mapRef.current = map;
+
+    // Enable zoom on click, disable on mouseleave
+    map.on('click', () => {
+      map.scrollZoom.enable();
+      setIsZoomEnabled(true);
+    });
+
+    map.on('mouseleave', () => {
+      map.scrollZoom.disable();
+      setIsZoomEnabled(false);
+    });
 
     // Listen to style.load to ensure layers are drawn initially and on style changes
     map.on('style.load', () => {
@@ -708,11 +729,20 @@ export default function LiveTrackingMap({
 
   const isAnalysisMode = !!filterVehicleId;
   const activeVehicle = isAnalysisMode ? vehicles.find(v => v.id === filterVehicleId) : null;
+  const selectedVehicle = vehicles.find(v => v.id === selectedVehicleId) ?? null;
 
   return (
     <div className="lt-map-container">
       <div ref={mapContainerRef} className="lt-mapbox-map" />
-      
+
+      {/* Floating Vehicle Details overlay */}
+      {selectedVehicle && (
+        <VehicleDetailsPanel
+          vehicle={selectedVehicle}
+          onClose={() => onSelectVehicle(null)}
+        />
+      )}
+
       {/* Map Style Switcher overlay */}
       <div className="lt-map-style-switcher">
         {MAP_STYLES.map(style => (
@@ -744,7 +774,118 @@ export default function LiveTrackingMap({
           </label>
         </div>
       )}
+
+      {/* Legend positioned top-right */}
       <Legend />
+
+      {/* Bottom Left Overlay Card: Validation Metrics */}
+      <div className="lt-map-metrics-card">
+        <div className="lt-map-metrics-card__item">
+          <span className="lt-map-metrics-card__dot lt-map-metrics-card__dot--correct" />
+          <span className="lt-map-metrics-card__label">Correct:</span>
+          <span className="lt-map-metrics-card__val">{metrics.correct}</span>
+        </div>
+        <div className="lt-map-metrics-card__item">
+          <span className="lt-map-metrics-card__dot lt-map-metrics-card__dot--incorrect" />
+          <span className="lt-map-metrics-card__label">Incorrect:</span>
+          <span className="lt-map-metrics-card__val">{metrics.incorrect}</span>
+        </div>
+        <div className="lt-map-metrics-card__item">
+          <span className="lt-map-metrics-card__dot lt-map-metrics-card__dot--pending" />
+          <span className="lt-map-metrics-card__label">Pending:</span>
+          <span className="lt-map-metrics-card__val">{metrics.pending}</span>
+        </div>
+      </div>
+
+      {/* Bottom Right Overlay Card: Live Vehicles by Type */}
+      <div className="lt-vehicles-type-card">
+        <h5 className="lt-vehicles-type-card__title">Live Vehicles By Type</h5>
+        <div className="lt-vehicles-type-card__content">
+          <div className="lt-vehicles-type-card__chart-wrapper">
+            <svg width="68" height="68" viewBox="0 0 100 100">
+              {/* Green Segment (53%): Dasharray "116.6 220", Offset "0" */}
+              <circle
+                cx="50"
+                cy="50"
+                r="35"
+                fill="transparent"
+                stroke="#10b981"
+                strokeWidth="10"
+                strokeDasharray="116.6 220"
+                strokeDashoffset="0"
+              />
+              {/* Blue Segment (35%): Dasharray "77 220", Offset "-116.6" */}
+              <circle
+                cx="50"
+                cy="50"
+                r="35"
+                fill="transparent"
+                stroke="#3b82f6"
+                strokeWidth="10"
+                strokeDasharray="77 220"
+                strokeDashoffset="-116.6"
+              />
+              {/* Red Segment (12%): Dasharray "26.4 220", Offset "-193.6" */}
+              <circle
+                cx="50"
+                cy="50"
+                r="35"
+                fill="transparent"
+                stroke="#ef4444"
+                strokeWidth="10"
+                strokeDasharray="26.4 220"
+                strokeDashoffset="-193.6"
+              />
+              <text
+                x="50%"
+                y="46%"
+                dominantBaseline="middle"
+                textAnchor="middle"
+                fontSize="18"
+                fontWeight="800"
+                fill="#1e293b"
+              >
+                80
+              </text>
+              <text
+                x="50%"
+                y="66%"
+                dominantBaseline="middle"
+                textAnchor="middle"
+                fontSize="9"
+                fontWeight="700"
+                fill="#64748b"
+                letterSpacing="0.05em"
+              >
+                TOTAL
+              </text>
+            </svg>
+          </div>
+          <ul className="lt-vehicles-type-card__list">
+            <li className="lt-vehicles-type-card__item">
+              <span className="lt-vehicles-type-card__dot lt-vehicles-type-card__dot--hgv" />
+              <span className="lt-vehicles-type-card__label">HGV</span>
+              <span className="lt-vehicles-type-card__val">42 (53%)</span>
+            </li>
+            <li className="lt-vehicles-type-card__item">
+              <span className="lt-vehicles-type-card__dot lt-vehicles-type-card__dot--lgv" />
+              <span className="lt-vehicles-type-card__label">LGV</span>
+              <span className="lt-vehicles-type-card__val">28 (35%)</span>
+            </li>
+            <li className="lt-vehicles-type-card__item">
+              <span className="lt-vehicles-type-card__dot lt-vehicles-type-card__dot--other" />
+              <span className="lt-vehicles-type-card__label">OTHER</span>
+              <span className="lt-vehicles-type-card__val">10 (12%)</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      {!isZoomEnabled && (
+        <div className="lt-map-zoom-tip">
+          💡 Click anywhere on the map to enable zoom
+        </div>
+      )}
     </div>
   );
 }

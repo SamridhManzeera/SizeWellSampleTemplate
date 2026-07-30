@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
 import PageHero from '../../Components/Layouts/PageHero/PageHero';
 import { useLiveTracking } from '../../hooks/useLiveTracking';
@@ -51,10 +51,33 @@ export default function LiveTracking() {
   } = useLiveTracking();
 
   const [activeTab, setActiveTab] = useState<'listing' | 'map'>('map');
+  const [activeMode, setActiveMode] = useState<'live' | 'history'>('live');
   const [isExceptionModalOpen, setIsExceptionModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [exceptionToConfirm, setExceptionToConfirm] =
     useState<RouteException | null>(null);
+
+  const inboundCount = useMemo(() => {
+    return vehicles.filter(v => v.direction === 'Inbound').length;
+  }, [vehicles]);
+
+  const outboundCount = useMemo(() => {
+    return vehicles.filter(v => v.direction === 'Outbound').length;
+  }, [vehicles]);
+
+  const totalCount = useMemo(() => {
+    return vehicles.length;
+  }, [vehicles]);
+
+  const activeDirectionFilter = activeTab === 'map' ? (mapFilters.direction || '') : (listingFilters.direction || '');
+
+  const handleDirectionFilterChange = (dir: string) => {
+    if (activeTab === 'map') {
+      handleMapFilterChange('direction', dir);
+    } else {
+      handleListingFilterChange('direction', dir);
+    }
+  };
 
   const handleManageException = (vehicleId: string) => {
     const exc = exceptions.find(
@@ -86,25 +109,48 @@ export default function LiveTracking() {
         subtitle="Monitor active vehicles and visualize route compliance in real time."
         eyebrow={null}
         actions={
-          <div className="lt__tabs">
-            <button
-              type="button"
-              className={`lt__tab-btn ${
-                activeTab === 'listing' ? 'lt__tab-btn--active' : ''
-              }`}
-              onClick={() => setActiveTab('listing')}
-            >
-              📋 Listing View
-            </button>
-            <button
-              type="button"
-              className={`lt__tab-btn ${
-                activeTab === 'map' ? 'lt__tab-btn--active' : ''
-              }`}
-              onClick={() => setActiveTab('map')}
-            >
-              🗺️ Map View
-            </button>
+          <div className="lt__header-actions-wrap" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <div className="lt__tabs">
+              <button
+                type="button"
+                className={`lt__tab-btn ${
+                  activeMode === 'live' ? 'lt__tab-btn--active' : ''
+                }`}
+                onClick={() => setActiveMode('live')}
+              >
+                Live
+              </button>
+              <button
+                type="button"
+                className={`lt__tab-btn ${
+                  activeMode === 'history' ? 'lt__tab-btn--active' : ''
+                }`}
+                onClick={() => setActiveMode('history')}
+              >
+                History
+              </button>
+            </div>
+
+            <div className="lt__tabs">
+              <button
+                type="button"
+                className={`lt__tab-btn ${
+                  activeTab === 'listing' ? 'lt__tab-btn--active' : ''
+                }`}
+                onClick={() => setActiveTab('listing')}
+              >
+                📋 Listing View
+              </button>
+              <button
+                type="button"
+                className={`lt__tab-btn ${
+                  activeTab === 'map' ? 'lt__tab-btn--active' : ''
+                }`}
+                onClick={() => setActiveTab('map')}
+              >
+                🗺️ Map View
+              </button>
+            </div>
           </div>
         }
       />
@@ -112,19 +158,15 @@ export default function LiveTracking() {
       {/* Main Panel Content */}
       <div className="lt__content">
         <SummaryCards
-          metrics={metrics}
-          activeStatusFilter={
-            activeTab === 'map' ? mapFilters.status : listingFilters.status
-          }
-          onStatusFilterChange={(status) =>
-            activeTab === 'map'
-              ? handleMapFilterChange('status', status)
-              : handleListingFilterChange('status', status)
-          }
+          inbound={inboundCount}
+          outbound={outboundCount}
+          total={totalCount}
+          activeDirectionFilter={activeDirectionFilter}
+          onDirectionFilterChange={handleDirectionFilterChange}
         />
 
         <VehicleFilters
-          vehicles={vehicles}
+          mode={activeMode}
           filters={activeTab === 'map' ? mapFilters : listingFilters}
           onFilterChange={
             activeTab === 'map'
@@ -162,7 +204,7 @@ export default function LiveTracking() {
           </div>
         ) : (
           !error && (
-            <div className="lt__view-container">
+            <div className={`lt__view-container lt__view-container--${activeTab}`}>
               {activeTab === 'map' ? (
                 <LiveTrackingMap
                   vehicles={vehicles}
@@ -173,6 +215,7 @@ export default function LiveTracking() {
                   filterVehicleId={mapFilters.vehicleId}
                   onSelectVehicle={handleSelectVehicle}
                   geofences={geofences}
+                  metrics={metrics}
                 />
               ) : (
                 <VehicleTable
@@ -188,7 +231,7 @@ export default function LiveTracking() {
       </div>
 
       <VehicleModal
-        open={isModalOpen}
+        open={isModalOpen && activeTab !== 'map'}
         vehicle={selectedVehicle}
         onClose={() => handleSelectVehicle(null)}
       />

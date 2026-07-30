@@ -3,6 +3,159 @@ import { Vehicle, GPXData, JourneySummary, LiveTrackingFilters, TrackPoint, Enha
 import { fetchAndParseGPX, isPointInPolygon } from '../utils/gpxParser';
 import { fetchCorrectSummary, fetchIncorrectSummary } from '../utils/csvParser';
 
+const MOCK_VEHICLE_DETAILS: Record<string, {
+  reg: string;
+  bookingId: string;
+  haulier: string;
+  contractor: string;
+  bookingType: string;
+  timePeriod: string;
+  northSouth: string;
+  currentSpeedMph?: number;
+  postedSpeedLimit: number;
+  harshBraking: number;
+  harshAcceleration: number;
+  idleTimeMin: number;
+  routeAdherence: number;
+  trackingVsPlannedSlot: string;
+  fmfEntry: string;
+  siteEntry: string;
+  holdingAreaEntry: string;
+  liveEta: string;
+  expectedEta: string;
+  etaDiff: string;
+  ignitionStatus: string;
+  ignitionSince: string;
+  co3App: string;
+  direction: 'Inbound' | 'Outbound';
+}> = {
+  'VEH-001': {
+    reg: 'BX21 YZT',
+    bookingId: 'BK-9876543',
+    haulier: 'ACME Logistics',
+    contractor: 'Contractor A',
+    bookingType: 'Standard',
+    timePeriod: 'Morning',
+    northSouth: 'North',
+    postedSpeedLimit: 50,
+    harshBraking: 2,
+    harshAcceleration: 1,
+    idleTimeMin: 18,
+    routeAdherence: 92,
+    trackingVsPlannedSlot: 'On Track',
+    fmfEntry: '08:12 21 May 2026',
+    siteEntry: '08:45 21 May 2026',
+    holdingAreaEntry: '09:02 21 May 2026',
+    liveEta: '10:45',
+    expectedEta: '11:00',
+    etaDiff: '- 15 min early',
+    ignitionStatus: 'ON',
+    ignitionSince: '07:50',
+    co3App: 'CO3',
+    direction: 'Inbound',
+  },
+  'VEH-002': {
+    reg: 'DK22 LPT',
+    bookingId: 'BK-8723641',
+    haulier: 'Suffolk Haulage',
+    contractor: 'Contractor B',
+    bookingType: 'Express',
+    timePeriod: 'Morning',
+    northSouth: 'South',
+    postedSpeedLimit: 50,
+    harshBraking: 0,
+    harshAcceleration: 0,
+    idleTimeMin: 2,
+    routeAdherence: 100,
+    trackingVsPlannedSlot: 'On Track',
+    fmfEntry: '07:30 21 May 2026',
+    siteEntry: '08:05 21 May 2026',
+    holdingAreaEntry: '08:20 21 May 2026',
+    liveEta: '08:35',
+    expectedEta: '08:38',
+    etaDiff: '- 3 min early',
+    ignitionStatus: 'ON',
+    ignitionSince: '07:00',
+    co3App: 'App',
+    direction: 'Outbound',
+  },
+  'VEH-003': {
+    reg: 'EN19 FGH',
+    bookingId: 'BK-7619283',
+    haulier: 'Orwell Transport',
+    contractor: 'Contractor A',
+    bookingType: 'Standard',
+    timePeriod: 'Afternoon',
+    northSouth: 'North',
+    postedSpeedLimit: 40,
+    harshBraking: 1,
+    harshAcceleration: 2,
+    idleTimeMin: 12,
+    routeAdherence: 85,
+    trackingVsPlannedSlot: 'On Track',
+    fmfEntry: '09:15 21 May 2026',
+    siteEntry: '09:55 21 May 2026',
+    holdingAreaEntry: '--',
+    liveEta: '10:30',
+    expectedEta: '10:20',
+    etaDiff: '+ 10 min late',
+    ignitionStatus: 'ON',
+    ignitionSince: '09:00',
+    co3App: 'CO3',
+    direction: 'Inbound',
+  },
+  'VEH-004': {
+    reg: 'FL23 XYZ',
+    bookingId: 'BK-5529102',
+    haulier: 'Orwell Transport',
+    contractor: 'Contractor C',
+    bookingType: 'Critical',
+    timePeriod: 'Afternoon',
+    northSouth: 'North',
+    postedSpeedLimit: 50,
+    harshBraking: 4,
+    harshAcceleration: 3,
+    idleTimeMin: 5,
+    routeAdherence: 64,
+    trackingVsPlannedSlot: 'Off Track',
+    fmfEntry: '11:00 21 May 2026',
+    siteEntry: '11:32 21 May 2026',
+    holdingAreaEntry: '--',
+    liveEta: '12:15',
+    expectedEta: '12:00',
+    etaDiff: '+ 15 min late',
+    ignitionStatus: 'ON',
+    ignitionSince: '10:45',
+    co3App: 'App',
+    direction: 'Inbound',
+  },
+  'VEH-005': {
+    reg: 'GP20 QRS',
+    bookingId: 'BK-1029384',
+    haulier: 'IPS Logistics',
+    contractor: 'Contractor D',
+    bookingType: 'Standard',
+    timePeriod: 'Evening',
+    northSouth: 'South',
+    postedSpeedLimit: 60,
+    harshBraking: 5,
+    harshAcceleration: 4,
+    idleTimeMin: 8,
+    routeAdherence: 72,
+    trackingVsPlannedSlot: 'Off Track',
+    fmfEntry: '12:30 21 May 2026',
+    siteEntry: '13:02 21 May 2026',
+    holdingAreaEntry: '--',
+    liveEta: '13:40',
+    expectedEta: '13:30',
+    etaDiff: '+ 10 min late',
+    ignitionStatus: 'ON',
+    ignitionSince: '12:15',
+    co3App: 'CO3',
+    direction: 'Outbound',
+  }
+};
+
 
 export function useLiveTracking() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -18,12 +171,36 @@ export function useLiveTracking() {
     vehicleId: '',
     status: '',
     exception: '',
+    bookingId: '',
+    co3App: '',
+    haulier: '',
+    contractor: '',
+    bookingType: '',
+    timePeriod: '',
+    northSouth: '',
+    vehicleReg: '',
+    dateFrom: '',
+    dateTo: '',
+    route: '',
+    direction: '',
   });
 
   const [listingFilters, setListingFilters] = useState<LiveTrackingFilters>({
     vehicleId: '',
     status: '',
     exception: '',
+    bookingId: '',
+    co3App: '',
+    haulier: '',
+    contractor: '',
+    bookingType: '',
+    timePeriod: '',
+    northSouth: '',
+    vehicleReg: '',
+    dateFrom: '',
+    dateTo: '',
+    route: '',
+    direction: '',
   });
   
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
@@ -264,8 +441,34 @@ export function useLiveTracking() {
         routeTitle += ' (Deviated)';
       }
 
+      const mockDetails = MOCK_VEHICLE_DETAILS[v.id] || {
+        reg: v.id,
+        bookingId: '',
+        haulier: v.supplier || '',
+        contractor: 'Contractor A',
+        bookingType: 'Standard',
+        timePeriod: 'Morning',
+        northSouth: 'North',
+        postedSpeedLimit: 50,
+        harshBraking: 0,
+        harshAcceleration: 0,
+        idleTimeMin: 0,
+        routeAdherence: 100,
+        trackingVsPlannedSlot: 'On Track',
+        fmfEntry: '--',
+        siteEntry: '--',
+        holdingAreaEntry: '--',
+        liveEta: '--',
+        expectedEta: '--',
+        etaDiff: '',
+        ignitionStatus: 'ON',
+        ignitionSince: '--',
+        co3App: 'CO3'
+      };
+
       return {
         ...v,
+        ...mockDetails,
         status: complianceStatus, // Override status dynamically based on geofence compliance!
         summary,
         trackPoints: travelledPoints, // Only show the path travelled so far!
@@ -275,7 +478,7 @@ export function useLiveTracking() {
         currentCoords,
         lastUpdated,
         progress,
-        currentSpeedMph,
+        currentSpeedMph: mockDetails.currentSpeedMph || currentSpeedMph,
         deviationPoint,
         routeTitle,
         startLocation,
@@ -305,6 +508,29 @@ export function useLiveTracking() {
         const wantsException = mapFilters.exception === 'applied';
         if (v.hasException !== wantsException) return false;
       }
+      if (mapFilters.bookingId && !v.bookingId.toLowerCase().includes(mapFilters.bookingId.toLowerCase())) return false;
+      if (mapFilters.co3App && v.co3App !== mapFilters.co3App) return false;
+      if (mapFilters.haulier && v.haulier !== mapFilters.haulier) return false;
+      if (mapFilters.contractor && v.contractor !== mapFilters.contractor) return false;
+      if (mapFilters.bookingType && v.bookingType !== mapFilters.bookingType) return false;
+      if (mapFilters.timePeriod && v.timePeriod !== mapFilters.timePeriod) return false;
+      if (mapFilters.northSouth && v.northSouth !== mapFilters.northSouth) return false;
+      if (mapFilters.vehicleReg && !v.reg.toLowerCase().includes(mapFilters.vehicleReg.toLowerCase()) && !v.id.toLowerCase().includes(mapFilters.vehicleReg.toLowerCase())) return false;
+      
+      if (mapFilters.direction && v.direction !== mapFilters.direction) return false;
+      
+      // History filters
+      if (mapFilters.route && !v.routeTitle.toLowerCase().includes(mapFilters.route.toLowerCase())) return false;
+      if (mapFilters.dateFrom) {
+        const fromTime = new Date(mapFilters.dateFrom).getTime();
+        const vehicleTime = new Date(v.lastUpdated).getTime();
+        if (!isNaN(vehicleTime) && vehicleTime < fromTime) return false;
+      }
+      if (mapFilters.dateTo) {
+        const toTime = new Date(mapFilters.dateTo).getTime();
+        const vehicleTime = new Date(v.lastUpdated).getTime();
+        if (!isNaN(vehicleTime) && vehicleTime > toTime) return false;
+      }
       return true;
     });
   }, [enhancedVehicles, mapFilters]);
@@ -316,6 +542,28 @@ export function useLiveTracking() {
       if (listingFilters.exception) {
         const wantsException = listingFilters.exception === 'applied';
         if (v.hasException !== wantsException) return false;
+      }
+      if (listingFilters.bookingId && !v.bookingId.toLowerCase().includes(listingFilters.bookingId.toLowerCase())) return false;
+      if (listingFilters.co3App && v.co3App !== listingFilters.co3App) return false;
+      if (listingFilters.haulier && v.haulier !== listingFilters.haulier) return false;
+      if (listingFilters.contractor && v.contractor !== listingFilters.contractor) return false;
+      if (listingFilters.bookingType && v.bookingType !== listingFilters.bookingType) return false;
+      if (listingFilters.timePeriod && v.timePeriod !== listingFilters.timePeriod) return false;
+      if (listingFilters.northSouth && v.northSouth !== listingFilters.northSouth) return false;
+      if (listingFilters.vehicleReg && !v.reg.toLowerCase().includes(v.reg.toLowerCase()) && !v.id.toLowerCase().includes(listingFilters.vehicleReg.toLowerCase())) return false;
+      if (listingFilters.direction && v.direction !== listingFilters.direction) return false;
+      
+      // History filters
+      if (listingFilters.route && !v.routeTitle.toLowerCase().includes(listingFilters.route.toLowerCase())) return false;
+      if (listingFilters.dateFrom) {
+        const fromTime = new Date(listingFilters.dateFrom).getTime();
+        const vehicleTime = new Date(v.lastUpdated).getTime();
+        if (!isNaN(vehicleTime) && vehicleTime < fromTime) return false;
+      }
+      if (listingFilters.dateTo) {
+        const toTime = new Date(listingFilters.dateTo).getTime();
+        const vehicleTime = new Date(v.lastUpdated).getTime();
+        if (!isNaN(vehicleTime) && vehicleTime > toTime) return false;
       }
       return true;
     });
@@ -368,6 +616,17 @@ export function useLiveTracking() {
       vehicleId: '',
       status: '',
       exception: '',
+      bookingId: '',
+      co3App: '',
+      haulier: '',
+      contractor: '',
+      bookingType: '',
+      timePeriod: '',
+      northSouth: '',
+      vehicleReg: '',
+      dateFrom: '',
+      dateTo: '',
+      route: '',
     });
   };
 
@@ -376,6 +635,17 @@ export function useLiveTracking() {
       vehicleId: '',
       status: '',
       exception: '',
+      bookingId: '',
+      co3App: '',
+      haulier: '',
+      contractor: '',
+      bookingType: '',
+      timePeriod: '',
+      northSouth: '',
+      vehicleReg: '',
+      dateFrom: '',
+      dateTo: '',
+      route: '',
     });
   };
 

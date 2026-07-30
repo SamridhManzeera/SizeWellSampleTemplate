@@ -1,30 +1,28 @@
-$border:    #e8ecf4;
+$border:    #e2e8f0;
 $navy:      #1a3a6b;
-$text-dark: #111827;
-$text-muted:#9ca3af;
-$radius:    9px;
+$text-dark: #1f2937;
+$text-muted:#4b5563;
+$radius:    8px;
 
 .lt-filters {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 20px;
+  flex-direction: column;
+  gap: 16px;
   background: #fff;
-  border: 1.5px solid $border;
-  border-radius: 14px;
-  padding: 20px 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 20px;
   margin-bottom: 24px;
-  box-shadow: 0 1px 4px rgba(17, 24, 39, 0.04);
-  flex-wrap: wrap;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  width: 100%;
 
   &__grid {
     display: flex;
     flex-direction: row;
-    gap: 16px;
-    flex: 1;
-    min-width: 280px;
+    gap: 12px;
+    align-items: flex-end;
     flex-wrap: wrap;
+    width: 100%;
   }
 
   &__field {
@@ -32,58 +30,117 @@ $radius:    9px;
     flex-direction: column;
     gap: 6px;
     flex: 1;
-    min-width: 180px;
+    min-width: 110px;
+
+    /* Extra width for search fields */
+    &#filter-booking-id, &#filter-vehicle-reg {
+      min-width: 130px;
+    }
   }
 
   &__label {
     font-size: 11px;
     font-weight: 700;
     color: $text-muted;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.02em;
   }
 
   &__select, &__input {
-    padding: 10px 14px;
-    border: 1.5px solid $border;
+    padding: 8px 12px;
+    border: 1px solid $border;
     border-radius: $radius;
-    font-size: 13.5px;
+    font-size: 12.5px;
     color: $text-dark;
     background: #fff;
     outline: none;
     font-family: inherit;
     transition: border-color 0.15s, box-shadow 0.15s;
-    height: 42px;
+    height: 38px;
     width: 100%;
     box-sizing: border-box;
 
+    &::placeholder {
+      color: #9ca3af;
+    }
+
     &:focus {
-      border-color: $navy;
-      box-shadow: 0 0 0 3px rgba($navy, 0.08);
+      border-color: #0f172a;
+      box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.08);
     }
   }
 
   &__select {
     cursor: pointer;
     appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234b5563' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
     background-repeat: no-repeat;
-    background-position: right 14px center;
-    background-size: 14px;
-    padding-right: 36px;
+    background-position: right 10px center;
+    background-size: 12px;
+    padding-right: 28px;
   }
 
-  &__actions {
+  // Buttons group inside grid
+  &__btn-group {
     display: flex;
-    gap: 12px;
+    gap: 8px;
     align-items: center;
+    height: 38px;
     flex-shrink: 0;
   }
 
-  &__btn {
-    padding: 10px 20px;
+  &__apply-btn {
+    background: #0f172a; // dark slate/black button from the image
+    color: #fff;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 0 16px;
+    height: 38px;
+    border: none;
     border-radius: $radius;
-    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+
+    &:hover {
+      background: #1e293b;
+    }
+  }
+
+  &__reset-icon-btn {
+    background: #fff;
+    border: 1px solid $border;
+    border-radius: $radius;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: $text-muted;
+    transition: all 0.15s;
+
+    &:hover {
+      background: #f8fafc;
+      color: $text-dark;
+      border-color: #cbd5e1;
+    }
+  }
+
+  // Floating section underneath or on right for Add Exception
+  &__exception-action {
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px dashed #f1f5f9;
+    padding-top: 12px;
+    width: 100%;
+  }
+
+  &__btn {
+    padding: 8px 16px;
+    border-radius: $radius;
+    font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     font-family: inherit;
@@ -91,27 +148,18 @@ $radius:    9px;
     transition: all 0.15s;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    height: 42px;
+    gap: 6px;
+    height: 34px;
     box-sizing: border-box;
 
-    &--refresh {
-      background: $navy;
-      color: #fff;
-      &:hover { background: lighten($navy, 8%); }
-    }
-
-    &--reset {
-      background: #f1f5f9;
-      color: #475569;
-      border: 1.5px solid $border;
-      &:hover { background: #e2e8f0; }
-    }
-
     &--exception {
-      background: $navy;
-      color: #fff;
-      &:hover { background: lighten($navy, 8%); }
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #e2e8f0;
+      &:hover { 
+        background: #e2e8f0; 
+        color: #0f172a;
+      }
     }
   }
 }

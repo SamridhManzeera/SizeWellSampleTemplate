@@ -6,13 +6,20 @@ $text-muted:#9ca3af;
 $green:     #16a34a;
 $red:       #dc2626;
 $yellow:    #eab308;
+$blue:      #3b82f6;
+$orange:    #f97316;
 $radius:    14px;
 
 .lt-summary-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
-  margin-bottom: 24px;
+  width: 100%;
+  margin-bottom: 20px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .lt-summary-card {
@@ -23,75 +30,56 @@ $radius:    14px;
   border: 1.5px solid $border;
   border-radius: $radius;
   padding: 16px 20px;
-  text-align: left;
   cursor: pointer;
-  outline: none;
-  font-family: inherit;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 3px rgba(17, 24, 39, 0.04);
+  text-align: left;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(17, 24, 39, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     border-color: darken($border, 5%);
   }
 
-  &--active {
-    border-color: $navy;
-    background: #f8fafc;
-    box-shadow: 0 4px 12px rgba($navy, 0.08);
-  }
-
   &__icon-container {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #f1f5f9;
+    background: #f8fafc;
+    color: #475569;
     flex-shrink: 0;
-    transition: all 0.2s;
-    color: #64748b;
+    transition: all 0.2s ease;
 
+    .lt-summary-card--inbound & {
+      color: $blue;
+      background: rgba($blue, 0.08);
+    }
+    .lt-summary-card--outbound & {
+      color: $orange;
+      background: rgba($orange, 0.08);
+    }
     .lt-summary-card--total & {
-      background: #f0f4ff;
-      color: $navy;
+      color: $green;
+      background: rgba($green, 0.08);
+    }
+
+    .lt-summary-card--inbound:hover &,
+    .lt-summary-card--inbound.lt-summary-card--active & {
+      background: #dbeafe;
+      color: darken($blue, 5%);
+    }
+    .lt-summary-card--outbound:hover &,
+    .lt-summary-card--outbound.lt-summary-card--active & {
+      background: #ffedd5;
+      color: darken($orange, 5%);
     }
     .lt-summary-card--total:hover &,
     .lt-summary-card--total.lt-summary-card--active & {
-      background: #e0f2fe;
-      color: #0284c7;
-    }
-
-    .lt-summary-card--on-route & {
-      background: #f4fbf7;
-      color: #10b981;
-    }
-    .lt-summary-card--on-route:hover &,
-    .lt-summary-card--on-route.lt-summary-card--active & {
       background: #dcfce7;
-      color: $green;
-    }
-
-    .lt-summary-card--off-route & {
-      background: #fff5f5;
-      color: #ef4444;
-    }
-    .lt-summary-card--off-route:hover &,
-    .lt-summary-card--off-route.lt-summary-card--active & {
-      background: #fee2e2;
-      color: $red;
-    }
-
-    .lt-summary-card--idle & {
-      background: #fffbeb;
-      color: #f59e0b;
-    }
-    .lt-summary-card--idle:hover &,
-    .lt-summary-card--idle.lt-summary-card--active & {
-      background: #fef9c3;
-      color: darken($yellow, 5%);
+      color: darken($green, 5%);
     }
   }
 
@@ -116,25 +104,26 @@ $radius:    14px;
     line-height: 1;
   }
 
-  // Active status color states
-  &--total.lt-summary-card--active {
-    border-color: $navy;
-    background: rgba($navy, 0.02);
-    .lt-summary-card__icon { background: rgba($navy, 0.08); }
+  // Active status color states & left border stripes
+  &--inbound {
+    border-left: 4px solid $blue;
+    &.lt-summary-card--active {
+      border-color: $blue;
+      background: rgba($blue, 0.02);
+    }
   }
-  &--on-route.lt-summary-card--active {
-    border-color: $green;
-    background: rgba($green, 0.02);
-    .lt-summary-card__icon { background: rgba($green, 0.08); }
+  &--outbound {
+    border-left: 4px solid $orange;
+    &.lt-summary-card--active {
+      border-color: $orange;
+      background: rgba($orange, 0.02);
+    }
   }
-  &--off-route.lt-summary-card--active {
-    border-color: $red;
-    background: rgba($red, 0.02);
-    .lt-summary-card__icon { background: rgba($red, 0.08); }
-  }
-  &--idle.lt-summary-card--active {
-    border-color: $yellow;
-    background: rgba($yellow, 0.02);
-    .lt-summary-card__icon { background: rgba($yellow, 0.08); }
+  &--total {
+    border-left: 4px solid $green;
+    &.lt-summary-card--active {
+      border-color: $green;
+      background: rgba($green, 0.02);
+    }
   }
 }

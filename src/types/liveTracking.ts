@@ -66,6 +66,29 @@ export interface EnhancedVehicle extends Vehicle {
   endLocation: string;
   gfStates: GeoFenceState[];
   hasException: boolean;
+  reg: string;
+  bookingId: string;
+  haulier: string;
+  contractor: string;
+  bookingType: string;
+  timePeriod: string;
+  northSouth: string;
+  postedSpeedLimit: number;
+  harshBraking: number;
+  harshAcceleration: number;
+  idleTimeMin: number;
+  routeAdherence: number;
+  trackingVsPlannedSlot: string;
+  fmfEntry: string;
+  siteEntry: string;
+  holdingAreaEntry: string;
+  liveEta: string;
+  expectedEta: string;
+  etaDiff: string;
+  ignitionStatus: string;
+  ignitionSince: string;
+  co3App: string;
+  direction: 'Inbound' | 'Outbound';
 }
 
 export interface GeoFenceState {
@@ -95,6 +118,18 @@ export interface LiveTrackingFilters {
   vehicleId: string;
   status: string;
   exception: string;
+  bookingId?: string;
+  co3App?: string;
+  haulier?: string;
+  contractor?: string;
+  bookingType?: string;
+  timePeriod?: string;
+  northSouth?: string;
+  vehicleReg?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  route?: string;
+  direction?: string;
 }
 
 export interface GeoFence {

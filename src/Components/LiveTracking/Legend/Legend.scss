@@ -1,26 +1,26 @@
 .lt-legend {
   position: absolute;
-  bottom: 24px;
-  right: 24px;
+  top: 24px;
+  right: 64px;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(8px);
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 12px 14px;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
   z-index: 10;
-  width: 180px;
+  width: 170px;
   pointer-events: auto;
 
   &__title {
-    margin: 0 0 8px 0;
+    margin: 0 0 10px 0;
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: #475569;
-    border-bottom: 1px solid #e2e8f0;
-    padding-bottom: 4px;
+    border-bottom: 1.5px solid #f1f5f9;
+    padding-bottom: 6px;
   }
 
   &__list {
@@ -29,48 +29,37 @@
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
   }
 
   &__item {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 11.5px;
-    font-weight: 500;
-    color: #1e293b;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #334155;
   }
 
-  &__color {
-    width: 14px;
-    height: 4px;
-    border-radius: 2px;
+  &__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
     flex-shrink: 0;
 
-    &--green { background: #16a34a; }
-    &--red { background: #dc2626; }
-    &--go-zone {
-      background: rgba(99, 102, 241, 0.15);
-      border: 1px dashed #6366f1;
-      height: 10px;
-      border-radius: 2px;
-    }
-    &--no-go-zone {
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px dashed #ef4444;
-      height: 10px;
-      border-radius: 2px;
-    }
+    &--a { background: #10b981; } // Green
+    &--b { background: #3b82f6; } // Blue
+    &--c { background: #ef4444; } // Red
+    &--d { background: #14b8a6; } // Light Green / Teal
   }
 
-  &__icon {
-    font-size: 12px;
+  &__vehicle-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 14px;
+    color: #475569;
+    width: 10px;
     flex-shrink: 0;
-    text-align: center;
   }
 
   &__text {
