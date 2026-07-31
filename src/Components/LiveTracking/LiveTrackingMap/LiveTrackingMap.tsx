@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { EnhancedVehicle, GeoFence } from '../../../types/liveTracking';
-import Legend from '../Legend/Legend';
 import VehicleDetailsPanel from '../VehicleDetailsPanel/VehicleDetailsPanel';
 import './LiveTrackingMap.scss';
 
@@ -46,6 +45,8 @@ interface LiveTrackingMapProps {
     incorrect: number;
     pending: number;
   };
+  mode: 'live' | 'history';
+  onAddException: () => void;
 }
 
 export default function LiveTrackingMap({
@@ -56,6 +57,8 @@ export default function LiveTrackingMap({
   onSelectVehicle,
   geofences,
   metrics,
+  mode,
+  onAddException,
 }: LiveTrackingMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -775,8 +778,30 @@ export default function LiveTrackingMap({
         </div>
       )}
 
-      {/* Legend positioned top-right */}
-      <Legend />
+      {/* Add Exception button positioned top-right (where legend was) */}
+      {mode !== 'history' && (
+        <button
+          type="button"
+          className="lt-map-exception-btn"
+          onClick={onAddException}
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{ marginRight: '6px' }}
+          >
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Add Exception
+        </button>
+      )}
 
       {/* Bottom Left Overlay Card: Validation Metrics */}
       <div className="lt-map-metrics-card">

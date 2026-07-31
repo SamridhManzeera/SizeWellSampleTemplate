@@ -131,6 +131,7 @@ export default function LiveTracking() {
               </button>
             </div>
 
+            {/* Commented out Listing View / Map View Toggle as requested
             <div className="lt__tabs">
               <button
                 type="button"
@@ -151,6 +152,7 @@ export default function LiveTracking() {
                 🗺️ Map View
               </button>
             </div>
+            */}
           </div>
         }
       />
@@ -175,7 +177,6 @@ export default function LiveTracking() {
           }
           onReset={activeTab === 'map' ? resetMapFilters : resetListingFilters}
           onRefresh={refreshData}
-          onAddException={() => setIsExceptionModalOpen(true)}
         />
 
         {error && (
@@ -216,6 +217,8 @@ export default function LiveTracking() {
                   onSelectVehicle={handleSelectVehicle}
                   geofences={geofences}
                   metrics={metrics}
+                  mode={activeMode}
+                  onAddException={() => setIsExceptionModalOpen(true)}
                 />
               ) : (
                 <VehicleTable
