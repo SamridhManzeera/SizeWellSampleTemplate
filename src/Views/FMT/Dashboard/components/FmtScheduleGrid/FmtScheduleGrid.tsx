@@ -1,4 +1,4 @@
-import { CSSProperties } from 'react';
+import { CSSProperties, useState } from 'react';
 import { FmtCompany, FmtBooking, FmtSlotKey } from '../../../types';
 import { buildFmtSlotKey } from '../../../mockData';
 import { HourType } from '../../../../ScheduleConfig/ScheduleConfigContext';
@@ -97,6 +97,33 @@ function FmtScheduleGrid({
   onToggleLateHours,
   onViewBooking,
 }: FmtScheduleGridProps) {
+  const [expandedCompanyIds, setExpandedCompanyIds] = useState<Set<string>>(new Set());
+  const [showMoreCompanyIds, setShowMoreCompanyIds] = useState<Set<string>>(new Set());
+
+  const toggleCompanyExpand = (companyId: string) => {
+    setExpandedCompanyIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(companyId)) {
+        next.delete(companyId);
+      } else {
+        next.add(companyId);
+      }
+      return next;
+    });
+  };
+
+  const toggleShowMore = (companyId: string) => {
+    setShowMoreCompanyIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(companyId)) {
+        next.delete(companyId);
+      } else {
+        next.add(companyId);
+      }
+      return next;
+    });
+  };
+
   const visibleHours = [
     ...(showEarlyHours ? EARLY_HOURS : []),
     ...PEAK_HOURS,
@@ -134,6 +161,7 @@ function FmtScheduleGrid({
           {visibleHours.map((h) => (
             <col key={h} className="fsg__col-hour" />
           ))}
+          <col className="fsg__col-mobile-toggle" />
         </colgroup>
 
         <thead>
@@ -163,6 +191,7 @@ function FmtScheduleGrid({
                 </th>
               );
             })}
+            <th className="fsg__totals-stat fsg__mobile-toggle-header" />
           </tr>
           <tr>
             <th className="fsg__th fsg__th--company">Contractor</th>
@@ -234,6 +263,7 @@ function FmtScheduleGrid({
                 </th>
               );
             })}
+            <th className="fsg__th fsg__mobile-toggle-header" />
           </tr>
         </thead>
 
@@ -245,10 +275,16 @@ function FmtScheduleGrid({
             const breakdown = bookedBreakdown.get(company.id);
             const accentColor = ROW_COLORS[idx % ROW_COLORS.length];
 
+            const isExpanded = expandedCompanyIds.has(company.id);
+            const showMoreForThisCompany = showMoreCompanyIds.has(company.id);
+            const mobileHours = showMoreForThisCompany
+              ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+              : [6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+
             return (
               <tr
                 key={company.id}
-                className="fsg__row"
+                className={`fsg__row${isExpanded ? ' fsg__row--expanded' : ''}`}
                 style={{ '--row-color': accentColor } as CSSProperties}
               >
                 <td className="fsg__td fsg__td--company">
@@ -299,6 +335,7 @@ function FmtScheduleGrid({
                   </span>
                 </td>
 
+                {/* Desktop layout slot cells */}
                 {visibleHours.map((hour) => {
                   const key = buildFmtSlotKey(company.id, selectedDate, hour);
                   const booking = bookings.get(key);
@@ -307,8 +344,8 @@ function FmtScheduleGrid({
 
                   return (
                     <td
-                      key={hour}
-                      className={`fsg__td fsg__td--slot${
+                      key={`desktop-${hour}`}
+                      className={`fsg__td fsg__td--slot fsg__desktop-only-cell${
                         hourType ? ` fsg__td--constrained fsg__td--${hourType}` : ''
                       }`}
                     >
@@ -335,6 +372,67 @@ function FmtScheduleGrid({
                     </td>
                   );
                 })}
+
+                {/* Mobile layout slot cells */}
+                {mobileHours.map((hour) => {
+                  const key = buildFmtSlotKey(company.id, selectedDate, hour);
+                  const booking = bookings.get(key);
+                  const isOccupied = !!booking;
+                  const hourType = hourTypes[hour] ?? null;
+
+                  return (
+                    <td
+                      key={`mobile-${hour}`}
+                      data-hour={formatHour(hour)}
+                      className={`fsg__td fsg__td--slot fsg__mobile-only-cell${
+                        hourType ? ` fsg__td--constrained fsg__td--${hourType}` : ''
+                      }`}
+                    >
+                      {isOccupied ? (
+                        <button
+                          type="button"
+                          className="fsg__slot fsg__slot--occupied"
+                          onClick={() => onViewBooking(booking!)}
+                          title={`${booking!.movementCount} allocated · ${booking!.bookedCount
+                            } booked — click to view`}
+                        >
+                          <div className="fsg__slot-combo">
+                            <span className="fsg__combo-badge fsg__combo-badge--alloc">
+                              <TruckIcon /> {booking!.movementCount}
+                            </span>
+                            <span className="fsg__combo-badge fsg__combo-badge--booked">
+                              <CalendarIcon /> {booking!.bookedCount}
+                            </span>
+                          </div>
+                        </button>
+                      ) : (
+                        <div className="fsg__slot fsg__slot--empty" />
+                      )}
+                    </td>
+                  );
+                })}
+
+                {isExpanded && (
+                  <td className="fsg__td fsg__mobile-show-more-cell">
+                    <button
+                      type="button"
+                      className="fsg__mobile-show-more-btn"
+                      onClick={() => toggleShowMore(company.id)}
+                    >
+                      {showMoreForThisCompany ? 'Show Less' : 'Show More'}
+                    </button>
+                  </td>
+                )}
+
+                <td className="fsg__td fsg__mobile-toggle-cell">
+                  <button
+                    type="button"
+                    className="fsg__mobile-toggle-btn"
+                    onClick={() => toggleCompanyExpand(company.id)}
+                  >
+                    {isExpanded ? '▲ Collapse Bookings' : '▼ Expand / Tap to view Bookings'}
+                  </button>
+                </td>
               </tr>
             );
           })}

@@ -224,7 +224,7 @@ function SLTDeliverySlotsGrid({
                   );
                   if (!inRange) {
                     return (
-                      <td key={date} className="dsg__td dsg__td--slot">
+                      <td key={date} className="dsg__td dsg__td--slot" data-date={formatDateShort(date)}>
                         <div className="dsg__slot dsg__slot--empty">—</div>
                       </td>
                     );
@@ -239,7 +239,7 @@ function SLTDeliverySlotsGrid({
                   const isOccupied = allocated > 0;
 
                   return (
-                    <td key={date} className="dsg__td dsg__td--slot">
+                    <td key={date} className="dsg__td dsg__td--slot" data-date={formatDateShort(date)}>
                       <button
                         type="button"
                         className={`dsg__slot${isOccupied

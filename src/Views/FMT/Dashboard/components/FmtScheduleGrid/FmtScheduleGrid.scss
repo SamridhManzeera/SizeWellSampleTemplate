@@ -46,6 +46,13 @@ $left-remaining: $col-company + $col-stat * 2; // 500px
   &__col-company { width: $col-company; min-width: $col-company; }
   &__col-stat    { width: $col-stat;    min-width: $col-stat; }
   &__col-hour    { width: 140px;        min-width: 140px; }
+  &__col-mobile-toggle,
+  &__mobile-toggle-header,
+  &__mobile-toggle-cell,
+  &__mobile-only-cell,
+  &__mobile-show-more-cell {
+    display: none !important;
+  }
 
   thead { z-index: 30; }
 
@@ -535,6 +542,344 @@ $left-remaining: $col-company + $col-stat * 2; // 500px
       background: rgba(22, 163, 74, 0.12);
       border: 1px solid rgba(22, 163, 74, 0.35);
       color: #16a34a;
+    }
+  }
+}
+
+// ── Responsive Layout Overrides ─────────────────────────────────────────────
+@media (max-width: 767px) {
+  .fsg-wrapper {
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    overflow-x: visible;
+  }
+
+  .fsg {
+    display: block;
+    width: 100%;
+
+    colgroup {
+      display: none;
+    }
+
+    thead {
+      display: none; /* Hide standard headers on mobile */
+    }
+
+    tbody {
+      display: block;
+      width: 100%;
+    }
+
+    &__row {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 8px;
+      overflow-x: visible;
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      padding: 96px 12px 12px; /* 96px space at the top reserved for fixed company details when collapsed */
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+      box-sizing: border-box;
+      position: relative;
+      transition: padding-top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      
+      &:hover {
+        background: #ffffff;
+      }
+
+      /* Base card labels */
+      &::before {
+        content: "Bookings";
+        position: absolute;
+        top: 112px;
+        left: 16px;
+        opacity: 0;
+        pointer-events: none;
+        font-size: 14px;
+        font-weight: 700;
+        color: #1a3a6b;
+        border-top: 1px solid #e2e8f0;
+        padding-top: 12px;
+        width: calc(100% - 32px);
+        transition: opacity 0.3s ease;
+        transition-delay: 0s;
+      }
+
+      /* When expanded via React class binding */
+      &.fsg__row--expanded {
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        padding-top: 150px; /* Make space for absolutely positioned Bookings header */
+
+        &::before {
+          opacity: 1;
+        }
+
+        .fsg__td--slot {
+          height: auto;
+          max-height: 100px;
+          opacity: 1;
+          margin-bottom: 8px;
+        }
+      }
+    }
+
+    &__td {
+      display: block;
+      padding: 0;
+      border: none !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      text-align: left;
+      width: auto !important;
+      min-width: auto !important;
+      max-width: none !important;
+
+      &--company {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        right: 16px;
+        z-index: 10;
+        margin-bottom: 0;
+
+        .fsg__company-inner {
+          min-height: auto;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .fsg__row-accent {
+          width: 4px;
+          height: 18px;
+          border-radius: 4px;
+        }
+
+        .fsg__company-name {
+          font-size: 16px;
+          font-weight: 700;
+          color: #111827;
+          padding: 0;
+          white-space: normal;
+          overflow: visible;
+          text-overflow: clip;
+        }
+      }
+
+      &--stat-1,
+      &--stat-2,
+      &--stat-3 {
+        position: absolute;
+        top: 56px;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        height: auto;
+
+        &::before {
+          font-size: 10px;
+          font-weight: 600;
+          color: #9ca3af;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          margin-bottom: 2px;
+        }
+      }
+
+      &--stat-1 {
+        left: 16px;
+        width: calc(33.33% - 16px);
+        &::before { content: "Allocated"; }
+      }
+
+      &--stat-2 {
+        left: calc(33.33% + 8px);
+        width: calc(33.33% - 16px);
+        &::before { content: "Booked"; }
+      }
+
+      &--stat-3 {
+        left: calc(66.66% + 8px);
+        width: calc(33.33% - 16px);
+        &::before { content: "Unbooked"; }
+      }
+
+      &--stat-3 {
+        margin-bottom: 8px;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .fsg__stat-breakdown {
+        display: none !important;
+      }
+
+      &--slot {
+        flex-shrink: 0;
+        width: calc(25% - 6px); /* 4 slots per row */
+        margin-right: 0;
+        margin-bottom: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-sizing: border-box;
+        
+        height: 0;
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition-delay: 0s;
+
+        &::before {
+          display: block;
+          font-size: 8.5px;
+          font-weight: 700;
+          color: #6b7280;
+          margin-bottom: 6px;
+          text-align: center;
+          white-space: nowrap;
+          content: attr(data-hour);
+        }
+
+        /* Peak/Shoulder backgrounds for mobile slots */
+        &.fsg__td--peak {
+          .alg__slot { border-color: rgba(#ea580c, 0.4) !important; }
+        }
+
+        &.fsg__td--shoulder {
+          .alg__slot { border-color: rgba(#7c3aed, 0.4) !important; }
+        }
+
+        .fsg__slot {
+          width: 100%;
+          height: 38px;
+          border-radius: 6px;
+          padding: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-sizing: border-box;
+
+          &--empty {
+            background: #e0f2fe !important;
+            border: 1.5px solid #7dd3fc !important;
+          }
+
+          &--occupied {
+            background: #eef2fb !important;
+            border: 1.5px solid #dbe4f5 !important;
+            cursor: pointer;
+
+            &::after {
+              content: "Booked";
+              font-size: 11.5px;
+              font-weight: 800;
+              color: #2563eb;
+            }
+          }
+        }
+
+        .fsg__slot-combo {
+          display: none !important;
+        }
+      }
+    }
+
+    &__stat-num {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: #111827 !important;
+      min-width: auto;
+      height: auto;
+      padding: 0;
+      letter-spacing: normal;
+    }
+
+    .fsg__col-mobile-toggle,
+    .fsg__mobile-toggle-header {
+      display: none !important;
+    }
+
+    .fsg__mobile-toggle-cell {
+      display: block !important;
+      width: 100% !important;
+      margin-top: 4px;
+      padding-top: 0 !important;
+      border-top: none !important;
+      box-sizing: border-box;
+
+      .fsg__mobile-toggle-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 44px;
+        background: #ffffff;
+        border: 1.5px solid #e8ecf4;
+        border-radius: 8px;
+        color: #1a3a6b;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        outline: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        transition: background 0.12s, border-color 0.12s;
+        
+        &:hover, &:focus, &:active {
+          background: rgba(#1a3a6b, 0.06);
+          border-color: rgba(#1a3a6b, 0.25);
+        }
+      }
+    }
+
+    .fsg__desktop-only-cell {
+      display: none !important;
+    }
+
+    .fsg__mobile-only-cell {
+      display: flex !important;
+    }
+
+    .fsg__mobile-show-more-cell {
+      display: block !important;
+      width: 100% !important;
+      margin-top: 8px;
+      padding-top: 12px !important;
+      border-top: 1px dashed #e2e8f0;
+      box-sizing: border-box;
+
+      .fsg__mobile-show-more-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 44px;
+        background: #ffffff;
+        border: 1.5px solid #e8ecf4;
+        border-radius: 8px;
+        color: #1a3a6b;
+        font-size: 13.5px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        transition: background 0.12s, border-color 0.12s;
+        
+        &:hover, &:focus {
+          background: rgba(#1a3a6b, 0.06);
+          border-color: rgba(#1a3a6b, 0.25);
+        }
+      }
     }
   }
 }

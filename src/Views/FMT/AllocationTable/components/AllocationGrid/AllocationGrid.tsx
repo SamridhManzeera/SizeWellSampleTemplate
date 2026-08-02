@@ -1,4 +1,4 @@
-import { CSSProperties } from 'react';
+import { CSSProperties, useState } from 'react';
 import { FmtCompany, FmtBooking, FmtSlotKey } from '../../../types';
 import { buildFmtSlotKey } from '../../../mockData';
 import { HourType } from '../../../../ScheduleConfig/ScheduleConfigContext';
@@ -75,6 +75,20 @@ function AllocationGrid({
   onToggleLateHours,
   onSlotClick,
 }: AllocationGridProps) {
+  const [showMoreCompanyIds, setShowMoreCompanyIds] = useState<Set<string>>(new Set());
+
+  const toggleShowMore = (companyId: string) => {
+    setShowMoreCompanyIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(companyId)) {
+        next.delete(companyId);
+      } else {
+        next.add(companyId);
+      }
+      return next;
+    });
+  };
+
   const visibleHours = [
     ...(showEarlyHours ? EARLY_HOURS : []),
     ...PEAK_HOURS,
@@ -223,6 +237,11 @@ function AllocationGrid({
             const isOverAllocated = remaining < 0;
             const accentColor = ROW_COLORS[idx % ROW_COLORS.length];
 
+            const showMoreForThisCompany = showMoreCompanyIds.has(company.id);
+            const mobileHours = showMoreForThisCompany
+              ? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+              : [6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+
             return (
               <tr
                 key={company.id}
@@ -257,6 +276,7 @@ function AllocationGrid({
                   )}
                 </td>
 
+                {/* Desktop layout slot cells */}
                 {visibleHours.map((hour) => {
                   const key = buildFmtSlotKey(company.id, selectedDate, hour);
                   const booking = bookings.get(key);
@@ -265,8 +285,8 @@ function AllocationGrid({
 
                   return (
                     <td
-                      key={hour}
-                      className={`alg__td alg__td--slot${
+                      key={`desktop-${hour}`}
+                      className={`alg__td alg__td--slot alg__desktop-only-cell${
                         hourType ? ` alg__td--constrained alg__td--${hourType}` : ''
                       }`}
                     >
@@ -293,6 +313,55 @@ function AllocationGrid({
                     </td>
                   );
                 })}
+
+                {/* Mobile layout slot cells */}
+                {mobileHours.map((hour) => {
+                  const key = buildFmtSlotKey(company.id, selectedDate, hour);
+                  const booking = bookings.get(key);
+                  const isOccupied = !!booking;
+                  const hourType = hourTypes[hour] ?? null;
+
+                  return (
+                    <td
+                      key={`mobile-${hour}`}
+                      data-hour={formatHour(hour)}
+                      className={`alg__td alg__td--slot alg__mobile-only-cell${
+                        hourType ? ` alg__td--constrained alg__td--${hourType}` : ''
+                      }`}
+                    >
+                      <button
+                        type="button"
+                        className={`alg__slot${
+                          isOccupied
+                            ? ' alg__slot--occupied'
+                            : ' alg__slot--available'
+                        }`}
+                        onClick={() => onSlotClick(company, hour, booking)}
+                        title={
+                          isOccupied
+                            ? `${booking!.movementCount} allocated — click to edit`
+                            : 'Available — click to allocate'
+                        }
+                      >
+                        {isOccupied && (
+                          <span className="alg__slot-badge">
+                            <TruckIcon /> {booking!.movementCount}
+                          </span>
+                        )}
+                      </button>
+                    </td>
+                  );
+                })}
+
+                <td className="alg__td alg__mobile-show-more-cell">
+                  <button
+                    type="button"
+                    className="alg__mobile-show-more-btn"
+                    onClick={() => toggleShowMore(company.id)}
+                  >
+                    {showMoreForThisCompany ? 'Show Less' : 'Show More'}
+                  </button>
+                </td>
               </tr>
             );
           })}

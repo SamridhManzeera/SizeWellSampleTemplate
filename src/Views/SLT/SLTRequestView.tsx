@@ -257,7 +257,7 @@ export default function SLTRequestView() {
             )}
           </div>
 
-          <div className="slv__table-wrap">
+          <div className="slv__table-wrap slv__desktop-only-table">
             <table className="slv__table">
               <thead>
                 <tr>
@@ -349,6 +349,74 @@ export default function SLTRequestView() {
               </tbody>
             </table>
           </div>
+
+          <div className="slv__mobile-only-cards">
+            {dayDates.map((date, i) => {
+              const requested = requestedTotalByDay[i];
+              const allocated = allocatedTotals[date] ?? 0;
+              const breakdown = req.dailySlots[date] ?? emptyCounts();
+              return (
+                <div key={date} className="slv__day-card">
+                  <div className="slv__day-card-header">
+                    <span className="slv__day-card-date">{formatDateShort(date)}</span>
+                    <span className="slv__day-card-name">{formatDayName(date)}</span>
+                  </div>
+                  
+                  <div className="slv__day-card-body">
+                    <div className="slv__day-card-field">
+                      <span className="slv__day-card-label">Requested Slots</span>
+                      <span
+                        className="slv__req-val-num"
+                        data-tooltip-id="slv-breakdown"
+                        data-tooltip-content={slotBreakdownText(breakdown)}
+                      >
+                        {requested}
+                      </span>
+                    </div>
+                    
+                    <div className="slv__day-card-field">
+                      <span className="slv__day-card-label">Allocated Slots</span>
+                      <div className="slv__alloc-cell">
+                        {isView ? (
+                          <span className="slv__alloc-val">{allocated}</span>
+                        ) : (
+                          <div className="slv__counter">
+                            <button
+                              type="button"
+                              className="slv__counter-btn"
+                              onClick={() => setAllocatedTotal(date, allocated - 1)}
+                              disabled={allocated === 0}
+                            >
+                              −
+                            </button>
+                            <input
+                              type="number"
+                              className="slv__counter-input"
+                              value={allocated}
+                              min={0}
+                              onChange={(e) => {
+                                const v = parseInt(e.target.value, 10);
+                                setAllocatedTotal(date, isNaN(v) ? 0 : v);
+                              }}
+                              aria-label={`Allocated for ${date}`}
+                            />
+                            <button
+                              type="button"
+                              className="slv__counter-btn"
+                              onClick={() => setAllocatedTotal(date, allocated + 1)}
+                            >
+                              +
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
           <Tooltip id="slv-breakdown" className="slv__tooltip" />
         </section>
 
