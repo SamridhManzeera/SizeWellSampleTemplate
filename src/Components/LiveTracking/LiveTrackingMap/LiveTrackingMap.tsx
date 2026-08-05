@@ -572,7 +572,7 @@ export default function LiveTrackingMap({
                 ? (v.id === selectedVehicleId ? 5.5 : 2.5)
                 : 3.5,
               'line-opacity': selectedVehicleId
-                ? (v.id === selectedVehicleId ? 0.95 : 0.25)
+                ? (v.id === selectedVehicleId ? 0.95 : 0.50)
                 : 0.85,
             },
           });
@@ -612,7 +612,7 @@ export default function LiveTrackingMap({
                 ? (v.id === selectedVehicleId ? 5.5 : 2.5)
                 : 3.5,
               'line-opacity': selectedVehicleId
-                ? (v.id === selectedVehicleId ? 0.95 : 0.25)
+                ? (v.id === selectedVehicleId ? 0.95 : 0.50)
                 : 0.85,
             },
           });

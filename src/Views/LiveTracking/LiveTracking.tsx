@@ -239,7 +239,7 @@ export default function LiveTracking() {
         />
 
         <VehicleFilters
-          mode={activeMode}
+          mode={activeTab === 'map' ? activeMode : 'live'}
           filters={activeTab === 'map' ? mapFilters : listingFilters}
           onFilterChange={
             activeTab === 'map'
