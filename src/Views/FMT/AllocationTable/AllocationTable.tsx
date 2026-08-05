@@ -2,9 +2,14 @@ import { useState, useMemo, useRef } from 'react';
 import { useScheduleConfig } from '../../ScheduleConfig/ScheduleConfigContext';
 import { useFmtBookings } from '../FmtBookingsContext';
 import { FmtBooking, FmtCompany } from '../types';
-import { FMT_MOCK_COMPANIES, buildFmtSlotKey } from '../mockData';
+import {
+  FMT_MOCK_COMPANIES,
+  buildFmtSlotKey,
+  getFmtHistoryForCompany,
+} from '../mockData';
 import AllocationGrid from './components/AllocationGrid/AllocationGrid';
 import AllocationEditModal from './components/AllocationEditModal/AllocationEditModal';
+import AllocationHistoryModal from './components/AllocationHistoryModal/AllocationHistoryModal';
 import PageHeader from '../../../Components/Layouts/PageHeader/PageHeader';
 import PageHero from '../../../Components/Layouts/PageHero/PageHero';
 import '../Dashboard/Dashboard.scss';
@@ -92,6 +97,11 @@ export default function AllocationTable() {
     hour: 0,
   });
 
+  const [historyState, setHistoryState] = useState<{
+    open: boolean;
+    company: FmtCompany | null;
+  }>({ open: false, company: null });
+
   const dateInputRef = useRef<HTMLInputElement>(null);
 
   // Distributed = sum of movementCount already assigned to hours today, per company
@@ -136,6 +146,14 @@ export default function AllocationTable() {
     setModalState((prev) => ({ ...prev, open: false }));
   }
 
+  function handleViewHistory(company: FmtCompany) {
+    setHistoryState({ open: true, company });
+  }
+
+  function handleHistoryClose() {
+    setHistoryState((prev) => ({ ...prev, open: false }));
+  }
+
   function handleConfirm(movementCount: number, notes: string) {
     if (!modalState.company) return;
     updateAllocation(
@@ -147,6 +165,14 @@ export default function AllocationTable() {
     );
     handleModalClose();
   }
+
+  const historyEntries = useMemo(
+    () =>
+      historyState.company
+        ? getFmtHistoryForCompany(historyState.company)
+        : [],
+    [historyState.company]
+  );
 
   const modalCurrentDistributed = modalState.company
     ? distributedCountsByCompany.get(modalState.company.id) ?? 0
@@ -321,8 +347,16 @@ export default function AllocationTable() {
           onToggleEarlyHours={() => setShowEarlyHours((v) => !v)}
           onToggleLateHours={() => setShowLateHours((v) => !v)}
           onSlotClick={handleSlotClick}
+          onViewHistory={handleViewHistory}
         />
       </div>
+
+      <AllocationHistoryModal
+        open={historyState.open}
+        company={historyState.company}
+        entries={historyEntries}
+        onClose={handleHistoryClose}
+      />
 
       <AllocationEditModal
         open={modalState.open}

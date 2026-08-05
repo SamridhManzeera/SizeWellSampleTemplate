@@ -16,6 +16,7 @@ interface AllocationGridProps {
   onToggleEarlyHours: () => void;
   onToggleLateHours: () => void;
   onSlotClick: (company: FmtCompany, hour: number, booking?: FmtBooking) => void;
+  onViewHistory: (company: FmtCompany) => void;
 }
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
@@ -39,6 +40,14 @@ function formatHour(hour: number): string {
   const start = String(hour).padStart(2, '0');
   const end = String((hour + 1) % 24).padStart(2, '0');
   return `${start}:00 - ${end}:00`;
+}
+
+function HistoryIcon() {
+  return (
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M4 4h3v3H4V4zm5 .5h11v2H9v-2zM4 10.5h3v3H4v-3zm5 .5h11v2H9v-2zM4 17h3v3H4v-3zm5 .5h11v2H9v-2z" />
+    </svg>
+  );
 }
 
 function TruckIcon() {
@@ -74,6 +83,7 @@ function AllocationGrid({
   onToggleEarlyHours,
   onToggleLateHours,
   onSlotClick,
+  onViewHistory,
 }: AllocationGridProps) {
   const visibleHours = [
     ...(showEarlyHours ? EARLY_HOURS : []),
@@ -233,6 +243,15 @@ function AllocationGrid({
                   <div className="alg__company-inner">
                     <span className="alg__row-accent" />
                     <span className="alg__company-name">{company.name}</span>
+                    <button
+                      type="button"
+                      className="alg__history-btn"
+                      onClick={() => onViewHistory(company)}
+                      title="View allocation history"
+                      aria-label={`View allocation history for ${company.name}`}
+                    >
+                      <HistoryIcon />
+                    </button>
                   </div>
                 </td>
 
