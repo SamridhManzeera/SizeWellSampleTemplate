@@ -16,6 +16,46 @@ export default function VehicleFilters({
   onReset,
   onRefresh,
 }: VehicleFiltersProps) {
+  // Date From split
+  const dateFromDate = filters.dateFrom ? filters.dateFrom.split('T')[0] : '';
+  const dateFromTime = filters.dateFrom && filters.dateFrom.includes('T') ? filters.dateFrom.split('T')[1] : '';
+
+  // Date To split
+  const dateToDate = filters.dateTo ? filters.dateTo.split('T')[0] : '';
+  const dateToTime = filters.dateTo && filters.dateTo.includes('T') ? filters.dateTo.split('T')[1] : '';
+
+  const handleDateFromDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const d = e.target.value;
+    if (!d) {
+      onFilterChange('dateFrom', '');
+    } else {
+      const t = dateFromTime || '00:00';
+      onFilterChange('dateFrom', `${d}T${t}`);
+    }
+  };
+
+  const handleDateFromTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const t = e.target.value;
+    const d = dateFromDate || new Date().toISOString().split('T')[0];
+    onFilterChange('dateFrom', `${d}T${t}`);
+  };
+
+  const handleDateToDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const d = e.target.value;
+    if (!d) {
+      onFilterChange('dateTo', '');
+    } else {
+      const t = dateToTime || '23:59';
+      onFilterChange('dateTo', `${d}T${t}`);
+    }
+  };
+
+  const handleDateToTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const t = e.target.value;
+    const d = dateToDate || new Date().toISOString().split('T')[0];
+    onFilterChange('dateTo', `${d}T${t}`);
+  };
+
   return (
     <div className="lt-filters">
       <div className="lt-filters__grid">
@@ -209,31 +249,45 @@ export default function VehicleFilters({
             </div>
 
             {/* Date Range: Date From */}
-            <div className="lt-filters__field">
-              <label htmlFor="filter-date-from" className="lt-filters__label">
+            <div className="lt-filters__field" style={{ minWidth: '220px' }}>
+              <label className="lt-filters__label">
                 Date From
               </label>
-              <input
-                type="date"
-                id="filter-date-from"
-                className="lt-filters__input"
-                value={filters.dateFrom || ''}
-                onChange={e => onFilterChange('dateFrom', e.target.value)}
-              />
+              <div className="lt-filters__datetime-inputs">
+                <input
+                  type="date"
+                  className="lt-filters__input lt-filters__input--date"
+                  value={dateFromDate}
+                  onChange={handleDateFromDateChange}
+                />
+                <input
+                  type="time"
+                  className="lt-filters__input lt-filters__input--time"
+                  value={dateFromTime || '00:00'}
+                  onChange={handleDateFromTimeChange}
+                />
+              </div>
             </div>
 
             {/* Date Range: Date To */}
-            <div className="lt-filters__field">
-              <label htmlFor="filter-date-to" className="lt-filters__label">
+            <div className="lt-filters__field" style={{ minWidth: '220px' }}>
+              <label className="lt-filters__label">
                 Date To
               </label>
-              <input
-                type="date"
-                id="filter-date-to"
-                className="lt-filters__input"
-                value={filters.dateTo || ''}
-                onChange={e => onFilterChange('dateTo', e.target.value)}
-              />
+              <div className="lt-filters__datetime-inputs">
+                <input
+                  type="date"
+                  className="lt-filters__input lt-filters__input--date"
+                  value={dateToDate}
+                  onChange={handleDateToDateChange}
+                />
+                <input
+                  type="time"
+                  className="lt-filters__input lt-filters__input--time"
+                  value={dateToTime || '00:00'}
+                  onChange={handleDateToTimeChange}
+                />
+              </div>
             </div>
 
             {/* Contractor */}

@@ -180,7 +180,7 @@ export default function SLTRequests() {
                       <button
                         type="button"
                         className="rq__action-btn rq__action-btn--view"
-                        onClick={() => navigate(`/slt/requests/${req.id}`)}
+                        onClick={() => navigate(`/slt/requests/${req.id}`, { state: { from: '/slt/requests' } })}
                       >
                         <EyeIcon />
                         <span>View</span>

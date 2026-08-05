@@ -111,6 +111,17 @@ $border:    #e8ecf4;
       color: #0f766e;
     }
   }
+
+  &--unselected {
+    border-color: #cbd5e1 !important;
+    opacity: 0.45;
+    .lt-marker__icon {
+      color: #94a3b8 !important;
+    }
+    &:hover {
+      opacity: 0.9;
+    }
+  }
 }
 
 // ── Deviation Warning Marker ───────────────────────────────────
@@ -279,11 +290,57 @@ $border:    #e8ecf4;
   top: 14px !important;
 }
 
-.lt-map-exception-btn {
+.lt-map-controls-wrap {
   position: absolute;
   top: 24px;
   right: 64px;
   z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.lt__tabs--map {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 12px;
+  padding: 4px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
+  display: flex;
+  gap: 4px;
+  pointer-events: auto;
+}
+
+.lt__tab-btn--map {
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #475569;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  &:hover {
+    color: #0f172a;
+    background: #f1f5f9;
+  }
+
+  &--active {
+    background: #1e293b !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+  }
+}
+
+.lt-map-exception-btn {
   display: flex;
   align-items: center;
   justify-content: center;

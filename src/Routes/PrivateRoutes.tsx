@@ -71,6 +71,11 @@ export const SLOT_ALLOCATION_ROUTES: Array<CustomRouter> = [
     title: ROUTES_CONFIG.LIVE_TRACKING.title,
   },
   {
+    path: '/live-tracking/:vehicleId',
+    element: <LiveTracking />,
+    title: ROUTES_CONFIG.LIVE_TRACKING.title,
+  },
+  {
     path: ROUTES_CONFIG.ADMIN_PROFILE.path,
     element: <Profile />,
     title: ROUTES_CONFIG.ADMIN_PROFILE.title,
