@@ -55,6 +55,14 @@ $green:   #16a34a;
   }
 
   // ── Transposed slots table ─────────────────────────────────────
+  &__desktop-only-table {
+    display: block !important;
+  }
+
+  &__mobile-only-cards {
+    display: none !important;
+  }
+
   &__table-wrap {
     overflow-x: auto;
     border: 1.5px solid $border;
@@ -224,4 +232,204 @@ $green:   #16a34a;
   font-weight: 600 !important;
   padding: 8px 12px !important;
   border-radius: 8px !important;
+}
+
+// ── Mobile Responsive Overrides ─────────────────────────────────────────────
+@media (max-width: 767px) {
+  // Page Hero section styling
+  .rf {
+    .page-hero-wrap {
+      padding: 16px 12px 0 !important;
+    }
+
+    .page-hero {
+      padding: 20px 16px !important;
+    }
+
+    .page-hero__left {
+      width: 100%;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px !important;
+    }
+
+    .page-hero__icon {
+      width: 44px !important;
+      height: 44px !important;
+      border-radius: 10px !important;
+      
+      svg {
+        width: 22px !important;
+        height: 22px !important;
+      }
+    }
+
+    .page-hero__back {
+      padding: 6px 12px !important;
+      font-size: 12px !important;
+      margin-bottom: 6px !important;
+      height: 32px !important;
+    }
+
+    .page-hero__title {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px !important;
+      font-size: clamp(18px, 5.5vw, 24px) !important;
+      line-height: 1.3 !important;
+      
+      .rf__kind-badge,
+      .rf__status-badge {
+        margin-left: 0 !important;
+        font-size: 10.5px !important;
+        padding: 3px 8px !important;
+        line-height: 1.2 !important;
+      }
+    }
+
+    .page-hero__sub {
+      font-size: 12px !important;
+      line-height: 1.45 !important;
+    }
+
+    // Wide forms matching FMT Dashboard styling
+    .rf__form {
+      padding: 16px 12px 40px !important;
+    }
+
+    .rf__section {
+      padding: 16px !important;
+      border-radius: 12px !important;
+      margin-bottom: 16px !important;
+    }
+
+    .rf__ds-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px !important;
+      margin-bottom: 16px !important;
+    }
+  }
+
+  // Date range boxes vertical stacking
+  .slv__date-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  .slv__date-box {
+    padding: 8px 12px !important;
+  }
+
+  .slv__date-sep {
+    display: none !important;
+  }
+
+  // Horizontal table scrolling and sticky category columns
+  .slv__desktop-only-table {
+    display: none !important;
+  }
+
+  .slv__mobile-only-cards {
+    display: flex !important;
+    flex-direction: column;
+    gap: 12px;
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  .slv__day-card {
+    border: 1.5px solid #e8ecf4;
+    border-radius: 10px;
+    background: #ffffff;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(17, 24, 39, 0.02);
+  }
+
+  .slv__day-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: #f8f9fc;
+    border-bottom: 1px solid #e8ecf4;
+  }
+
+  .slv__day-card-date {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  .slv__day-card-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .slv__day-card-body {
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .slv__day-card-field {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 36px;
+  }
+
+  .slv__day-card-label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .slv__table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 10px;
+    margin-top: 12px;
+  }
+
+  .slv__table {
+    min-width: 600px;
+
+    th, td {
+      padding: 8px 10px !important;
+      font-size: 12px !important;
+    }
+
+    .slv__type-col {
+      position: sticky;
+      left: 0;
+      z-index: 20;
+      background: #f8f9fc !important;
+      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.06);
+      border-right: 1.5px solid #c7cedd !important;
+    }
+  }
+
+  // Counter control styling alignment
+  .slv__counter {
+    height: 32px !important;
+  }
+
+  .slv__counter-btn {
+    width: 30px !important;
+    height: 32px !important;
+  }
+
+  .slv__counter-input {
+    width: 40px !important;
+    font-size: 13px !important;
+  }
 }

@@ -3,3 +3,269 @@
 .slt-rq .rq__table td {
   padding: 20px 16px;
 }
+
+// ── Responsive Layout Overrides ─────────────────────────────────────────────
+
+// Tablet View (768px – 1199px)
+@media (min-width: 768px) and (max-width: 1199px) {
+  .slt-rq {
+    .rq__stats {
+      grid-template-columns: repeat(2, 1fr);
+      border-bottom: none;
+      padding: 0 16px;
+
+      .rq__stat {
+        border-right: 1px solid #e8ecf4;
+        border-bottom: 1px solid #e8ecf4;
+        padding: 16px;
+
+        &:nth-child(2n) {
+          border-right: none;
+        }
+
+        &:nth-child(3),
+        &:nth-child(4) {
+          border-bottom: none;
+        }
+      }
+    }
+
+    .rq__table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 12px;
+    }
+
+    .rq__table {
+      min-width: 900px; /* Force minimum table width to enable horizontal scroll and maintain readability */
+    }
+  }
+}
+
+// Mobile View (< 768px)
+@media (max-width: 767px) {
+  .slt-rq {
+    // ── Page Hero Mobile Layout overrides ──
+    .page-hero__left {
+      gap: 12px;
+      align-items: center;
+      width: 100%;
+    }
+
+    .page-hero__icon {
+      width: 40px !important;
+      height: 40px !important;
+      border-radius: 10px !important;
+      
+      svg {
+        width: 20px !important;
+        height: 20px !important;
+      }
+    }
+
+    .page-hero__title {
+      white-space: nowrap;
+      font-size: clamp(16px, 5.2vw, 22px);
+      margin-bottom: 2px;
+    }
+
+    .page-hero__sub {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 12px;
+      line-height: 1.45;
+      max-width: 100%;
+    }
+
+    // ── 4-in-a-row Stats overrides ──
+    .rq__stats {
+      grid-template-columns: repeat(4, 1fr) !important;
+      padding: 0 8px !important;
+      border-bottom: none;
+
+      .rq__stat {
+        border-right: 1px solid #e8ecf4 !important;
+        border-bottom: none !important;
+        padding: 12px 4px !important;
+        align-items: center;
+
+        &:last-child {
+          border-right: none !important;
+        }
+
+        .rq__stat-num {
+          font-size: 20px !important;
+        }
+
+        .rq__stat-label {
+          font-size: 9px !important;
+          letter-spacing: 0.02em !important;
+        }
+      }
+    }
+
+    .rq__list-section {
+      padding: 20px 16px 32px;
+    }
+
+    .rq__list-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .rq__filter-wrap {
+      width: 100%;
+      justify-content: space-between;
+
+      .rq__filter-select {
+        flex: 1;
+        max-width: 220px;
+      }
+    }
+
+    .rq__table-wrap {
+      border: none !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      overflow: visible !important;
+    }
+
+    .rq__table {
+      display: block;
+      width: 100%;
+
+      thead {
+        display: none !important; /* Hide headers on mobile cards */
+      }
+
+      tbody,
+      tr,
+      td {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      tbody tr {
+        background: #ffffff;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        margin-bottom: 16px;
+        padding: 16px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+        position: relative;
+        text-align: left;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+        &:hover td {
+          background: transparent !important;
+        }
+
+        &:active {
+          transform: translateY(1px);
+        }
+      }
+
+      td {
+        border: none !important;
+        padding: 8px 0 !important;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 36px;
+        color: #374151;
+
+        // Column 1: Contractor Name (Card Header)
+        &:nth-child(1) {
+          display: block;
+          border-bottom: 1px solid #e2e8f0 !important;
+          padding-bottom: 12px !important;
+          margin-bottom: 8px;
+
+          .rq__company {
+            font-size: 16px;
+            font-weight: 700;
+            color: #111827;
+          }
+        }
+
+        // Columns 2 - 6: Card Fields
+        &:nth-child(2)::before { content: "Request ID"; }
+        &:nth-child(3)::before { content: "Delivery Week"; }
+        &:nth-child(4)::before { content: "Requested Slots"; }
+        &:nth-child(5)::before { content: "Submitted Date"; }
+        &:nth-child(6)::before { content: "Status"; }
+
+        &:nth-child(2),
+        &:nth-child(3),
+        &:nth-child(4),
+        &:nth-child(5),
+        &:nth-child(6) {
+          &::before {
+            font-size: 12px;
+            font-weight: 600;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+          }
+        }
+
+        // Status Badge Style overrides
+        .rq__status {
+          padding: 6px 14px;
+          font-size: 12px;
+          border-radius: 20px;
+          font-weight: 700;
+        }
+
+        // Column 7: Actions Button (Card Footer)
+        &:nth-child(7) {
+          display: block;
+          border-top: 1px solid #e2e8f0 !important;
+          padding-top: 12px !important;
+          margin-top: 8px;
+
+          .rq__actions {
+            width: 100%;
+            display: block;
+          }
+
+          .rq__action-btn {
+            width: 100%;
+            height: 44px; /* Minimum 44px touch target */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 700;
+            background: #ffffff;
+            border: 1.5px solid #e8ecf4;
+            color: #1a3a6b;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+
+            &:hover {
+              background: rgba(#1a3a6b, 0.06);
+              border-color: rgba(#1a3a6b, 0.2);
+            }
+          }
+        }
+      }
+
+      .rq__empty {
+        display: block;
+        text-align: center;
+        padding: 32px 16px !important;
+        font-size: 14px;
+        color: #9ca3af;
+      }
+    }
+  }
+}
