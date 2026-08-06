@@ -165,7 +165,7 @@ export default function SLTDeliverySlots() {
   }
 
   function handleViewRequest(request: DeliveryRequest) {
-    navigate(`/slt/requests/${request.id}`);
+    navigate(`/slt/requests/${request.id}`, { state: { from: '/slt/delivery-slots' } });
   }
 
   function handleConfirm(allocatedTotal: number) {

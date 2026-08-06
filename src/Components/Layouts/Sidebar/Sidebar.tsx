@@ -112,6 +112,14 @@ function FormIcon() {
   );
 }
 
+function EveryoneIcon() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M16.5 13c-1.2 0-3.07.34-3.5 1-.43-.66-2.3-1-3.5-1C7.1 13 2 15.2 2 18v2h18v-2c0-2.8-5.1-5-6.5-5zm-7-2c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3zm7-1c1.38 0 2.5-1.12 2.5-2.5S17.88 5 16.5 5c-.7 0-1.3.3-1.75.77.45.73.75 1.6.75 2.73 0 1-.3 1.8-.75 2.5.45.6 1.05 1 1.75 1z" />
+    </svg>
+  );
+}
+
 const NAV_GROUPS_SLOT_ALLOCATION = [
   {
     key: 'admin',
@@ -123,12 +131,6 @@ const NAV_GROUPS_SLOT_ALLOCATION = [
         to: '/schedule-config',
         label: 'Schedule Config',
         icon: <SettingsIcon />,
-        end: false,
-      },
-      {
-        to: '/live-tracking',
-        label: 'Live Tracking',
-        icon: <RequestsIcon />,
         end: false,
       },
       {
@@ -148,6 +150,19 @@ const NAV_GROUPS_SLOT_ALLOCATION = [
         label: 'User & Role Management',
         icon: <ShieldUserIcon />,
         end: true,
+      },
+    ],
+  },
+  {
+    key: 'everyone',
+    label: 'Everyone',
+    icon: <EveryoneIcon />,
+    items: [
+      {
+        to: '/live-tracking',
+        label: 'Live Tracking',
+        icon: <RequestsIcon />,
+        end: false,
       },
     ],
   },
@@ -352,6 +367,7 @@ function Sidebar() {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({
     admin: false,
     contractor: false,
+    everyone: false,
     iam: false,
     fmt: false,
     reviewer: false,

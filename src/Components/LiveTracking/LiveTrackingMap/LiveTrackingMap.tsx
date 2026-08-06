@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { EnhancedVehicle, GeoFence } from '../../../types/liveTracking';
@@ -46,6 +47,7 @@ interface LiveTrackingMapProps {
     pending: number;
   };
   mode: 'live' | 'history';
+  onChangeMode: (mode: 'live' | 'history') => void;
   onAddException: () => void;
 }
 
@@ -58,8 +60,10 @@ export default function LiveTrackingMap({
   geofences,
   metrics,
   mode,
+  onChangeMode,
   onAddException,
 }: LiveTrackingMapProps) {
+  const { vehicleId } = useParams<{ vehicleId: string }>();
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
@@ -67,6 +71,9 @@ export default function LiveTrackingMap({
   const [mapLoaded, setMapLoaded] = useState(false);
   const [showPlannedRoute, setShowPlannedRoute] = useState(true);
   const [isZoomEnabled, setIsZoomEnabled] = useState(false);
+
+  const onSelectVehicleRef = useRef(onSelectVehicle);
+  onSelectVehicleRef.current = onSelectVehicle;
 
   // Initialize Map
   useEffect(() => {
@@ -88,6 +95,7 @@ export default function LiveTrackingMap({
     map.on('click', () => {
       map.scrollZoom.enable();
       setIsZoomEnabled(true);
+      onSelectVehicleRef.current(null);
     });
 
     map.on('mouseleave', () => {
@@ -557,9 +565,15 @@ export default function LiveTrackingMap({
               'line-cap': 'round',
             },
             paint: {
-              'line-color': '#16a34a', // Green
-              'line-width': v.id === selectedVehicleId ? 5.5 : 3.5,
-              'line-opacity': 0.85,
+              'line-color': selectedVehicleId
+                ? (v.id === selectedVehicleId ? '#16a34a' : '#9ca3af')
+                : '#16a34a',
+              'line-width': selectedVehicleId
+                ? (v.id === selectedVehicleId ? 5.5 : 2.5)
+                : 3.5,
+              'line-opacity': selectedVehicleId
+                ? (v.id === selectedVehicleId ? 0.95 : 0.50)
+                : 0.85,
             },
           });
         }
@@ -591,9 +605,15 @@ export default function LiveTrackingMap({
               'line-cap': 'round',
             },
             paint: {
-              'line-color': '#dc2626', // Red
-              'line-width': v.id === selectedVehicleId ? 5.5 : 3.5,
-              'line-opacity': 0.85,
+              'line-color': selectedVehicleId
+                ? (v.id === selectedVehicleId ? '#dc2626' : '#9ca3af')
+                : '#dc2626',
+              'line-width': selectedVehicleId
+                ? (v.id === selectedVehicleId ? 5.5 : 2.5)
+                : 3.5,
+              'line-opacity': selectedVehicleId
+                ? (v.id === selectedVehicleId ? 0.95 : 0.50)
+                : 0.85,
             },
           });
 
@@ -674,12 +694,13 @@ export default function LiveTrackingMap({
       // Draw markers for all filtered vehicles
       filteredVehicles.forEach(v => {
         const isHighlighted = selectedVehicleId === v.id;
+        const isUnselected = selectedVehicleId !== null && !isHighlighted;
         const markerEl = document.createElement('div');
         const statusClass = v.status.toLowerCase();
         
         markerEl.className = `lt-marker lt-marker--${statusClass}${
           isHighlighted ? ' lt-marker--highlighted' : ''
-        }`;
+        }${isUnselected ? ' lt-marker--unselected' : ''}`;
         
         const truckSvg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><rect x="1" y="3" width="15" height="13" rx="2" ry="2"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>';
         const vanSvg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><path d="M14 18H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v6"></path><path d="M18 9h4l2 3v4h-6V9z"></path><circle cx="7.5" cy="18.5" r="2.5"></circle><circle cx="19.5" cy="18.5" r="2.5"></circle></svg>';
@@ -778,29 +799,54 @@ export default function LiveTrackingMap({
         </div>
       )}
 
-      {/* Add Exception button positioned top-right (where legend was) */}
-      {mode !== 'history' && (
-        <button
-          type="button"
-          className="lt-map-exception-btn"
-          onClick={onAddException}
-        >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            style={{ marginRight: '6px' }}
-          >
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-          Add Exception
-        </button>
+      {/* Live/History Toggle and Add Exception controls positioned top-right (hidden in single vehicle view) */}
+      {!vehicleId && (
+        <div className="lt-map-controls-wrap">
+          <div className="lt__tabs lt__tabs--map">
+            <button
+              type="button"
+              className={`lt__tab-btn lt__tab-btn--map ${
+                mode === 'live' ? 'lt__tab-btn--active' : ''
+              }`}
+              onClick={() => onChangeMode('live')}
+            >
+              Live
+            </button>
+            <button
+              type="button"
+              className={`lt__tab-btn lt__tab-btn--map ${
+                mode === 'history' ? 'lt__tab-btn--active' : ''
+              }`}
+              onClick={() => onChangeMode('history')}
+            >
+              History
+            </button>
+          </div>
+
+          {mode !== 'history' && (
+            <button
+              type="button"
+              className="lt-map-exception-btn"
+              onClick={onAddException}
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ marginRight: '6px' }}
+              >
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              Add Exception
+            </button>
+          )}
+        </div>
       )}
 
       {/* Bottom Left Overlay Card: Validation Metrics */}
@@ -894,7 +940,7 @@ export default function LiveTrackingMap({
             </li>
             <li className="lt-vehicles-type-card__item">
               <span className="lt-vehicles-type-card__dot lt-vehicles-type-card__dot--lgv" />
-              <span className="lt-vehicles-type-card__label">LGV</span>
+              <span className="lt-vehicles-type-card__label">AIL</span>
               <span className="lt-vehicles-type-card__val">28 (35%)</span>
             </li>
             <li className="lt-vehicles-type-card__item">

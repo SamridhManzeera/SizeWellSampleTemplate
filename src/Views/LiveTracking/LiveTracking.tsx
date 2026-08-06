@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
 import PageHero from '../../Components/Layouts/PageHero/PageHero';
 import { useLiveTracking } from '../../hooks/useLiveTracking';
@@ -50,12 +51,24 @@ export default function LiveTracking() {
     removeException,
   } = useLiveTracking();
 
+  const { vehicleId } = useParams<{ vehicleId: string }>();
+  const navigate = useNavigate();
+
   const [activeTab, setActiveTab] = useState<'listing' | 'map'>('map');
   const [activeMode, setActiveMode] = useState<'live' | 'history'>('live');
   const [isExceptionModalOpen, setIsExceptionModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [exceptionToConfirm, setExceptionToConfirm] =
     useState<RouteException | null>(null);
+
+  // Sync selected vehicle with vehicleId route parameter
+  useEffect(() => {
+    if (vehicleId) {
+      handleSelectVehicle(vehicleId);
+    } else {
+      handleSelectVehicle(null);
+    }
+  }, [vehicleId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const inboundCount = useMemo(() => {
     return vehicles.filter(v => v.direction === 'Inbound').length;
@@ -90,14 +103,95 @@ export default function LiveTracking() {
   };
 
   const handleViewVehicleOnMap = (id: string) => {
-    setActiveTab('map');
-    const selected = vehicles.find((v) => v.id === id);
-    if (selected) {
-      handleMapFilterChange('status', selected.status);
-    }
-    handleMapFilterChange('vehicleId', id);
-    handleSelectVehicle(id);
+    navigate(`/live-tracking/${id}`);
   };
+
+  if (vehicleId) {
+    return (
+      <div className="lt">
+        <PageHeader />
+
+        <PageHero
+          icon={<MapIcon />}
+          title={`Live Tracking - ${vehicleId}`}
+          subtitle={`Detailed route and tracking analysis for vehicle ${vehicleId}.`}
+          eyebrow="Vehicle Details"
+          actions={null}
+          backAction={{
+            label: '← Back to Live Tracking',
+            onClick: () => navigate('/live-tracking'),
+          }}
+        />
+
+        <div className="lt__content">
+          {error && (
+            <div className="lt__error-alert">
+              <span className="lt__error-alert-icon">⚠️</span>
+              <div className="lt__error-alert-content">
+                <h4>Initialization Error</h4>
+                <p>{error}</p>
+              </div>
+              <button
+                type="button"
+                className="lt__error-alert-retry"
+                onClick={refreshData}
+              >
+                Retry
+              </button>
+            </div>
+          )}
+
+          {loading ? (
+            <div className="lt__loading-placeholder">
+              <div className="lt__spinner" />
+              <span className="lt__loading-text">
+                Loading tracking data and GPX geometry...
+              </span>
+            </div>
+          ) : (
+            !error && (
+              <div className="lt__view-container lt__view-container--map">
+                <LiveTrackingMap
+                  vehicles={vehicles}
+                  filteredVehicles={filteredVehiclesMap}
+                  selectedVehicleId={selectedVehicle ? selectedVehicle.id : null}
+                  filterVehicleId={vehicleId}
+                  onSelectVehicle={handleSelectVehicle}
+                  geofences={geofences}
+                  metrics={metrics}
+                  mode={activeMode}
+                  onChangeMode={setActiveMode}
+                  onAddException={() => setIsExceptionModalOpen(true)}
+                />
+              </div>
+            )
+          )}
+        </div>
+
+        <ExceptionModal
+          open={isExceptionModalOpen}
+          vehicles={vehicles}
+          geofences={geofences}
+          onClose={() => setIsExceptionModalOpen(false)}
+          onSave={addException}
+        />
+
+        <ConfirmModal
+          open={isConfirmModalOpen}
+          exception={exceptionToConfirm}
+          geofences={geofences}
+          onClose={() => setIsConfirmModalOpen(false)}
+          onConfirm={() => {
+            if (exceptionToConfirm) {
+              removeException(exceptionToConfirm.id);
+            }
+            setIsConfirmModalOpen(false);
+            setExceptionToConfirm(null);
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="lt">
@@ -110,28 +204,6 @@ export default function LiveTracking() {
         eyebrow={null}
         actions={
           <div className="lt__header-actions-wrap" style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-            <div className="lt__tabs">
-              <button
-                type="button"
-                className={`lt__tab-btn ${
-                  activeMode === 'live' ? 'lt__tab-btn--active' : ''
-                }`}
-                onClick={() => setActiveMode('live')}
-              >
-                Live
-              </button>
-              <button
-                type="button"
-                className={`lt__tab-btn ${
-                  activeMode === 'history' ? 'lt__tab-btn--active' : ''
-                }`}
-                onClick={() => setActiveMode('history')}
-              >
-                History
-              </button>
-            </div>
-
-            {/* Commented out Listing View / Map View Toggle as requested
             <div className="lt__tabs">
               <button
                 type="button"
@@ -152,7 +224,6 @@ export default function LiveTracking() {
                 🗺️ Map View
               </button>
             </div>
-            */}
           </div>
         }
       />
@@ -168,7 +239,7 @@ export default function LiveTracking() {
         />
 
         <VehicleFilters
-          mode={activeMode}
+          mode={activeTab === 'map' ? activeMode : 'live'}
           filters={activeTab === 'map' ? mapFilters : listingFilters}
           onFilterChange={
             activeTab === 'map'
@@ -218,6 +289,7 @@ export default function LiveTracking() {
                   geofences={geofences}
                   metrics={metrics}
                   mode={activeMode}
+                  onChangeMode={setActiveMode}
                   onAddException={() => setIsExceptionModalOpen(true)}
                 />
               ) : (

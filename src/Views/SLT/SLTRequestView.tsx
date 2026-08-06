@@ -1,5 +1,5 @@
 import { Fragment, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Tooltip } from 'react-tooltip';
 import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
 import PageHero from '../../Components/Layouts/PageHero/PageHero';
@@ -89,7 +89,10 @@ type Mode = 'view' | 'edit';
 export default function SLTRequestView() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
   const { getRequest, updateRequest } = useRequests();
+
+  const fromPath = (location.state as any)?.from ?? '/slt/requests';
 
   const existing = id ? getRequest(id) : undefined;
 
@@ -167,7 +170,7 @@ export default function SLTRequestView() {
         eyebrow={null}
         backAction={{
           label: '← Back',
-          onClick: () => navigate('/slt/requests'),
+          onClick: () => navigate(fromPath),
         }}
         title={
           <>
