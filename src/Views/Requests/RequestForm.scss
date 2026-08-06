@@ -601,6 +601,42 @@ $radius:  12px;
     flex-wrap: wrap;
   }
 
+  // Section switcher (Delivery Slots / Allocated View)
+  &__view-toggle-capsule {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 9px;
+    border: 1.5px solid $border;
+    background: $bg;
+  }
+
+  &__view-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    font-weight: 600;
+    color: $mid;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    transition: background 0.12s, color 0.12s;
+
+    &:hover { color: $navy; }
+
+    &--active {
+      background: #fff;
+      color: $navy;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      font-weight: 700;
+    }
+  }
+
   &__ds-copy-btn {
     display: inline-flex;
     align-items: center;
@@ -791,144 +827,6 @@ $radius:  12px;
     &--in  { color: #16a34a; }
     &--out { color: #f97316; }
     &--tw  { color: #7c3aed; }
-  }
-
-  // View Toggle Switcher (Day / Hour)
-  &__view-toggle-capsule {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    padding: 3px;
-    border-radius: 9px;
-    border: 1.5px solid $border;
-    background: $bg;
-  }
-
-  &__view-toggle-btn {
-    display: inline-flex;
-    align-items: center;
-    padding: 6px 12px;
-    border-radius: 6px;
-    border: none;
-    background: transparent;
-    font-size: 12px;
-    font-weight: 600;
-    color: $mid;
-    cursor: pointer;
-    font-family: inherit;
-    transition: background 0.12s, color 0.12s;
-
-    &:hover { color: $navy; }
-
-    &--active {
-      background: #fff;
-      color: $navy;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-      font-weight: 700;
-    }
-  }
-
-  // Hour View Specific Cells & Badges
-  &__ds-th--hour {
-    min-width: 90px;
-    position: relative;
-    padding-right: 28px !important; // make space for plus/minus hour handles
-  }
-
-  &__time {
-    display: block;
-    font-size: 9px;
-    color: $muted;
-    line-height: 1.2;
-    text-transform: none;
-  }
-
-  &__hour-toggle-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 18px;
-    height: 18px;
-    margin-left: 6px;
-    border-radius: 4px;
-    border: 1px solid rgba($navy, 0.25);
-    background: #fff;
-    color: $navy;
-    font-size: 11px;
-    font-weight: 700;
-    cursor: pointer;
-    vertical-align: middle;
-    padding: 0;
-    transition: all 0.1s;
-
-    &:hover {
-      background: $navy;
-      color: #fff;
-      border-color: $navy;
-    }
-
-    &--right {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      right: 4px;
-      margin-left: 0;
-    }
-  }
-
-  &__ds-hour-cell {
-    text-align: center;
-    vertical-align: middle;
-
-    &--occupied {
-      background: rgba($navy, 0.02);
-    }
-  }
-
-  &__ds-hour-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 3px 6px;
-    border-radius: 6px;
-    background: #f1f5f9;
-    color: #475569;
-    border: 1px solid #cbd5e1;
-    font-size: 11px;
-    font-weight: 700;
-    cursor: default;
-
-    svg {
-      color: #64748b;
-    }
-
-    &--clickable {
-      cursor: pointer;
-      border-color: rgba($navy, 0.35);
-      background: rgba($navy, 0.04);
-      color: $navy;
-      font-family: inherit;
-      line-height: 1;
-      outline: none;
-      transition: background 0.15s, border-color 0.15s;
-
-      &:hover {
-        background: rgba($navy, 0.1);
-        border-color: $navy;
-      }
-    }
-  }
-
-  &__ds-hour-empty {
-    color: #cbd5e1;
-    font-size: 12px;
-  }
-
-  &__ds-hour-footer-cell {
-    font-size: 12px;
-    font-weight: 700;
-    color: $navy;
-    background: rgba(#eef2f9, 0.98);
   }
 
   // ── Route buttons ─────────────────────────────────────────────

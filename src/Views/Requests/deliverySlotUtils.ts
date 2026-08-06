@@ -73,3 +73,36 @@ export function rowTotal(c: DaySlotCounts) {
 export function slotBreakdownText(c: DaySlotCounts) {
   return `Inbound: ${c.inbound} · Outbound: ${c.outbound} · Two-way: ${c.twoWay}`;
 }
+
+export function formatHourRange(hour: number): string {
+  const start = String(hour).padStart(2, '0');
+  const end = String((hour + 1) % 24).padStart(2, '0');
+  return `${start}:00 - ${end}:00`;
+}
+
+// Simulates an hourly breakdown of a day's slot counts — there is no real
+// per-hour data source yet, so counts are spread across a fixed set of
+// representative hours (same approach used by the FMT allocation table).
+export function distributeDailySlotsToHours(counts: DaySlotCounts): Record<number, DaySlotCounts> {
+  const hourly: Record<number, DaySlotCounts> = {};
+  for (let h = 0; h < 24; h++) {
+    hourly[h] = { inbound: 0, outbound: 0, twoWay: 0 };
+  }
+
+  const inboundHours = [8, 10, 12, 14, 16, 9, 11, 13, 15, 17];
+  for (let i = 0; i < counts.inbound; i++) {
+    hourly[inboundHours[i % inboundHours.length]].inbound++;
+  }
+
+  const outboundHours = [9, 11, 13, 15, 17, 8, 10, 12, 14, 16];
+  for (let i = 0; i < counts.outbound; i++) {
+    hourly[outboundHours[i % outboundHours.length]].outbound++;
+  }
+
+  const twoWayHours = [10, 14, 11, 15, 8, 12, 16];
+  for (let i = 0; i < counts.twoWay; i++) {
+    hourly[twoWayHours[i % twoWayHours.length]].twoWay++;
+  }
+
+  return hourly;
+}

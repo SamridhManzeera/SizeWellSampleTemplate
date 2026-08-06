@@ -1,0 +1,425 @@
+$navy:   #1a3a6b;
+$blue:   #2563eb;
+$border: #e8ecf4;
+$bg:     #f8f9fc;
+$dark:   #111827;
+$mid:    #374151;
+$muted:  #9ca3af;
+$green:  #16a34a;
+
+.rf-alloc {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  * { box-sizing: border-box; }
+
+  &__empty {
+    margin: 0;
+    padding: 24px;
+    text-align: center;
+    color: $muted;
+    font-size: 13px;
+  }
+
+  // ── Date tabs ─────────────────────────────────────────────────
+  &__date-tabs {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    max-width: 100%;
+    padding: 2px 2px 8px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  &__date-tab {
+    position: relative;
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    min-width: 96px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1.5px solid $border;
+    background: #fff;
+    color: $mid;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.12s;
+
+    &:hover { border-color: #cbd5e1; }
+
+    &--active {
+      border: 2px solid $blue;
+      color: $blue;
+
+      &::after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        bottom: -3px;
+        transform: translateX(-50%);
+        width: 26px;
+        height: 3px;
+        border-radius: 3px;
+        background: $blue;
+      }
+    }
+  }
+
+  &__date-tab-date {
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  &__date-tab-day {
+    font-size: 11px;
+    font-weight: 500;
+    opacity: 0.7;
+    white-space: nowrap;
+  }
+
+  // ── Hourly grid card ──────────────────────────────────────────
+  &__grid-card {
+    border: 1.5px solid $border;
+    border-radius: 14px;
+    padding: 18px;
+    background: #fff;
+    max-width: 100%;
+  }
+
+  &__grid-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  &__grid-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: $dark;
+  }
+
+  &__grid-total {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: 1.5px solid rgba($green, 0.25);
+    background: rgba($green, 0.06);
+    color: $green;
+    font-size: 12.5px;
+    font-weight: 600;
+    white-space: nowrap;
+
+    strong {
+      font-size: 14px;
+      font-weight: 800;
+    }
+  }
+
+  // Fixed column counts (rather than auto-fill) so the 24 hour boxes always
+  // split into full, even rows instead of leaving a short last row.
+  &__hour-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  &__hour-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+    padding: 10px 4px;
+    border-radius: 9px;
+    border: 1.5px solid $border;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+
+    &--occupied {
+      background: rgba($blue, 0.06);
+      border-color: rgba($blue, 0.5);
+
+      .rf-alloc__hour-time { color: $blue; }
+
+      &:hover { background: rgba($blue, 0.12); border-color: $blue; }
+    }
+
+    &--empty {
+      background: $bg;
+      &:hover { background: darken($bg, 3%); border-color: #cbd5e1; }
+    }
+
+    &--locked {
+      cursor: not-allowed;
+      background: repeating-linear-gradient(
+        135deg,
+        #f1f2f5,
+        #f1f2f5 6px,
+        #e7e9ee 6px,
+        #e7e9ee 12px
+      );
+      border-color: #d7dbe3;
+      opacity: 0.75;
+
+      .rf-alloc__hour-time { color: #9aa1ad; }
+
+      &:hover { background: repeating-linear-gradient(135deg, #f1f2f5, #f1f2f5 6px, #e7e9ee 6px, #e7e9ee 12px); }
+    }
+
+    &:disabled { pointer-events: auto; }
+  }
+
+  &__hour-time {
+    font-size: 10px;
+    font-weight: 600;
+    color: $muted;
+    white-space: nowrap;
+  }
+
+  &__hour-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba($blue, 0.14);
+    color: $blue;
+    font-size: 12px;
+    font-weight: 800;
+
+    svg { color: $blue; }
+
+    &--locked {
+      background: rgba(#6b7280, 0.14);
+      color: #6b7280;
+      svg { color: #6b7280; }
+    }
+  }
+
+  &__hour-empty {
+    color: #cbd5e1;
+    font-size: 13px;
+  }
+
+  // ── Legend ────────────────────────────────────────────────────
+  &__legend {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid $border;
+  }
+
+  &__legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: $mid;
+  }
+
+  &__legend-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+    flex-shrink: 0;
+
+    &--allocated {
+      background: rgba($blue, 0.14);
+      color: $blue;
+      svg { margin: 0; }
+    }
+
+    &--empty {
+      border: 1.5px solid $border;
+      color: $muted;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    &--locked {
+      border: 1.5px solid #d7dbe3;
+      background: repeating-linear-gradient(
+        135deg,
+        #f1f2f5,
+        #f1f2f5 3px,
+        #e7e9ee 3px,
+        #e7e9ee 6px
+      );
+    }
+  }
+
+  &__legend-divider {
+    width: 1px;
+    height: 14px;
+    background: $border;
+  }
+
+  &__legend-note {
+    margin-left: auto;
+    font-size: 12px;
+    color: $muted;
+  }
+
+  // ── Release popup: cell details ──────────────────────────────────
+  &__cell-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    border: 1.5px solid $border;
+    background: #fff;
+  }
+
+  &__cell-detail {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  &__cell-detail-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: $muted;
+  }
+
+  &__cell-detail-val {
+    font-size: 13px;
+    font-weight: 700;
+    color: $dark;
+  }
+
+  // ── Release popup counter ───────────────────────────────────────
+  &__release-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1.5px solid $border;
+    background: $bg;
+  }
+
+  &__release-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: $mid;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__release-counter {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  &__release-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1.5px solid rgba($navy, 0.3);
+    background: #fff;
+    color: $navy;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.12s, color 0.12s;
+
+    &:hover:not(:disabled) { background: $navy; color: #fff; }
+    &:disabled { opacity: 0.35; cursor: not-allowed; }
+  }
+
+  &__release-val {
+    min-width: 40px;
+    text-align: center;
+    font-size: 26px;
+    font-weight: 800;
+    color: $navy;
+  }
+
+  &__release-hint {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: $muted;
+    text-align: center;
+  }
+}
+
+// ── Tablet adjustments ────────────────────────────────────────────
+@media (max-width: 900px) {
+  .rf-alloc {
+    &__hour-grid {
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+    }
+  }
+}
+
+// ── Mobile adjustments ───────────────────────────────────────────
+@media (max-width: 600px) {
+  .rf-alloc {
+    gap: 14px;
+
+    &__grid-card {
+      padding: 12px;
+    }
+
+    &__hour-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    &__hour-cell {
+      padding: 7px 2px;
+    }
+
+    &__grid-header {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    &__grid-total {
+      justify-content: center;
+      width: 100%;
+    }
+
+    &__legend {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    &__legend-note {
+      margin-left: 0;
+    }
+  }
+}

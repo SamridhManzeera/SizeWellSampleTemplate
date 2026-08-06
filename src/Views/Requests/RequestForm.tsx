@@ -4,6 +4,7 @@ import { startOfWeek, endOfWeek } from 'date-fns';
 import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
 import PageHero from '../../Components/Layouts/PageHero/PageHero';
 import WeekPicker from '../../Components/Layouts/WeekPicker/WeekPicker';
+import AllocatedView from './components/AllocatedView/AllocatedView';
 import { useRequests } from './RequestsContext';
 import { VehicleType, DriverRoute, RequestKind, DaySlotCounts, RequestAttachment } from './requestTypes';
 import './RequestForm.scss';
@@ -107,14 +108,6 @@ function RemoveIcon() {
   );
 }
 
-function SmallTruckIcon() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: 3, verticalAlign: 'middle' }}>
-      <path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5S5.17 15.5 6 15.5s1.5.67 1.5 1.5S6.83 18.5 6 18.5zm12 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm-1.5-6h-3V9.5h3.36L20 12.5h-1.5z" />
-    </svg>
-  );
-}
-
 // ── Helpers ───────────────────────────────────────────────────────
 
 function nextId(count: number) { return `REQ-${String(count + 1).padStart(3, '0')}`; }
@@ -205,39 +198,6 @@ function emptyCounts(): DaySlotCounts { return { inbound: 0, outbound: 0, twoWay
 
 function rowTotal(c: DaySlotCounts) { return c.inbound + c.outbound + c.twoWay * 2; }
 
-function distributeDailySlotsToHours(counts: DaySlotCounts): Record<number, DaySlotCounts> {
-  const hourly: Record<number, DaySlotCounts> = {};
-  for (let h = 0; h < 24; h++) {
-    hourly[h] = { inbound: 0, outbound: 0, twoWay: 0 };
-  }
-
-  const inboundHours = [8, 10, 12, 14, 16, 9, 11, 13, 15, 17];
-  for (let i = 0; i < counts.inbound; i++) {
-    const hour = inboundHours[i % inboundHours.length];
-    hourly[hour].inbound++;
-  }
-
-  const outboundHours = [9, 11, 13, 15, 17, 8, 10, 12, 14, 16];
-  for (let i = 0; i < counts.outbound; i++) {
-    const hour = outboundHours[i % outboundHours.length];
-    hourly[hour].outbound++;
-  }
-
-  const twoWayHours = [10, 14, 11, 15, 8, 12, 16];
-  for (let i = 0; i < counts.twoWay; i++) {
-    const hour = twoWayHours[i % twoWayHours.length];
-    hourly[hour].twoWay++;
-  }
-
-  return hourly;
-}
-
-function formatHourRange(hour: number): string {
-  const start = String(hour).padStart(2, '0');
-  const end = String((hour + 1) % 24).padStart(2, '0');
-  return `${start}:00 - ${end}:00`;
-}
-
 function formatDateRange(startDate: string, endDate: string) {
   return startDate === endDate ? formatDate(startDate) : `${formatDate(startDate)} – ${formatDate(endDate)}`;
 }
@@ -320,15 +280,7 @@ export default function RequestForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [deadlinePosition, setDeadlinePosition] = useState<'below' | 'side'>('below');
-
-  const [viewType, setViewType] = useState<'day' | 'hour'>('day');
-  const [showEarlyHours, setShowEarlyHours] = useState(false);
-  const [showLateHours, setShowLateHours] = useState(false);
-  const [selectedHourSlot, setSelectedHourSlot] = useState<{
-    date: string;
-    hour: number;
-    counts: DaySlotCounts;
-  } | null>(null);
+  const [sectionTab, setSectionTab] = useState<'requested' | 'allocated'>('requested');
 
   const isView = mode === 'view';
   const isCreate = mode === 'create';
@@ -357,27 +309,6 @@ export default function RequestForm() {
   const totalInbound = dayDates.reduce((sum, d) => sum + (dailySlots[d]?.inbound ?? 0), 0);
   const totalOutbound = dayDates.reduce((sum, d) => sum + (dailySlots[d]?.outbound ?? 0), 0);
   const totalTwoWay = dayDates.reduce((sum, d) => sum + (dailySlots[d]?.twoWay ?? 0), 0);
-
-  const HOURS = Array.from({ length: 24 }, (_, i) => i);
-  const EARLY_HOURS = HOURS.filter((h) => h <= 5);
-  const PEAK_HOURS = HOURS.filter((h) => h >= 6 && h <= 18);
-  const LATE_HOURS = HOURS.filter((h) => h >= 19);
-
-  const visibleHours = [
-    ...(showEarlyHours ? EARLY_HOURS : []),
-    ...PEAK_HOURS,
-    ...(showLateHours ? LATE_HOURS : []),
-  ];
-
-  const hourTotals = visibleHours.map(hour => {
-    let sum = 0;
-    dayDates.forEach(date => {
-      const counts = dailySlots[date] ?? emptyCounts();
-      const hourlySlots = distributeDailySlotsToHours(counts);
-      sum += rowTotal(hourlySlots[hour]);
-    });
-    return sum;
-  });
 
   // ── Copy Configuration modal (copy a previous week's slots onto this week) ──
   // No backend history endpoint yet, so a previous week's slots are looked up
@@ -497,6 +428,9 @@ export default function RequestForm() {
         contractorName: 'Your Company',
         ...payload,
         allocatedSlots: Object.fromEntries(
+          Object.keys(dailySlots).map((d) => [d, emptyCounts()])
+        ),
+        bookedSlots: Object.fromEntries(
           Object.keys(dailySlots).map((d) => [d, emptyCounts()])
         ),
         status: 'pending',
@@ -637,218 +571,140 @@ export default function RequestForm() {
           )}
         </section>
 
-        {/* ── Section 2: Delivery Slots ─────────────────────── */}
+        {/* ── Section 2: Delivery Slots / Allocated View ────── */}
         <section className="rf__section">
           <div className="rf__ds-header">
             <div>
-              <h2 className="rf__section-title" style={{ marginBottom: 4 }}>Delivery Slots</h2>
-              <p className="rf__section-desc" style={{ marginBottom: 0 }}>Set the number of deliveries per day for each type.</p>
+              <h2 className="rf__section-title" style={{ marginBottom: 4 }}>
+                {sectionTab === 'requested' ? 'Delivery Slots' : 'Allocated View'}
+              </h2>
+              <p className="rf__section-desc" style={{ marginBottom: 0 }}>
+                {sectionTab === 'requested'
+                  ? 'Set the number of deliveries per day for each type.'
+                  : 'Hourly breakdown of allocated delivery slots for each requested date.'}
+              </p>
             </div>
-            {isView ? (
-              <div className="rf__view-toggle-capsule">
-                <button
-                  type="button"
-                  className={`rf__view-toggle-btn ${viewType === 'day' ? 'rf__view-toggle-btn--active' : ''}`}
-                  onClick={() => setViewType('day')}
-                >
-                  Requested View
-                </button>
-                <button
-                  type="button"
-                  className={`rf__view-toggle-btn ${viewType === 'hour' ? 'rf__view-toggle-btn--active' : ''}`}
-                  onClick={() => setViewType('hour')}
-                >
-                  Allocated View 
-                </button>
-              </div>
-            ) : (
-              <div className="rf__ds-header-actions">
-                <button type="button" className="rf__ds-clear-btn" onClick={handleClearSlots} disabled={totalSlots === 0}>
-                  <ClearIcon /> Clear
-                </button>
-                <button type="button" className="rf__ds-copy-btn" onClick={openCopyModal}>
-                  <CopyIcon /> Copy Configuration
-                </button>
-              </div>
-            )}
+            <div className="rf__ds-header-actions">
+              {existing && (
+                <div className="rf__view-toggle-capsule">
+                  <button
+                    type="button"
+                    className={`rf__view-toggle-btn ${sectionTab === 'requested' ? 'rf__view-toggle-btn--active' : ''}`}
+                    onClick={() => setSectionTab('requested')}
+                  >
+                    Delivery Slots
+                  </button>
+                  <button
+                    type="button"
+                    className={`rf__view-toggle-btn ${sectionTab === 'allocated' ? 'rf__view-toggle-btn--active' : ''}`}
+                    onClick={() => setSectionTab('allocated')}
+                  >
+                    Allocated View
+                  </button>
+                </div>
+              )}
+              {!isView && sectionTab === 'requested' && (
+                <>
+                  <button type="button" className="rf__ds-clear-btn" onClick={handleClearSlots} disabled={totalSlots === 0}>
+                    <ClearIcon /> Clear
+                  </button>
+                  <button type="button" className="rf__ds-copy-btn" onClick={openCopyModal}>
+                    <CopyIcon /> Copy Configuration
+                  </button>
+                </>
+              )}
+            </div>
           </div>
 
-          {errors.slots && <p className="rf__err" style={{ margin: '12px 0 0' }}>{errors.slots}</p>}
+          {sectionTab === 'requested' ? (
+            <>
+              {errors.slots && <p className="rf__err" style={{ margin: '12px 0 0' }}>{errors.slots}</p>}
 
-          <div className="rf__ds-table-wrap" style={{ overflowX: 'auto' }}>
-            {viewType === 'day' ? (
-              <table className="rf__ds-table">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th className="rf__ds-th--tw">↕ Two Way (<span className="rf__ds-mult">x2</span>)</th>
-                    <th className="rf__ds-th--in">↑ Inbound (<span className="rf__ds-mult">x1</span>)</th>
-                    <th className="rf__ds-th--out">↓ Outbound (<span className="rf__ds-mult">x1</span>)</th>
-                    <th>Total Movement (<span className="rf__ds-mult">x1</span>)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dayDates.map(date => {
-                    const counts = dailySlots[date] ?? emptyCounts();
-                    return (
-                      <tr key={date}>
-                        <td>
-                          {formatDateShort(date)}
-                          <div className="rf__ds-day-name">({formatDayName(date)})</div>
-                        </td>
-                        <td>
-                          {isView ? (
-                            <span className="rf__ds-view-num rf__ds-view-num--tw">{counts.twoWay}</span>
-                          ) : (
-                            <DaySlotCounter
-                              value={counts.twoWay} colorClass="tw"
-                              onDecrease={() => setDayCount(date, 'twoWay', counts.twoWay - 1)}
-                              onIncrease={() => setDayCount(date, 'twoWay', counts.twoWay + 1)}
-                              onChange={v => setDayCount(date, 'twoWay', v)}
-                            />
-                          )}
-                        </td>
-                        <td>
-                          {isView ? (
-                            <span className="rf__ds-view-num rf__ds-view-num--in">{counts.inbound}</span>
-                          ) : (
-                            <DaySlotCounter
-                              value={counts.inbound} colorClass="in"
-                              onDecrease={() => setDayCount(date, 'inbound', counts.inbound - 1)}
-                              onIncrease={() => setDayCount(date, 'inbound', counts.inbound + 1)}
-                              onChange={v => setDayCount(date, 'inbound', v)}
-                            />
-                          )}
-                        </td>
-                        <td>
-                          {isView ? (
-                            <span className="rf__ds-view-num rf__ds-view-num--out">{counts.outbound}</span>
-                          ) : (
-                            <DaySlotCounter
-                              value={counts.outbound} colorClass="out"
-                              onDecrease={() => setDayCount(date, 'outbound', counts.outbound - 1)}
-                              onIncrease={() => setDayCount(date, 'outbound', counts.outbound + 1)}
-                              onChange={v => setDayCount(date, 'outbound', v)}
-                            />
-                          )}
-                        </td>
-                        <td className="rf__ds-row-total">{rowTotal(counts)}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-                <tfoot>
-                  <tr className="rf__ds-total-row">
-                    <td>Total Across All Days</td>
-                    <td className="rf__ds-th--tw">{totalTwoWay}</td>
-                    <td className="rf__ds-th--in">{totalInbound}</td>
-                    <td className="rf__ds-th--out">{totalOutbound}</td>
-                    <td>{totalSlots}</td>
-                  </tr>
-                </tfoot>
-              </table>
-            ) : (
-              <table className="rf__ds-table">
-                <thead>
-                  <tr>
-                    <th style={!showEarlyHours ? { position: 'relative', paddingRight: 28 } : undefined}>
-                      Date
-                      {!showEarlyHours && (
-                        <button
-                          type="button"
-                          className="rf__hour-toggle-btn rf__hour-toggle-btn--right"
-                          onClick={() => setShowEarlyHours(true)}
-                          title="Show 00:00–05:00"
-                        >
-                          +
-                        </button>
-                      )}
-                    </th>
-                    {visibleHours.map((hour) => (
-                      <th key={hour} className="rf__ds-th--hour">
-                        <span className="rf__time">{formatHourRange(hour)}</span>
-                        {showEarlyHours && hour === 5 && (
-                          <button
-                            type="button"
-                            className="rf__hour-toggle-btn rf__hour-toggle-btn--right"
-                            onClick={() => setShowEarlyHours(false)}
-                            title="Hide 00:00–05:00"
-                          >
-                            −
-                          </button>
-                        )}
-                        {!showLateHours && hour === 18 && (
-                          <button
-                            type="button"
-                            className="rf__hour-toggle-btn rf__hour-toggle-btn--right"
-                            onClick={() => setShowLateHours(true)}
-                            title="Show 19:00–23:00"
-                          >
-                            +
-                          </button>
-                        )}
-                        {showLateHours && hour === 23 && (
-                          <button
-                            type="button"
-                            className="rf__hour-toggle-btn rf__hour-toggle-btn--right"
-                            onClick={() => setShowLateHours(false)}
-                            title="Hide 19:00–23:00"
-                          >
-                            −
-                          </button>
-                        )}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {dayDates.map(date => {
-                    const counts = dailySlots[date] ?? emptyCounts();
-                    const hourlySlots = distributeDailySlotsToHours(counts);
-                    return (
-                      <tr key={date}>
-                        <td>
-                          {formatDateShort(date)}
-                          <div className="rf__ds-day-name">({formatDayName(date)})</div>
-                        </td>
-                        {visibleHours.map(hour => {
-                          const hCount = hourlySlots[hour];
-                          const hTotal = rowTotal(hCount);
-                          return hTotal > 0 ? (
-                            <td key={hour} className="rf__ds-hour-cell rf__ds-hour-cell--occupied">
-                              <button
-                                type="button"
-                                className="rf__ds-hour-badge rf__ds-hour-badge--clickable"
-                                onClick={() => setSelectedHourSlot({ date, hour, counts: hCount })}
-                                title={`Inbound: ${hCount.inbound} · Outbound: ${hCount.outbound} · Two-way: ${hCount.twoWay}`}
-                              >
-                                <SmallTruckIcon /> {hTotal}
-                              </button>
-                            </td>
-                          ) : (
-                            <td key={hour} className="rf__ds-hour-cell rf__ds-hour-cell--empty">
-                              <span className="rf__ds-hour-empty">-</span>
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-                <tfoot>
-                  <tr className="rf__ds-total-row">
-                    <td>Total Across All Days</td>
-                    {hourTotals.map((tot, idx) => (
-                      <td key={idx} className="rf__ds-hour-footer-cell">{tot || '-'}</td>
-                    ))}
-                  </tr>
-                </tfoot>
-              </table>
-            )}
-          </div>
+              <div className="rf__ds-table-wrap" style={{ overflowX: 'auto' }}>
+                <table className="rf__ds-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th className="rf__ds-th--tw">↕ Two Way (<span className="rf__ds-mult">x2</span>)</th>
+                      <th className="rf__ds-th--in">↑ Inbound (<span className="rf__ds-mult">x1</span>)</th>
+                      <th className="rf__ds-th--out">↓ Outbound (<span className="rf__ds-mult">x1</span>)</th>
+                      <th>Total Movement (<span className="rf__ds-mult">x1</span>)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dayDates.map(date => {
+                      const counts = dailySlots[date] ?? emptyCounts();
+                      return (
+                        <tr key={date}>
+                          <td>
+                            {formatDateShort(date)}
+                            <div className="rf__ds-day-name">({formatDayName(date)})</div>
+                          </td>
+                          <td>
+                            {isView ? (
+                              <span className="rf__ds-view-num rf__ds-view-num--tw">{counts.twoWay}</span>
+                            ) : (
+                              <DaySlotCounter
+                                value={counts.twoWay} colorClass="tw"
+                                onDecrease={() => setDayCount(date, 'twoWay', counts.twoWay - 1)}
+                                onIncrease={() => setDayCount(date, 'twoWay', counts.twoWay + 1)}
+                                onChange={v => setDayCount(date, 'twoWay', v)}
+                              />
+                            )}
+                          </td>
+                          <td>
+                            {isView ? (
+                              <span className="rf__ds-view-num rf__ds-view-num--in">{counts.inbound}</span>
+                            ) : (
+                              <DaySlotCounter
+                                value={counts.inbound} colorClass="in"
+                                onDecrease={() => setDayCount(date, 'inbound', counts.inbound - 1)}
+                                onIncrease={() => setDayCount(date, 'inbound', counts.inbound + 1)}
+                                onChange={v => setDayCount(date, 'inbound', v)}
+                              />
+                            )}
+                          </td>
+                          <td>
+                            {isView ? (
+                              <span className="rf__ds-view-num rf__ds-view-num--out">{counts.outbound}</span>
+                            ) : (
+                              <DaySlotCounter
+                                value={counts.outbound} colorClass="out"
+                                onDecrease={() => setDayCount(date, 'outbound', counts.outbound - 1)}
+                                onIncrease={() => setDayCount(date, 'outbound', counts.outbound + 1)}
+                                onChange={v => setDayCount(date, 'outbound', v)}
+                              />
+                            )}
+                          </td>
+                          <td className="rf__ds-row-total">{rowTotal(counts)}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                  <tfoot>
+                    <tr className="rf__ds-total-row">
+                      <td>Total Across All Days</td>
+                      <td className="rf__ds-th--tw">{totalTwoWay}</td>
+                      <td className="rf__ds-th--in">{totalInbound}</td>
+                      <td className="rf__ds-th--out">{totalOutbound}</td>
+                      <td>{totalSlots}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </>
+          ) : existing ? (
+            <AllocatedView
+              dates={dayDates}
+              allocatedSlots={existing.allocatedSlots ?? {}}
+              bookedSlots={existing.bookedSlots ?? {}}
+              contractorName={existing.contractorName ?? ''}
+              requestId={existing.id ?? ''}
+            />
+          ) : null}
         </section>
 
-        {/* ── Section 3: Notes ─────────────────────────────── */}
+        {/* ── Section 4: Notes ─────────────────────────────── */}
         <section className="rf__section">
           <h2 className="rf__section-title" style={{ marginBottom: 12 }}>Notes</h2>
           {isView ? (
@@ -868,7 +724,7 @@ export default function RequestForm() {
           )}
         </section>
 
-        {/* ── Section 4: Attachments ────────────────────────── */}
+        {/* ── Section 5: Attachments ────────────────────────── */}
         <section className="rf__section">
           <h2 className="rf__section-title" style={{ marginBottom: 4 }}>Attachments</h2>
           <p className="rf__section-desc">Upload any supporting documents for this request.</p>
@@ -973,58 +829,6 @@ export default function RequestForm() {
               </button>
               <button type="button" className="rf-modal__btn rf-modal__btn--copy" onClick={handleApplyCopy} disabled={!copyFromWeek}>
                 Copy Configuration
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {selectedHourSlot && (
-        <div className="rf-modal-backdrop" onClick={() => setSelectedHourSlot(null)}>
-          <div className="rf-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
-            <div className="rf-modal__header">
-              <h2 className="rf-modal__title">Hourly Allocation Details</h2>
-              <button type="button" className="rf-modal__close" onClick={() => setSelectedHourSlot(null)} aria-label="Close">✕</button>
-            </div>
-            <div className="rf-modal__body">
-              <div className="rf-modal__step">
-                <span className="rf-modal__step-num-title">{existing?.contractorName || 'Contractor'}</span>
-                <span className="rf-modal__step-subtitle">Request {existing?.id} · {formatDateFull(selectedHourSlot.date)}</span>
-              </div>
-
-              <div className="rf-modal__breakdown-card">
-                <span className="rf-modal__breakdown-title">Slot Breakdown for {formatHourRange(selectedHourSlot.hour)}</span>
-                <div className="rf-modal__breakdown-list">
-                  <div className="rf-modal__breakdown-item">
-                    <span className="rf-modal__breakdown-num" style={{ color: '#7c3aed' }}>
-                      {selectedHourSlot.counts.twoWay}
-                    </span>
-                    <span className="rf-modal__breakdown-label">Two-way (x2)</span>
-                  </div>
-                  <div className="rf-modal__breakdown-item">
-                    <span className="rf-modal__breakdown-num" style={{ color: '#16a34a' }}>
-                      {selectedHourSlot.counts.inbound}
-                    </span>
-                    <span className="rf-modal__breakdown-label">Inbound (x1)</span>
-                  </div>
-                  <div className="rf-modal__breakdown-item">
-                    <span className="rf-modal__breakdown-num" style={{ color: '#f97316' }}>
-                      {selectedHourSlot.counts.outbound}
-                    </span>
-                    <span className="rf-modal__breakdown-label">Outbound (x1)</span>
-                  </div>
-                  <div className="rf-modal__breakdown-item rf-modal__breakdown-item--total">
-                    <span className="rf-modal__breakdown-num" style={{ color: '#1a3a6b' }}>
-                      {rowTotal(selectedHourSlot.counts)}
-                    </span>
-                    <span className="rf-modal__breakdown-label">Total Movement</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="rf-modal__footer" style={{ borderTop: '1px solid #e8ecf4', padding: '16px 24px' }}>
-              <button type="button" className="rf__cancel-btn" onClick={() => setSelectedHourSlot(null)}>
-                Close
               </button>
             </div>
           </div>

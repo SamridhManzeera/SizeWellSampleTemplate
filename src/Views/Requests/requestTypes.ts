@@ -47,6 +47,9 @@ export interface DeliveryRequest {
   endDate: string;
   dailySlots: Record<string, DaySlotCounts>;
   allocatedSlots: Record<string, DaySlotCounts>;
+  // Portion of allocatedSlots already booked by a driver — booked movements
+  // can't be released back into the pool.
+  bookedSlots: Record<string, DaySlotCounts>;
   vehicleType: VehicleType;
   driverRoute: DriverRoute;
   notes: string;
