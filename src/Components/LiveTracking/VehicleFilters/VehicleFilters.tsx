@@ -38,10 +38,16 @@ export default function VehicleFilters({
     };
   }, []);
 
-  // Date From split
-  const currentIsoString = new Date().toISOString();
-  const currentDateDefault = currentIsoString.split('T')[0];
-  const currentTimeDefault = new Date().toTimeString().split(' ')[0].substring(0, 5); // "HH:MM"
+  // Date and Time local defaults
+  const now = new Date();
+  const getLocalDateString = (d: Date) => {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
+  const currentDateDefault = getLocalDateString(now);
+  const currentTimeDefault = now.toTimeString().split(' ')[0].substring(0, 5); // "HH:MM"
 
   const dateFromDate = filters.dateFrom ? filters.dateFrom.split('T')[0] : currentDateDefault;
   const dateFromTime = filters.dateFrom && filters.dateFrom.includes('T') ? filters.dateFrom.split('T')[1] : currentTimeDefault;
@@ -51,21 +57,41 @@ export default function VehicleFilters({
   const dateToTime = filters.dateTo && filters.dateTo.includes('T') ? filters.dateTo.split('T')[1] : currentTimeDefault;
 
   const handleDateFromDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const d = e.target.value;
+    let d = e.target.value;
     if (!d) {
       onFilterChange('dateFrom', '');
     } else {
-      const t = dateFromTime || '00:00';
+      if (d > currentDateDefault) {
+        d = currentDateDefault;
+      }
+      let t = dateFromTime || '00:00';
+      if (d === currentDateDefault) {
+        const [h, m] = t.split(':').map(Number);
+        const [currH, currM] = currentTimeDefault.split(':').map(Number);
+        if (h > currH || (h === currH && m > currM)) {
+          t = currentTimeDefault;
+        }
+      }
       onFilterChange('dateFrom', `${d}T${t}`);
     }
   };
 
   const handleDateToDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const d = e.target.value;
+    let d = e.target.value;
     if (!d) {
       onFilterChange('dateTo', '');
     } else {
-      const t = dateToTime || '23:59';
+      if (d > currentDateDefault) {
+        d = currentDateDefault;
+      }
+      let t = dateToTime || '23:59';
+      if (d === currentDateDefault) {
+        const [h, m] = t.split(':').map(Number);
+        const [currH, currM] = currentTimeDefault.split(':').map(Number);
+        if (h > currH || (h === currH && m > currM)) {
+          t = currentTimeDefault;
+        }
+      }
       onFilterChange('dateTo', `${d}T${t}`);
     }
   };
@@ -285,6 +311,7 @@ export default function VehicleFilters({
                       className="lt-filters__popover-input"
                       value={dateFromDate}
                       onChange={handleDateFromDateChange}
+                      max={currentDateDefault}
                     />
                   </div>
                   <div className="lt-filters__popover-divider" />
@@ -296,14 +323,28 @@ export default function VehicleFilters({
                         value={dateFromTime ? dateFromTime.split(':')[0] : '00'}
                         onChange={(e) => {
                           const h = e.target.value;
-                          const m = dateFromTime ? dateFromTime.split(':')[1] : '00';
+                          let m = dateFromTime ? dateFromTime.split(':')[1] : '00';
+                          if (dateFromDate === currentDateDefault) {
+                            const [currH, currM] = currentTimeDefault.split(':').map(Number);
+                            if (Number(h) === currH && Number(m) > currM) {
+                              m = String(currM).padStart(2, '0');
+                            }
+                          }
                           onFilterChange('dateFrom', `${dateFromDate}T${h}:${m}`);
                         }}
                       >
-                        {Array.from({ length: 24 }, (_, i) => i).map(h => {
-                          const hStr = h.toString().padStart(2, '0');
-                          return <option key={hStr} value={hStr}>{hStr}</option>;
-                        })}
+                        {Array.from({ length: 24 }, (_, i) => i)
+                          .filter(h => {
+                            if (dateFromDate === currentDateDefault) {
+                              const currH = Number(currentTimeDefault.split(':')[0]);
+                              return h <= currH;
+                            }
+                            return true;
+                          })
+                          .map(h => {
+                            const hStr = h.toString().padStart(2, '0');
+                            return <option key={hStr} value={hStr}>{hStr}</option>;
+                          })}
                       </select>
                       <span className="lt-filters__popover-time-colon">:</span>
                       <select
@@ -315,10 +356,21 @@ export default function VehicleFilters({
                           onFilterChange('dateFrom', `${dateFromDate}T${h}:${m}`);
                         }}
                       >
-                        {Array.from({ length: 60 }, (_, i) => i).map(m => {
-                          const mStr = m.toString().padStart(2, '0');
-                          return <option key={mStr} value={mStr}>{mStr}</option>;
-                        })}
+                        {Array.from({ length: 60 }, (_, i) => i)
+                          .filter(m => {
+                            if (dateFromDate === currentDateDefault) {
+                              const selectedHour = Number(dateFromTime ? dateFromTime.split(':')[0] : '00');
+                              const [currH, currM] = currentTimeDefault.split(':').map(Number);
+                              if (selectedHour === currH) {
+                                return m <= currM;
+                              }
+                            }
+                            return true;
+                          })
+                          .map(m => {
+                            const mStr = m.toString().padStart(2, '0');
+                            return <option key={mStr} value={mStr}>{mStr}</option>;
+                          })}
                       </select>
                     </div>
                   </div>
@@ -361,6 +413,7 @@ export default function VehicleFilters({
                       className="lt-filters__popover-input"
                       value={dateToDate}
                       onChange={handleDateToDateChange}
+                      max={currentDateDefault}
                     />
                   </div>
                   <div className="lt-filters__popover-divider" />
@@ -372,14 +425,28 @@ export default function VehicleFilters({
                         value={dateToTime ? dateToTime.split(':')[0] : '00'}
                         onChange={(e) => {
                           const h = e.target.value;
-                          const m = dateToTime ? dateToTime.split(':')[1] : '00';
+                          let m = dateToTime ? dateToTime.split(':')[1] : '00';
+                          if (dateToDate === currentDateDefault) {
+                            const [currH, currM] = currentTimeDefault.split(':').map(Number);
+                            if (Number(h) === currH && Number(m) > currM) {
+                              m = String(currM).padStart(2, '0');
+                            }
+                          }
                           onFilterChange('dateTo', `${dateToDate}T${h}:${m}`);
                         }}
                       >
-                        {Array.from({ length: 24 }, (_, i) => i).map(h => {
-                          const hStr = h.toString().padStart(2, '0');
-                          return <option key={hStr} value={hStr}>{hStr}</option>;
-                        })}
+                        {Array.from({ length: 24 }, (_, i) => i)
+                          .filter(h => {
+                            if (dateToDate === currentDateDefault) {
+                              const currH = Number(currentTimeDefault.split(':')[0]);
+                              return h <= currH;
+                            }
+                            return true;
+                          })
+                          .map(h => {
+                            const hStr = h.toString().padStart(2, '0');
+                            return <option key={hStr} value={hStr}>{hStr}</option>;
+                          })}
                       </select>
                       <span className="lt-filters__popover-time-colon">:</span>
                       <select
@@ -391,10 +458,21 @@ export default function VehicleFilters({
                           onFilterChange('dateTo', `${dateToDate}T${h}:${m}`);
                         }}
                       >
-                        {Array.from({ length: 60 }, (_, i) => i).map(m => {
-                          const mStr = m.toString().padStart(2, '0');
-                          return <option key={mStr} value={mStr}>{mStr}</option>;
-                        })}
+                        {Array.from({ length: 60 }, (_, i) => i)
+                          .filter(m => {
+                            if (dateToDate === currentDateDefault) {
+                              const selectedHour = Number(dateToTime ? dateToTime.split(':')[0] : '00');
+                              const [currH, currM] = currentTimeDefault.split(':').map(Number);
+                              if (selectedHour === currH) {
+                                return m <= currM;
+                              }
+                            }
+                            return true;
+                          })
+                          .map(m => {
+                            const mStr = m.toString().padStart(2, '0');
+                            return <option key={mStr} value={mStr}>{mStr}</option>;
+                          })}
                       </select>
                     </div>
                   </div>
