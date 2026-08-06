@@ -1,4 +1,9 @@
-import { FmtCompany, FmtCompanyGroup, FmtBooking } from './types';
+import {
+  FmtCompany,
+  FmtCompanyGroup,
+  FmtBooking,
+  FmtSlotHistoryEntry,
+} from './types';
 
 export const FMT_MOCK_GROUPS: FmtCompanyGroup[] = [
   { id: 'g201', name: '201' },
@@ -274,6 +279,131 @@ export const FMT_MOCK_BOOKINGS: FmtBooking[] = [
     createdAt: new Date().toISOString(),
   },
 ];
+
+// Slot allocation / release / removal history, per contractor. Every entry
+// names the individual who made the change (SLT scheduler, the contractor's
+// own site rep, or the FMT staff member) so it's clear who did what.
+// Explicit timelines are given for a couple of companies to show a real
+// back-and-forth (SLT allocates, contractor releases some back in stages,
+// FMT trims one slot from a specific hour then hands a slot back at another
+// hour); every other company falls back to a single "SLT allocated" entry
+// generated from its current allocatedCapacity.
+const FMT_HISTORY_OVERRIDES: Record<string, FmtSlotHistoryEntry[]> = {
+  f1: [
+    {
+      id: 'h1-1',
+      companyId: 'f1',
+      actor: 'slt',
+      actorName: 'Priya Anand',
+      action: 'Slots allocated',
+      slotChange: 12,
+      resultingAllocated: 12,
+      timestamp: `${today}T06:00:00.000Z`,
+    },
+    {
+      id: 'h1-2',
+      companyId: 'f1',
+      actor: 'contractor',
+      actorName: 'M. Grant',
+      action: 'Slots released',
+      slotChange: -2,
+      resultingAllocated: 10,
+      timestamp: `${today}T13:40:00.000Z`,
+      note: 'Released 2 slots from the 15:00 slot',
+    },
+    {
+      id: 'h1-3',
+      companyId: 'f1',
+      actor: 'contractor',
+      actorName: 'M. Grant',
+      action: 'Slots released',
+      slotChange: -1,
+      resultingAllocated: 9,
+      timestamp: `${today}T14:55:00.000Z`,
+      note: 'Released 1 slot from the 16:00 slot',
+    },
+    {
+      id: 'h1-4',
+      companyId: 'f1',
+      actor: 'fmt',
+      actorName: 'David Obuya',
+      action: 'Slot removed',
+      slotChange: -1,
+      resultingAllocated: 8,
+      timestamp: `${today}T16:10:00.000Z`,
+      note: 'Removed 1 slot from the 18:00 slot — yard congestion',
+    },
+    {
+      id: 'h1-5',
+      companyId: 'f1',
+      actor: 'fmt',
+      actorName: 'David Obuya',
+      action: 'Slot added',
+      slotChange: 1,
+      resultingAllocated: 9,
+      timestamp: `${today}T17:30:00.000Z`,
+      note: 'Added 1 slot at the 19:00 slot — capacity freed up by another contractor',
+    },
+  ],
+  f5: [
+    {
+      id: 'h5-1',
+      companyId: 'f5',
+      actor: 'slt',
+      actorName: 'Priya Anand',
+      action: 'Slots allocated',
+      slotChange: 11,
+      resultingAllocated: 11,
+      timestamp: `${today}T06:00:00.000Z`,
+    },
+    {
+      id: 'h5-2',
+      companyId: 'f5',
+      actor: 'contractor',
+      actorName: 'R. Fenwick',
+      action: 'Slot released',
+      slotChange: -1,
+      resultingAllocated: 10,
+      timestamp: `${today}T10:20:00.000Z`,
+      note: 'Released 1 slot from the 14:00 slot',
+    },
+    {
+      id: 'h5-3',
+      companyId: 'f5',
+      actor: 'fmt',
+      actorName: 'David Obuya',
+      action: 'Slot removed',
+      slotChange: -1,
+      resultingAllocated: 9,
+      timestamp: `${today}T16:00:00.000Z`,
+      note: 'Removed 1 slot from the 20:00 slot — yard congestion',
+    },
+  ],
+};
+
+export function getFmtHistoryForCompany(
+  company: FmtCompany
+): FmtSlotHistoryEntry[] {
+  const entries =
+    FMT_HISTORY_OVERRIDES[company.id] ??
+    ([
+      {
+        id: `h-${company.id}-default`,
+        companyId: company.id,
+        actor: 'slt',
+        actorName: 'Priya Anand',
+        action: 'Slots allocated',
+        slotChange: company.allocatedCapacity,
+        resultingAllocated: company.allocatedCapacity,
+        timestamp: `${today}T06:00:00.000Z`,
+      },
+    ] as FmtSlotHistoryEntry[]);
+
+  // Most recent first.
+  return [...entries].sort(
+    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+  );
+}
 
 export function buildFmtSlotKey(
   companyId: string,
