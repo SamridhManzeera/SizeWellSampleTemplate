@@ -84,42 +84,59 @@ function AllocationHistoryModal({
                 const isLatest = index === 0;
 
                 return (
-                  <li key={entry.id} className="ahm__item">
-                    <span
-                      className={`ahm__item-dot ahm__item-dot--${entry.actor}${
-                        isLatest ? ' ahm__item-dot--latest' : ''
+                  <li
+                    key={entry.id}
+                    className={`ahm__item ahm__item--${entry.actor}${isLatest ? ' ahm__item--latest' : ''
                       }`}
-                    />
-                    <div className="ahm__item-body">
-                      <div className="ahm__item-top">
-                        <span className={`ahm__item-actor ahm__item-actor--${entry.actor}`}>
-                          {ACTOR_LABEL[entry.actor]}
-                        </span>
-                        <span className="ahm__item-name">{entry.actorName}</span>
-                        <span className="ahm__item-action">{entry.action}</span>
-                        <span
-                          className={`ahm__item-delta${
-                            isPositive
+                  >
+                    <div className="ahm__item-head">
+                      <span className={`ahm__item-actor ahm__item-actor--${entry.actor}`}>
+                        {ACTOR_LABEL[entry.actor]}
+                      </span>
+                      <span className="ahm__item-name">{entry.actorName}</span>
+                      {isLatest && <span className="ahm__item-latest-tag"></span>}
+                      <span className="ahm__item-time">
+                        {date} · {time}
+                      </span>
+                    </div>
+
+                    <dl className="ahm__kv">
+                      <div className="ahm__kv-row">
+                        <dt className="ahm__kv-key">Action</dt>
+                        <dd className="ahm__kv-value">
+                          <span className="ahm__item-action">{entry.action}</span>
+                        </dd>
+                      </div>
+
+                      <div className="ahm__kv-row">
+                        <dt className="ahm__kv-key">Delta Slots</dt>
+                        <dd className="ahm__kv-value">
+                          <span
+                            className={`ahm__item-delta${isPositive
                               ? ' ahm__item-delta--pos'
                               : ' ahm__item-delta--neg'
-                          }`}
-                        >
-                          {isPositive ? '+' : ''}
-                          {entry.slotChange}
-                        </span>
+                              }`}
+                          >
+                            {isPositive ? '+' : ''}
+                            {entry.slotChange} slot{Math.abs(entry.slotChange) === 1 ? '' : 's'}
+                          </span>
+                        </dd>
                       </div>
+
                       {entry.note && (
-                        <p className="ahm__item-note">{entry.note}</p>
+                        <div className="ahm__kv-row">
+                          <dt className="ahm__kv-key">Description</dt>
+                          <dd className="ahm__kv-value ahm__kv-value--note">{entry.note}</dd>
+                        </div>
                       )}
-                      <div className="ahm__item-bottom">
-                        <span className="ahm__item-result">
-                          Now allocated: <strong>{entry.resultingAllocated}</strong>
-                        </span>
-                        <span className="ahm__item-time">
-                          {date} · {time}
-                        </span>
+
+                      <div className="ahm__kv-row ahm__kv-row--highlight">
+                        <dt className="ahm__kv-key">Updated Slot</dt>
+                        <dd className="ahm__kv-value ahm__kv-value--highlight">
+                          {entry.resultingAllocated}
+                        </dd>
                       </div>
-                    </div>
+                    </dl>
                   </li>
                 );
               })}
