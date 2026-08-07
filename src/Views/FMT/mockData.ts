@@ -133,17 +133,7 @@ function buildEmergencyFmtData(): {
     }
 
     const entries: FmtSlotHistoryEntry[] = [
-      {
-        id: `hemg-${req.id}-submitted`,
-        companyId,
-        actor: 'contractor',
-        actorName: req.contractorName,
-        action: 'Emergency request submitted',
-        slotChange: 0,
-        resultingAllocated: 0,
-        timestamp: req.submittedAt,
-        note: `Emergency request ${req.id} submitted for ${req.startDate}${req.notes ? ` — ${req.notes}` : ''}`,
-      },
+
     ];
 
     const total = totalSlotsForRequest(req);
