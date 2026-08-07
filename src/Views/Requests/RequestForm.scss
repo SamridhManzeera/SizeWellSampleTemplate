@@ -73,6 +73,34 @@ $radius:  12px;
     }
   }
 
+  // ── Available Slot stat (hero actions, right side) ─────────────
+  &__available-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    padding: 8px 16px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+
+    &--over { background: rgba(#dc2626, 0.3); border-color: rgba(#dc2626, 0.5); }
+  }
+
+  &__available-stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.75);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__available-stat-num {
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.2;
+  }
+
   // ── Flat title bar (create form only) ────────────────────────
   &__page-title {
     padding: 20px 36px 0;

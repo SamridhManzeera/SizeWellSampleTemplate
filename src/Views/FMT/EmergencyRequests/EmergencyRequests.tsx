@@ -4,6 +4,8 @@ import PageHeader from '../../../Components/Layouts/PageHeader/PageHeader';
 import PageHero from '../../../Components/Layouts/PageHero/PageHero';
 import { useRequests } from '../../Requests/RequestsContext';
 import { RequestStatus, totalSlotsForRequest } from '../../Requests/requestTypes';
+import { rowTotal, emptyCounts } from '../../Requests/deliverySlotUtils';
+import { useScheduleConfig } from '../../ScheduleConfig/ScheduleConfigContext';
 import '../../Requests/Requests.scss';
 
 // ── Icons ─────────────────────────────────────────────────────────
@@ -54,6 +56,7 @@ function formatSubmitted(iso: string) {
 export default function EmergencyRequests() {
   const navigate = useNavigate();
   const { requests } = useRequests();
+  const { getConfigForDate } = useScheduleConfig();
   const [statusFilter, setStatusFilter] = useState<RequestStatus | 'all'>(
     'all'
   );
@@ -69,6 +72,36 @@ export default function EmergencyRequests() {
     statusFilter === 'all'
       ? emergencyRequests
       : emergencyRequests.filter((r) => r.status === statusFilter);
+
+  // Grouped by delivery date so the Delivery Date / Available Slot columns
+  // can be merged across every request sharing that date (one row per
+  // request, but one date group per cell span).
+  const sortedByDate = [...filtered].sort((a, b) =>
+    a.startDate.localeCompare(b.startDate)
+  );
+
+  const dateRowSpans = new Map<string, number>();
+  sortedByDate.forEach((req) => {
+    dateRowSpans.set(req.startDate, (dateRowSpans.get(req.startDate) ?? 0) + 1);
+  });
+
+  // Available Slot = the day's total capacity minus everything already
+  // allocated that day across every request (normal + emergency alike).
+  function availableSlotsForDate(date: string): number {
+    const capacity = getConfigForDate(date).totalCapacity;
+    const allocated = requests.reduce(
+      (sum, r) => sum + rowTotal(r.allocatedSlots[date] ?? emptyCounts()),
+      0
+    );
+    return capacity - allocated;
+  }
+
+  const availableSlotsByDate = new Map<string, number>();
+  dateRowSpans.forEach((_count, date) => {
+    availableSlotsByDate.set(date, availableSlotsForDate(date));
+  });
+
+  const seenDates = new Set<string>();
 
   return (
     <div className="rq fmt-rq">
@@ -131,9 +164,10 @@ export default function EmergencyRequests() {
           <table className="rq__table">
             <thead>
               <tr>
+                <th>Delivery Date</th>
+                <th>Available Slot</th>
                 <th>Contractor Name</th>
                 <th>Request ID</th>
-                <th>Delivery Date</th>
                 <th>Requested Slots</th>
                 <th>Submitted</th>
                 <th>Status</th>
@@ -141,53 +175,71 @@ export default function EmergencyRequests() {
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 && (
+              {sortedByDate.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="rq__empty">
+                  <td colSpan={8} className="rq__empty">
                     No emergency requests found.
                   </td>
                 </tr>
               )}
-              {filtered.map((req) => (
-                <tr key={req.id}>
-                  <td>
-                    <span className="rq__company">{req.contractorName}</span>
-                  </td>
-                  <td>
-                    <span className="rq__req-id">{req.id}</span>
-                  </td>
-                  <td>{formatDate(req.startDate)}</td>
-                  <td>
-                    <span className="rq__slot-total">
-                      {totalSlotsForRequest(req)}
-                    </span>
-                  </td>
-                  <td className="rq__submitted">
-                    {formatSubmitted(req.submittedAt)}
-                  </td>
-                  <td>
-                    <span className={`rq__status rq__status--${req.status}`}>
-                      {req.status.charAt(0).toUpperCase() + req.status.slice(1)}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="rq__actions">
-                      <button
-                        type="button"
-                        className="rq__action-btn rq__action-btn--view"
-                        onClick={() =>
-                          navigate(`/fmt/emergency-requests/${req.id}`, {
-                            state: { from: '/fmt/emergency-requests' },
-                          })
-                        }
-                      >
-                        <EyeIcon />
-                        <span>View</span>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {sortedByDate.map((req) => {
+                const isFirstOfDate = !seenDates.has(req.startDate);
+                seenDates.add(req.startDate);
+                const rowSpan = dateRowSpans.get(req.startDate) ?? 1;
+                const available = availableSlotsByDate.get(req.startDate) ?? 0;
+
+                return (
+                  <tr key={req.id}>
+                    {isFirstOfDate && (
+                      <td rowSpan={rowSpan}>{formatDate(req.startDate)}</td>
+                    )}
+                    {isFirstOfDate && (
+                      <td rowSpan={rowSpan}>
+                        <span
+                          className={`rq__slot-total${available < 0 ? ' rq__slot-total--over' : ''}`}
+                        >
+                          {available}
+                        </span>
+                      </td>
+                    )}
+                    <td>
+                      <span className="rq__company">{req.contractorName}</span>
+                    </td>
+                    <td>
+                      <span className="rq__req-id">{req.id}</span>
+                    </td>
+                    <td>
+                      <span className="rq__slot-total">
+                        {totalSlotsForRequest(req)}
+                      </span>
+                    </td>
+                    <td className="rq__submitted">
+                      {formatSubmitted(req.submittedAt)}
+                    </td>
+                    <td>
+                      <span className={`rq__status rq__status--${req.status}`}>
+                        {req.status.charAt(0).toUpperCase() + req.status.slice(1)}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="rq__actions">
+                        <button
+                          type="button"
+                          className="rq__action-btn rq__action-btn--view"
+                          onClick={() =>
+                            navigate(`/fmt/emergency-requests/${req.id}`, {
+                              state: { from: '/fmt/emergency-requests' },
+                            })
+                          }
+                        >
+                          <EyeIcon />
+                          <span>View</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

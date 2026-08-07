@@ -239,4 +239,55 @@ export const MOCK_REQUESTS: DeliveryRequest[] = [
     status: 'pending', submittedAt: '2026-06-25T16:20:00Z',
     notes: 'Follow-up delivery for the following week.',
   },
+  // Additional emergency requests sharing dates with REQ-002 and REQ-008 —
+  // demonstrates the merged Delivery Date / Available Slot cells on the
+  // FMT Emergency Requests listing when several requests land on one day.
+  {
+    id: 'REQ-012', contractorName: 'Volker Construction', kind: 'emergency',
+    startDate: '2026-06-24', endDate: '2026-06-24',
+    dailySlots: {
+      '2026-06-24': { inbound: 1, outbound: 1, twoWay: 0 },
+    },
+    allocatedSlots: {
+      '2026-06-24': { inbound: 1, outbound: 1, twoWay: 0 },
+    },
+    bookedSlots: {
+      '2026-06-24': { inbound: 0, outbound: 1, twoWay: 0 },
+    },
+    vehicleType: 'LGV_MDS', driverRoute: 'route2a',
+    status: 'approved', submittedAt: '2026-06-23T09:05:00Z',
+    notes: 'Second emergency drop for the same day — separate contractor.',
+  },
+  {
+    id: 'REQ-013', contractorName: 'Interserve', kind: 'emergency',
+    startDate: '2026-06-25', endDate: '2026-06-25',
+    dailySlots: {
+      '2026-06-25': { inbound: 2, outbound: 0, twoWay: 0 },
+    },
+    allocatedSlots: {
+      '2026-06-25': { inbound: 0, outbound: 0, twoWay: 0 },
+    },
+    bookedSlots: {
+      '2026-06-25': { inbound: 0, outbound: 0, twoWay: 0 },
+    },
+    vehicleType: 'HGV_ACA_MDS', driverRoute: 'route3a',
+    status: 'pending', submittedAt: '2026-06-24T11:40:00Z',
+    notes: 'Awaiting FMT allocation.',
+  },
+  {
+    id: 'REQ-014', contractorName: 'BAM Nuttall', kind: 'emergency',
+    startDate: '2026-06-25', endDate: '2026-06-25',
+    dailySlots: {
+      '2026-06-25': { inbound: 0, outbound: 1, twoWay: 1 },
+    },
+    allocatedSlots: {
+      '2026-06-25': { inbound: 0, outbound: 1, twoWay: 1 },
+    },
+    bookedSlots: {
+      '2026-06-25': { inbound: 0, outbound: 0, twoWay: 1 },
+    },
+    vehicleType: 'HDV_MDS', driverRoute: 'route1a',
+    status: 'approved', submittedAt: '2026-06-24T15:20:00Z',
+    notes: 'Third emergency drop for the same day.',
+  },
 ];

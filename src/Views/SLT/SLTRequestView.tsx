@@ -14,6 +14,7 @@ import {
   rowTotal,
   slotBreakdownText,
 } from '../Requests/deliverySlotUtils';
+import { useScheduleConfig } from '../ScheduleConfig/ScheduleConfigContext';
 import '../Requests/RequestForm.scss';
 import 'react-tooltip/dist/react-tooltip.css';
 import './SLTRequestView.scss';
@@ -90,7 +91,8 @@ export default function SLTRequestView() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
-  const { getRequest, updateRequest } = useRequests();
+  const { requests, getRequest, updateRequest } = useRequests();
+  const { getConfigForDate } = useScheduleConfig();
 
   const fromPath = (location.state as any)?.from ?? '/slt/requests';
 
@@ -122,6 +124,18 @@ export default function SLTRequestView() {
   const req = existing;
   const isView = mode === 'view';
   const dayDates = getDatesInRange(req.startDate, req.endDate);
+
+  // Available Slot = the day's total capacity minus everything already
+  // allocated that day across every request (normal + emergency alike) —
+  // only meaningful for emergency requests, which are always single-day.
+  const availableSlot =
+    req.kind === 'emergency'
+      ? getConfigForDate(req.startDate).totalCapacity -
+        requests.reduce(
+          (sum, r) => sum + rowTotal(r.allocatedSlots[req.startDate] ?? emptyCounts()),
+          0
+        )
+      : null;
 
   function totalsFromAllocated(allocated: Record<string, DaySlotCounts>) {
     return Object.fromEntries(
@@ -190,7 +204,16 @@ export default function SLTRequestView() {
             ? 'Viewing submitted request.'
             : 'Editing delivery slot allocation.'
         }
-        actions={null}
+        actions={
+          availableSlot !== null ? (
+            <div
+              className={`rf__available-stat${availableSlot < 0 ? ' rf__available-stat--over' : ''}`}
+            >
+              <span className="rf__available-stat-label">Available Slot</span>
+              <span className="rf__available-stat-num">{availableSlot}</span>
+            </div>
+          ) : null
+        }
       />
 
       <div className="rf__form">

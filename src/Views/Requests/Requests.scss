@@ -449,6 +449,12 @@ $radius:   12px;
     background: rgba($navy, 0.07);
     color: $navy;
     border: 1px solid rgba($navy, 0.15);
+
+    &--over {
+      background: rgba($red, 0.09);
+      color: $red;
+      border-color: rgba($red, 0.3);
+    }
   }
 
 @keyframes rqFade     { from { opacity: 0 } to { opacity: 1 } }
