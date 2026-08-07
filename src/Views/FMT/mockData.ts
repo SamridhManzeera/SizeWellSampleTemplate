@@ -4,6 +4,11 @@ import {
   FmtBooking,
   FmtSlotHistoryEntry,
 } from './types';
+import { MOCK_REQUESTS } from '../Requests/requestMockData';
+import { totalSlotsForRequest } from '../Requests/requestTypes';
+import { distributeDailySlotsToHours, rowTotal, emptyCounts } from '../Requests/deliverySlotUtils';
+
+const EMERGENCY_GROUP_ID = 'gEMG';
 
 export const FMT_MOCK_GROUPS: FmtCompanyGroup[] = [
   { id: 'g201', name: '201' },
@@ -11,6 +16,7 @@ export const FMT_MOCK_GROUPS: FmtCompanyGroup[] = [
   { id: 'g204', name: '204' },
   { id: 'g206', name: '206' },
   { id: 'g208', name: '208' },
+  { id: EMERGENCY_GROUP_ID, name: 'Emergency' },
 ];
 
 // allocatedCapacity = total movements this company may be assigned per day
@@ -60,6 +66,104 @@ function dateOffset(days: number): string {
 const today = dateOffset(0);
 const yesterday = dateOffset(-1);
 const tomorrow = dateOffset(1);
+
+function addHoursIso(iso: string, hours: number): string {
+  const d = new Date(iso);
+  d.setHours(d.getHours() + hours);
+  return d.toISOString();
+}
+
+// Derives an Emergency Requests row for the FMT grid from every emergency
+// delivery request (Requests/requestMockData.ts) — one FmtCompany per
+// request, its allocated/booked slots distributed across hours the same
+// way the contractor-side Allocated View does, plus a seed history entry
+// so "View History" has emergency-specific context from day one.
+function buildEmergencyFmtData(): {
+  companies: FmtCompany[];
+  bookings: FmtBooking[];
+  history: Record<string, FmtSlotHistoryEntry[]>;
+} {
+  const companies: FmtCompany[] = [];
+  const bookings: FmtBooking[] = [];
+  const history: Record<string, FmtSlotHistoryEntry[]> = {};
+
+  // Only approved emergency requests get a row here — pending ones haven't
+  // cleared review yet, and rejected ones were never going to be allocated.
+  MOCK_REQUESTS.filter(
+    (req) => req.kind === 'emergency' && req.status === 'approved'
+  ).forEach((req) => {
+    const companyId = `femg-${req.id}`;
+
+    companies.push({
+      id: companyId,
+      name: req.contractorName,
+      groupId: EMERGENCY_GROUP_ID,
+      allocatedCapacity: totalSlotsForRequest(req),
+      isEmergency: true,
+      requestId: req.id,
+    });
+
+    const allocatedHourly = distributeDailySlotsToHours(
+      req.allocatedSlots[req.startDate] ?? emptyCounts()
+    );
+    const bookedHourly = distributeDailySlotsToHours(
+      req.bookedSlots[req.startDate] ?? emptyCounts()
+    );
+
+    for (let hour = 0; hour < 24; hour++) {
+      const movementCount = rowTotal(allocatedHourly[hour]);
+      if (movementCount === 0) continue;
+      const booked = bookedHourly[hour];
+      bookings.push({
+        id: `femg-b-${req.id}-${hour}`,
+        companyId,
+        companyName: req.contractorName,
+        date: req.startDate,
+        hour,
+        movementCount,
+        bookedCount: rowTotal(booked),
+        inbound: booked.inbound,
+        outbound: booked.outbound,
+        twoWay: booked.twoWay,
+        notes: req.notes || `Emergency request ${req.id}`,
+        isEmergency: true,
+        requestId: req.id,
+        createdAt: req.submittedAt,
+      });
+    }
+
+    const entries: FmtSlotHistoryEntry[] = [
+      {
+        id: `hemg-${req.id}-submitted`,
+        companyId,
+        actor: 'contractor',
+        actorName: req.contractorName,
+        action: 'Emergency request submitted',
+        slotChange: 0,
+        resultingAllocated: 0,
+        timestamp: req.submittedAt,
+        note: `Emergency request ${req.id} submitted for ${req.startDate}${req.notes ? ` — ${req.notes}` : ''}`,
+      },
+    ];
+
+    const total = totalSlotsForRequest(req);
+    entries.push({
+      id: `hemg-${req.id}-allocated`,
+      companyId,
+      actor: 'fmt',
+      actorName: 'David Obuya',
+      action: 'Emergency slots allocated',
+      slotChange: total,
+      resultingAllocated: total,
+      timestamp: addHoursIso(req.submittedAt, 2),
+      note: `Approved and allocated emergency request ${req.id}`,
+    });
+
+    history[companyId] = entries;
+  });
+
+  return { companies, bookings, history };
+}
 
 // bookedCount is sourced from the booking API (mocked here) — it is not
 // derived from movementCount, and may be lower than what was allocated.
@@ -380,6 +484,11 @@ const FMT_HISTORY_OVERRIDES: Record<string, FmtSlotHistoryEntry[]> = {
     },
   ],
 };
+
+const EMERGENCY_FMT_DATA = buildEmergencyFmtData();
+FMT_MOCK_COMPANIES.push(...EMERGENCY_FMT_DATA.companies);
+FMT_MOCK_BOOKINGS.push(...EMERGENCY_FMT_DATA.bookings);
+Object.assign(FMT_HISTORY_OVERRIDES, EMERGENCY_FMT_DATA.history);
 
 export function getFmtHistoryForCompany(
   company: FmtCompany

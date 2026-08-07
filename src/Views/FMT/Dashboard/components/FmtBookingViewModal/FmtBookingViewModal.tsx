@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { FmtBooking, FmtCompany } from '../../../types';
 import './FmtBookingViewModal.scss';
 
@@ -21,6 +22,8 @@ function FmtBookingViewModal({
   company,
   onClose,
 }: FmtBookingViewModalProps) {
+  const navigate = useNavigate();
+
   if (!open || !booking || !company) return null;
 
   return (
@@ -35,10 +38,18 @@ function FmtBookingViewModal({
           <div className="fbv__header-left">
             <span className="fbv__mode-tag">View</span>
             <div>
-              <h2 className="fbv__title">Booking Details</h2>
+              <h2 className="fbv__title">
+                Booking Details
+                {booking.isEmergency && (
+                  <span className="fbv__emergency-tag">⚡ Emergency</span>
+                )}
+              </h2>
               <p className="fbv__subtitle">
                 {company.name} · {formatHour(booking.hour)} ·{' '}
                 {booking.date.split('-').reverse().join('/')}
+                {booking.isEmergency && booking.requestId && (
+                  <> · Request {booking.requestId}</>
+                )}
               </p>
             </div>
           </div>
@@ -91,6 +102,19 @@ function FmtBookingViewModal({
         </div>
 
         <div className="fbv__actions">
+          {booking.isEmergency && booking.requestId && (
+            <button
+              type="button"
+              className="fbv__btn fbv__btn--view-request"
+              onClick={() =>
+                navigate(`/fmt/emergency-requests/${booking.requestId}`, {
+                  state: { from: '/fmt/dashboard' },
+                })
+              }
+            >
+              View Request
+            </button>
+          )}
           <button
             type="button"
             className="fbv__btn fbv__btn--close"

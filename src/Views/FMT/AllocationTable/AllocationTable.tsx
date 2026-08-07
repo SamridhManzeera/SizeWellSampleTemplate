@@ -65,6 +65,14 @@ function GridIcon() {
   );
 }
 
+function BoltIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z" />
+    </svg>
+  );
+}
+
 function CapacityIcon() {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -82,7 +90,7 @@ interface ModalState {
 
 export default function AllocationTable() {
   const { getConfigForDate } = useScheduleConfig();
-  const { bookings, updateAllocation } = useFmtBookings();
+  const { bookings, liveHistory, updateAllocation } = useFmtBookings();
 
   const [selectedDate, setSelectedDate] = useState(getTodayString());
   const [showEarlyHours, setShowEarlyHours] = useState(false);
@@ -166,13 +174,14 @@ export default function AllocationTable() {
     handleModalClose();
   }
 
-  const historyEntries = useMemo(
-    () =>
-      historyState.company
-        ? getFmtHistoryForCompany(historyState.company)
-        : [],
-    [historyState.company]
-  );
+  const historyEntries = useMemo(() => {
+    if (!historyState.company) return [];
+    const staticEntries = getFmtHistoryForCompany(historyState.company);
+    const live = liveHistory.get(historyState.company.id) ?? [];
+    return [...live, ...staticEntries].sort(
+      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    );
+  }, [historyState.company, liveHistory]);
 
   const modalCurrentDistributed = modalState.company
     ? distributedCountsByCompany.get(modalState.company.id) ?? 0
@@ -318,6 +327,12 @@ export default function AllocationTable() {
             <span className="fmtd__legend-item">
               <span className="fmtd__legend-dot fmtd__legend-dot--occupied" />
               Allocated — click to edit
+            </span>
+            <span className="fmtd__legend-item">
+              <span className="fmtd__legend-swatch fmtd__legend-swatch--emergency">
+                <BoltIcon />
+              </span>
+              Emergency
             </span>
             <span className="fmtd__legend-item">
               <span className="fmtd__legend-dot fmtd__legend-dot--peak" />

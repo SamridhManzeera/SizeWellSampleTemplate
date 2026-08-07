@@ -8,6 +8,10 @@ export interface FmtCompany {
   name: string;
   groupId: string;
   allocatedCapacity: number;
+  // Present when this row was auto-derived from an emergency delivery
+  // request (see Requests/requestTypes.ts) rather than a regular contractor.
+  isEmergency?: boolean;
+  requestId?: string;
 }
 
 export interface FmtBooking {
@@ -23,6 +27,11 @@ export interface FmtBooking {
   twoWay: number;
   notes: string;
   createdAt: string;
+  // Present when this booking originated from (or was allocated against) an
+  // emergency delivery request — flags the slot in the grid and links it
+  // back to the request it came from.
+  isEmergency?: boolean;
+  requestId?: string;
 }
 
 export type FmtSlotKey = string; // `${companyId}-${date}-${hour}`

@@ -109,10 +109,16 @@ function AllocationEditModal({
             <div>
               <h2 className="aem__title">
                 {isEdit ? 'Edit Allocation' : 'Allocate Movements'}
+                {company.isEmergency && (
+                  <span className="aem__emergency-tag">⚡ Emergency</span>
+                )}
               </h2>
               <p className="aem__subtitle">
                 {company.name} · {formatHour(hour)} ·{' '}
                 {selectedDate.split('-').reverse().join('/')}
+                {company.isEmergency && company.requestId && (
+                  <> · Request {company.requestId}</>
+                )}
               </p>
             </div>
           </div>

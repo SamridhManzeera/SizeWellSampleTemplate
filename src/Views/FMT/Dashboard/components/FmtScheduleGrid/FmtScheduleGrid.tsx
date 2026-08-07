@@ -69,6 +69,14 @@ export function TruckIcon() {
   );
 }
 
+function BoltIcon() {
+  return (
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z" />
+    </svg>
+  );
+}
+
 export function CalendarIcon() {
   return (
     <svg
@@ -290,7 +298,14 @@ function FmtScheduleGrid({
                 <td className="fsg__td fsg__td--company">
                   <div className="fsg__company-inner">
                     <span className="fsg__row-accent" />
-                    <span className="fsg__company-name">{company.name}</span>
+                    <span className="fsg__company-name">
+                      {company.name}
+                      {company.isEmergency && (
+                        <span className="fsg__emergency-badge" title="Emergency delivery request">
+                          <BoltIcon />
+                        </span>
+                      )}
+                    </span>
                   </div>
                 </td>
 
@@ -352,14 +367,14 @@ function FmtScheduleGrid({
                       {isOccupied ? (
                         <button
                           type="button"
-                          className="fsg__slot fsg__slot--occupied"
+                          className={`fsg__slot fsg__slot--occupied${booking!.isEmergency ? ' fsg__slot--emergency' : ''}`}
                           onClick={() => onViewBooking(booking!)}
-                          title={`${booking!.movementCount} allocated · ${booking!.bookedCount
+                          title={`${booking!.isEmergency ? 'Emergency — ' : ''}${booking!.movementCount} allocated · ${booking!.bookedCount
                             } booked — click to view`}
                         >
                           <div className="fsg__slot-combo">
-                            <span className="fsg__combo-badge fsg__combo-badge--alloc">
-                              <TruckIcon /> {booking!.movementCount}
+                            <span className={`fsg__combo-badge fsg__combo-badge--alloc${booking!.isEmergency ? ' fsg__combo-badge--emergency' : ''}`}>
+                              {booking!.isEmergency ? <BoltIcon /> : <TruckIcon />} {booking!.movementCount}
                             </span>
                             <span className="fsg__combo-badge fsg__combo-badge--booked">
                               <CalendarIcon /> {booking!.bookedCount}
@@ -391,14 +406,14 @@ function FmtScheduleGrid({
                       {isOccupied ? (
                         <button
                           type="button"
-                          className="fsg__slot fsg__slot--occupied"
+                          className={`fsg__slot fsg__slot--occupied${booking!.isEmergency ? ' fsg__slot--emergency' : ''}`}
                           onClick={() => onViewBooking(booking!)}
-                          title={`${booking!.movementCount} allocated · ${booking!.bookedCount
+                          title={`${booking!.isEmergency ? 'Emergency — ' : ''}${booking!.movementCount} allocated · ${booking!.bookedCount
                             } booked — click to view`}
                         >
                           <div className="fsg__slot-combo">
-                            <span className="fsg__combo-badge fsg__combo-badge--alloc">
-                              <TruckIcon /> {booking!.movementCount}
+                            <span className={`fsg__combo-badge fsg__combo-badge--alloc${booking!.isEmergency ? ' fsg__combo-badge--emergency' : ''}`}>
+                              {booking!.isEmergency ? <BoltIcon /> : <TruckIcon />} {booking!.movementCount}
                             </span>
                             <span className="fsg__combo-badge fsg__combo-badge--booked">
                               <CalendarIcon /> {booking!.bookedCount}

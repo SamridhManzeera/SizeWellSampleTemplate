@@ -308,6 +308,12 @@ $gutter: 28px;
       color: #16a34a;
       border: 1px solid rgba(22, 163, 74, 0.35);
     }
+
+    &--emergency {
+      background: rgba(239, 68, 68, 0.12);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.35);
+    }
   }
 
   &__legend-dot {

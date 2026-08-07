@@ -59,7 +59,12 @@ function AllocationHistoryModal({
               <HistoryIcon />
             </span>
             <div>
-              <h2 className="ahm__title">Allocation History</h2>
+              <h2 className="ahm__title">
+                Allocation History
+                {company.isEmergency && (
+                  <span className="ahm__emergency-tag">⚡ Emergency</span>
+                )}
+              </h2>
               <p className="ahm__subtitle">{company.name}</p>
             </div>
           </div>

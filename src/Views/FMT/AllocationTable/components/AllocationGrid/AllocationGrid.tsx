@@ -50,6 +50,14 @@ function HistoryIcon() {
   );
 }
 
+function BoltIcon() {
+  return (
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z" />
+    </svg>
+  );
+}
+
 function TruckIcon() {
   return (
     <svg
@@ -261,7 +269,14 @@ function AllocationGrid({
                 <td className="alg__td alg__td--company">
                   <div className="alg__company-inner">
                     <span className="alg__row-accent" />
-                    <span className="alg__company-name">{company.name}</span>
+                    <span className="alg__company-name">
+                      {company.name}
+                      {company.isEmergency && (
+                        <span className="alg__emergency-badge" title="Emergency delivery request">
+                          <BoltIcon />
+                        </span>
+                      )}
+                    </span>
                     <button
                       type="button"
                       className="alg__history-btn"
@@ -315,17 +330,17 @@ function AllocationGrid({
                           isOccupied
                             ? ' alg__slot--occupied'
                             : ' alg__slot--available'
-                        }`}
+                        }${booking?.isEmergency ? ' alg__slot--emergency' : ''}`}
                         onClick={() => onSlotClick(company, hour, booking)}
                         title={
                           isOccupied
-                            ? `${booking!.movementCount} allocated — click to edit`
+                            ? `${booking!.isEmergency ? 'Emergency — ' : ''}${booking!.movementCount} allocated — click to edit`
                             : 'Available — click to allocate'
                         }
                       >
                         {isOccupied && (
-                          <span className="alg__slot-badge">
-                            <TruckIcon /> {booking!.movementCount}
+                          <span className={`alg__slot-badge${booking!.isEmergency ? ' alg__slot-badge--emergency' : ''}`}>
+                            {booking!.isEmergency ? <BoltIcon /> : <TruckIcon />} {booking!.movementCount}
                           </span>
                         )}
                       </button>
@@ -354,17 +369,17 @@ function AllocationGrid({
                           isOccupied
                             ? ' alg__slot--occupied'
                             : ' alg__slot--available'
-                        }`}
+                        }${booking?.isEmergency ? ' alg__slot--emergency' : ''}`}
                         onClick={() => onSlotClick(company, hour, booking)}
                         title={
                           isOccupied
-                            ? `${booking!.movementCount} allocated — click to edit`
+                            ? `${booking!.isEmergency ? 'Emergency — ' : ''}${booking!.movementCount} allocated — click to edit`
                             : 'Available — click to allocate'
                         }
                       >
                         {isOccupied && (
-                          <span className="alg__slot-badge">
-                            <TruckIcon /> {booking!.movementCount}
+                          <span className={`alg__slot-badge${booking!.isEmergency ? ' alg__slot-badge--emergency' : ''}`}>
+                            {booking!.isEmergency ? <BoltIcon /> : <TruckIcon />} {booking!.movementCount}
                           </span>
                         )}
                       </button>
