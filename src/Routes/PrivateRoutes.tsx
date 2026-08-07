@@ -100,11 +100,16 @@ export const SLOT_ALLOCATION_ROUTES: Array<CustomRouter> = [
     element: <UserManagement />,
     title: ROUTES_CONFIG.ADMIN_USER_MANAGEMENT.title,
   },
-  // /requests/apply must come before /requests/:id so it isn't caught by the param route
+  // /requests/apply and /requests/emergency must come before /requests/:id so they aren't caught by the param route
   {
     path: ROUTES_CONFIG.REQUESTS_APPLY.path,
     element: <RequestForm />,
     title: ROUTES_CONFIG.REQUESTS_APPLY.title,
+  },
+  {
+    path: ROUTES_CONFIG.REQUESTS_EMERGENCY_APPLY.path,
+    element: <RequestForm isEmergency />,
+    title: ROUTES_CONFIG.REQUESTS_EMERGENCY_APPLY.title,
   },
   {
     path: ROUTES_CONFIG.REQUESTS_VIEW.path,

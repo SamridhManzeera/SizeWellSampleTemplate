@@ -1,8 +1,10 @@
 import { DeliveryRequest } from './requestTypes';
 
-// Delivery windows are always a full Monday–Sunday week (selected via the
-// WeekPicker); dailySlots only needs entries for the days that actually
-// have slots, everything else in the week defaults to 0.
+// Normal requests always have a full Monday–Sunday delivery window (selected
+// via the WeekPicker); emergency requests (kind: 'emergency') are always a
+// single day, so startDate === endDate for those. dailySlots only needs
+// entries for the days that actually have slots, everything else in the
+// window defaults to 0.
 export const MOCK_REQUESTS: DeliveryRequest[] = [
   {
     id: 'REQ-001', contractorName: 'Balfour Beatty', kind: 'normal',
@@ -40,36 +42,18 @@ export const MOCK_REQUESTS: DeliveryRequest[] = [
   },
   {
     id: 'REQ-002', contractorName: 'Kier Group', kind: 'emergency',
-    startDate: '2026-06-22', endDate: '2026-06-28',
+    startDate: '2026-06-24', endDate: '2026-06-24',
     dailySlots: {
-      '2026-06-22': { inbound: 1, outbound: 2, twoWay: 0 },
-      '2026-06-23': { inbound: 0, outbound: 4, twoWay: 0 },
       '2026-06-24': { inbound: 2, outbound: 0, twoWay: 1 },
-      '2026-06-25': { inbound: 0, outbound: 3, twoWay: 0 },
-      '2026-06-26': { inbound: 1, outbound: 1, twoWay: 0 },
-      '2026-06-27': { inbound: 0, outbound: 2, twoWay: 1 },
-      '2026-06-28': { inbound: 1, outbound: 0, twoWay: 0 },
     },
     allocatedSlots: {
-      '2026-06-22': { inbound: 0, outbound: 0, twoWay: 0 },
-      '2026-06-23': { inbound: 0, outbound: 0, twoWay: 0 },
       '2026-06-24': { inbound: 0, outbound: 0, twoWay: 0 },
-      '2026-06-25': { inbound: 0, outbound: 0, twoWay: 0 },
-      '2026-06-26': { inbound: 0, outbound: 0, twoWay: 0 },
-      '2026-06-27': { inbound: 0, outbound: 0, twoWay: 0 },
-      '2026-06-28': { inbound: 0, outbound: 0, twoWay: 0 },
     },
     bookedSlots: {
-      '2026-06-22': { inbound: 0, outbound: 0, twoWay: 0 },
-      '2026-06-23': { inbound: 0, outbound: 0, twoWay: 0 },
       '2026-06-24': { inbound: 0, outbound: 0, twoWay: 0 },
-      '2026-06-25': { inbound: 0, outbound: 0, twoWay: 0 },
-      '2026-06-26': { inbound: 0, outbound: 0, twoWay: 0 },
-      '2026-06-27': { inbound: 0, outbound: 0, twoWay: 0 },
-      '2026-06-28': { inbound: 0, outbound: 0, twoWay: 0 },
     },
     vehicleType: 'HDV_MDS', driverRoute: 'route1a',
-    status: 'pending', submittedAt: '2026-06-21T08:15:00Z',
+    status: 'pending', submittedAt: '2026-06-23T08:15:00Z',
     notes: '',
   },
   {
@@ -108,36 +92,18 @@ export const MOCK_REQUESTS: DeliveryRequest[] = [
   },
   {
     id: 'REQ-008', contractorName: 'Morgan Sindall', kind: 'emergency',
-    startDate: '2026-06-22', endDate: '2026-06-28',
+    startDate: '2026-06-25', endDate: '2026-06-25',
     dailySlots: {
-      '2026-06-22': { inbound: 0, outbound: 2, twoWay: 0 },
-      '2026-06-23': { inbound: 1, outbound: 1, twoWay: 0 },
-      '2026-06-24': { inbound: 0, outbound: 1, twoWay: 1 },
       '2026-06-25': { inbound: 0, outbound: 3, twoWay: 1 },
-      '2026-06-26': { inbound: 1, outbound: 0, twoWay: 0 },
-      '2026-06-27': { inbound: 0, outbound: 2, twoWay: 0 },
-      '2026-06-28': { inbound: 0, outbound: 1, twoWay: 0 },
     },
     allocatedSlots: {
-      '2026-06-22': { inbound: 0, outbound: 2, twoWay: 0 },
-      '2026-06-23': { inbound: 1, outbound: 1, twoWay: 0 },
-      '2026-06-24': { inbound: 0, outbound: 1, twoWay: 1 },
       '2026-06-25': { inbound: 0, outbound: 3, twoWay: 1 },
-      '2026-06-26': { inbound: 1, outbound: 0, twoWay: 0 },
-      '2026-06-27': { inbound: 0, outbound: 2, twoWay: 0 },
-      '2026-06-28': { inbound: 0, outbound: 1, twoWay: 0 },
     },
     bookedSlots: {
-      '2026-06-22': { inbound: 0, outbound: 1, twoWay: 0 },
-      '2026-06-23': { inbound: 0, outbound: 0, twoWay: 0 },
-      '2026-06-24': { inbound: 0, outbound: 0, twoWay: 0 },
       '2026-06-25': { inbound: 0, outbound: 1, twoWay: 0 },
-      '2026-06-26': { inbound: 0, outbound: 0, twoWay: 0 },
-      '2026-06-27': { inbound: 0, outbound: 1, twoWay: 0 },
-      '2026-06-28': { inbound: 0, outbound: 0, twoWay: 0 },
     },
     vehicleType: 'HDV_MDS', driverRoute: 'route1a',
-    status: 'approved', submittedAt: '2026-06-20T13:20:00Z',
+    status: 'approved', submittedAt: '2026-06-24T13:20:00Z',
     notes: '',
   },
   {
@@ -210,36 +176,18 @@ export const MOCK_REQUESTS: DeliveryRequest[] = [
   },
   {
     id: 'REQ-011', contractorName: 'Sir Robert McAlpine', kind: 'emergency',
-    startDate: '2026-06-22', endDate: '2026-06-28',
+    startDate: '2026-06-27', endDate: '2026-06-27',
     dailySlots: {
-      '2026-06-22': { inbound: 1, outbound: 0, twoWay: 0 },
-      '2026-06-23': { inbound: 0, outbound: 1, twoWay: 0 },
-      '2026-06-24': { inbound: 0, outbound: 2, twoWay: 0 },
-      '2026-06-25': { inbound: 1, outbound: 0, twoWay: 1 },
-      '2026-06-26': { inbound: 0, outbound: 1, twoWay: 0 },
       '2026-06-27': { inbound: 0, outbound: 0, twoWay: 1 },
-      '2026-06-28': { inbound: 0, outbound: 2, twoWay: 0 },
     },
     allocatedSlots: {
-      '2026-06-22': { inbound: 0, outbound: 0, twoWay: 0 },
-      '2026-06-23': { inbound: 0, outbound: 0, twoWay: 0 },
-      '2026-06-24': { inbound: 0, outbound: 0, twoWay: 0 },
-      '2026-06-25': { inbound: 0, outbound: 0, twoWay: 0 },
-      '2026-06-26': { inbound: 0, outbound: 0, twoWay: 0 },
       '2026-06-27': { inbound: 0, outbound: 0, twoWay: 0 },
-      '2026-06-28': { inbound: 0, outbound: 0, twoWay: 0 },
     },
     bookedSlots: {
-      '2026-06-22': { inbound: 0, outbound: 0, twoWay: 0 },
-      '2026-06-23': { inbound: 0, outbound: 0, twoWay: 0 },
-      '2026-06-24': { inbound: 0, outbound: 0, twoWay: 0 },
-      '2026-06-25': { inbound: 0, outbound: 0, twoWay: 0 },
-      '2026-06-26': { inbound: 0, outbound: 0, twoWay: 0 },
       '2026-06-27': { inbound: 0, outbound: 0, twoWay: 0 },
-      '2026-06-28': { inbound: 0, outbound: 0, twoWay: 0 },
     },
     vehicleType: 'LGV_MDS', driverRoute: 'route2a',
-    status: 'rejected', submittedAt: '2026-06-22T07:30:00Z',
+    status: 'rejected', submittedAt: '2026-06-26T07:30:00Z',
     notes: 'Weekend delivery declined — resubmit for a weekday.',
   },
   {
@@ -263,12 +211,12 @@ export const MOCK_REQUESTS: DeliveryRequest[] = [
   },
   {
     id: 'REQ-004', contractorName: 'Bouygues UK', kind: 'emergency',
-    startDate: '2026-06-29', endDate: '2026-07-05',
+    startDate: '2026-07-02', endDate: '2026-07-02',
     dailySlots: { '2026-07-02': { inbound: 5, outbound: 0, twoWay: 0 } },
     allocatedSlots: { '2026-07-02': { inbound: 0, outbound: 0, twoWay: 0 } },
     bookedSlots: { '2026-07-02': { inbound: 0, outbound: 0, twoWay: 0 } },
     vehicleType: 'LGV_MDS', driverRoute: 'route1a',
-    status: 'rejected', submittedAt: '2026-06-23T09:45:00Z',
+    status: 'rejected', submittedAt: '2026-07-01T09:45:00Z',
     notes: 'Slot unavailable — please resubmit for 03 July.',
   },
   {

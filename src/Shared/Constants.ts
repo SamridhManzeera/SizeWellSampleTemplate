@@ -10,6 +10,7 @@ const ROUTES = {
   SCHEDULE_CONFIG: '/schedule-config',
   REQUESTS: '/requests',
   REQUESTS_APPLY: '/requests/apply',
+  REQUESTS_EMERGENCY_APPLY: '/requests/emergency',
   REQUESTS_VIEW: '/requests/:id',
   SLT_REQUESTS: '/slt/requests',
   SLT_REQUESTS_VIEW: '/slt/requests/:id',
@@ -87,6 +88,10 @@ const ROUTES_CONFIG = {
   REQUESTS_APPLY: {
     path: ROUTES.REQUESTS_APPLY,
     title: 'Apply Request',
+  },
+  REQUESTS_EMERGENCY_APPLY: {
+    path: ROUTES.REQUESTS_EMERGENCY_APPLY,
+    title: 'Emergency Request',
   },
   REQUESTS_VIEW: {
     path: ROUTES.REQUESTS_VIEW,

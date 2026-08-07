@@ -38,6 +38,14 @@ function PlusIcon() {
   );
 }
 
+function BoltIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z" />
+    </svg>
+  );
+}
+
 // ── Helpers ───────────────────────────────────────────────────────
 
 function formatDate(dateStr: string) {
@@ -92,14 +100,24 @@ export default function Requests() {
         subtitle="Manage and track all delivery slot requests for Sizewell C"
         eyebrow={null}
         actions={
-          <button
-            type="button"
-            className="rq__apply-btn"
-            onClick={() => navigate('/requests/apply')}
-          >
-            <PlusIcon />
-            Apply Request
-          </button>
+          <>
+            <button
+              type="button"
+              className="rq__apply-btn"
+              onClick={() => navigate('/requests/emergency')}
+            >
+              <BoltIcon />
+              Emergency Request
+            </button>
+            <button
+              type="button"
+              className="rq__apply-btn"
+              onClick={() => navigate('/requests/apply')}
+            >
+              <PlusIcon />
+              Apply Request
+            </button>
+          </>
         }
       />
 
@@ -153,8 +171,8 @@ export default function Requests() {
             <thead>
               <tr>
                 <th>Request ID</th>
-                {/* <th>Type</th> */}
-                <th>Delivery Week</th>
+                <th>Type</th>
+                <th>Delivery Date/Week</th>
                 <th>Slots</th>
                 <th>Submitted</th>
                 <th>Status</th>
@@ -174,11 +192,11 @@ export default function Requests() {
                   <td>
                     <span className="rq__req-id">{req.id}</span>
                   </td>
-                  {/* <td>
+                  <td>
                     <span className={`rq__kind rq__kind--${req.kind}`}>
                       {req.kind === 'emergency' ? '⚡ Emergency' : 'Normal'}
                     </span>
-                  </td> */}
+                  </td>
                   <td>{formatDateRange(req.startDate, req.endDate)}</td>
                   <td>
                     <span className="rq__slot-total">

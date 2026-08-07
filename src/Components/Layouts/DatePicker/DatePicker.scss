@@ -1,0 +1,117 @@
+$navy:   #1a3a6b;
+$border: #e8ecf4;
+$dark:   #111827;
+$mid:    #374151;
+$muted:  #9ca3af;
+
+.date-picker {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  max-width: 320px;
+
+  &--disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  &__trigger {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1.5px solid $border;
+    background: #fff;
+    color: $muted;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+
+    &:hover { border-color: darken($border, 12%); }
+
+    &:focus-visible,
+    &[aria-expanded='true'] {
+      outline: none;
+      border-color: $navy;
+      box-shadow: 0 0 0 3px rgba($navy, 0.08);
+    }
+  }
+
+  &__trigger-text {
+    flex: 1;
+    text-align: left;
+    color: $dark;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__chevron {
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+
+    &--open { transform: rotate(180deg); }
+  }
+
+  &__popover {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 30;
+    background: #fff;
+    border: 1px solid $border;
+    border-radius: 14px;
+    box-shadow: 0 16px 40px -12px rgba(15, 23, 42, 0.22),
+      0 4px 10px rgba(15, 23, 42, 0.06);
+    padding: 14px;
+
+    .rdp-root {
+      --rdp-accent-color: #{$navy};
+      --rdp-accent-background-color: #{rgba($navy, 0.1)};
+      --rdp-day-width: 38px;
+      --rdp-day-height: 38px;
+      --rdp-day_button-width: 34px;
+      --rdp-day_button-height: 34px;
+      --rdp-nav-height: 2.25rem;
+      --rdp-nav_button-width: 1.9rem;
+      --rdp-nav_button-height: 1.9rem;
+      font-family: inherit;
+      color: $mid;
+    }
+
+    .rdp-month_caption {
+      font-size: 14px;
+      font-weight: 800;
+      color: $dark;
+    }
+
+    .rdp-weekday {
+      font-size: 11px;
+      font-weight: 700;
+      color: $muted;
+      text-transform: uppercase;
+    }
+
+    .rdp-button_previous,
+    .rdp-button_next {
+      border-radius: 999px;
+      border: 1px solid $border;
+
+      &:hover:not(:disabled) { background: rgba($navy, 0.06); }
+    }
+
+    .rdp-day_button {
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .rdp-selected .rdp-day_button {
+      font-weight: 700;
+    }
+  }
+}

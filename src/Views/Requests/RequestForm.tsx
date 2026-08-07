@@ -4,6 +4,7 @@ import { startOfWeek, endOfWeek } from 'date-fns';
 import PageHeader from '../../Components/Layouts/PageHeader/PageHeader';
 import PageHero from '../../Components/Layouts/PageHero/PageHero';
 import WeekPicker from '../../Components/Layouts/WeekPicker/WeekPicker';
+import DatePicker from '../../Components/Layouts/DatePicker/DatePicker';
 import AllocatedView from './components/AllocatedView/AllocatedView';
 import { useRequests } from './RequestsContext';
 import { VehicleType, DriverRoute, RequestKind, DaySlotCounts, RequestAttachment } from './requestTypes';
@@ -181,6 +182,12 @@ function earliestValidWeekStart(): Date {
   return weekStart < earliestStart ? new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + 7) : weekStart;
 }
 
+// Emergency requests may only be booked for a future day — never today or earlier.
+function earliestValidEmergencyDate(): Date {
+  const now = new Date();
+  return addDays(new Date(now.getFullYear(), now.getMonth(), now.getDate()), 1);
+}
+
 function getDatesInRange(startStr: string, endStr: string): string[] {
   const start = parseDate(startStr);
   const end = parseDate(endStr);
@@ -255,7 +262,7 @@ function DaySlotCounter({ value, colorClass, onIncrease, onDecrease, onChange }:
 
 type Mode = 'view' | 'edit' | 'create';
 
-export default function RequestForm() {
+export default function RequestForm({ isEmergency = false }: { isEmergency?: boolean }) {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { requests, addRequest, updateRequest, getRequest } = useRequests();
@@ -264,13 +271,20 @@ export default function RequestForm() {
   const initMode: Mode = existing ? 'view' : 'create';
 
   const [mode, setMode] = useState<Mode>(initMode);
-  const kind: RequestKind = existing?.kind ?? 'normal';
+  const kind: RequestKind = existing?.kind ?? (isEmergency ? 'emergency' : 'normal');
+  const isEmergencyMode = kind === 'emergency';
   const minWeekStart = earliestValidWeekStart();
   const minWeek = weekRangeContaining(minWeekStart);
   const defaultWeek = currentWeekRange();
   const initialWeek = defaultWeek.startDate < minWeek.startDate ? minWeek : defaultWeek;
-  const [startDate, setStartDate] = useState(existing?.startDate ?? initialWeek.startDate);
-  const [endDate, setEndDate] = useState(existing?.endDate ?? initialWeek.endDate);
+  const minEmergencyDate = earliestValidEmergencyDate();
+  const initialEmergencyDate = dateToString(minEmergencyDate);
+  const [startDate, setStartDate] = useState(
+    existing?.startDate ?? (isEmergencyMode ? initialEmergencyDate : initialWeek.startDate)
+  );
+  const [endDate, setEndDate] = useState(
+    existing?.endDate ?? (isEmergencyMode ? initialEmergencyDate : initialWeek.endDate)
+  );
   const [dailySlots, setDailySlots] = useState<Record<string, DaySlotCounts>>(existing?.dailySlots ?? {});
   const vehicleType: VehicleType = existing?.vehicleType ?? 'HGV_ACA_MDS';
   const driverRoute: DriverRoute = existing?.driverRoute ?? 'route1a';
@@ -401,11 +415,17 @@ export default function RequestForm() {
     setAttachments(prev => prev.filter((_, i) => i !== index));
   }
 
+  function handleEmergencyDateChange(dateStr: string) {
+    setStartDate(dateStr);
+    setEndDate(dateStr);
+    setErrors(p => ({ ...p, deliveryDate: '' }));
+  }
+
   function validate() {
     const errs: Record<string, string> = {};
-    if (!startDate || !endDate) errs.deliveryDate = 'Delivery week is required.';
+    if (!startDate || !endDate) errs.deliveryDate = isEmergencyMode ? 'Delivery date is required.' : 'Delivery week is required.';
     else if (endDate < startDate) errs.deliveryDate = 'End date must be on or after start date.';
-    else if (slotDeadlinePassed) errs.deliveryDate = 'The request deadline for this delivery week has passed. Please choose a later week.';
+    else if (!isEmergencyMode && slotDeadlinePassed) errs.deliveryDate = 'The request deadline for this delivery week has passed. Please choose a later week.';
     if (totalSlots === 0) errs.slots = 'Add at least 1 slot (inbound, outbound, or two-way) on any day.';
     return errs;
   }
@@ -451,7 +471,7 @@ export default function RequestForm() {
         backAction={{ label: '← Back', onClick: () => navigate('/requests') }}
         title={
           <>
-            {isCreate ? 'Apply for Delivery' : existing?.id}
+            {isCreate ? (isEmergencyMode ? 'Apply for Emergency Delivery' : 'Apply for Delivery') : existing?.id}
             <span className={`rf__kind-badge rf__kind-badge--${kind}`}>
               {kind === 'emergency' ? '⚡ Emergency' : 'Normal'}
             </span>
@@ -463,7 +483,9 @@ export default function RequestForm() {
           </>
         }
         subtitle={
-          isCreate ? 'Fill in the details and submit your delivery request.' : isView ? 'Viewing submitted request.' : 'Editing request details.'
+          isCreate
+            ? isEmergencyMode ? 'Fill in the details and submit your emergency delivery request.' : 'Fill in the details and submit your delivery request.'
+            : isView ? 'Viewing submitted request.' : 'Editing request details.'
         }
         actions={
           <>
@@ -493,7 +515,7 @@ export default function RequestForm() {
         <section className="rf__section">
           <div className="rf__section-header-row">
             <h2 className="rf__section-title" style={{ marginBottom: 0 }}>Request Details</h2>
-            {!isView && (
+            {!isView && !isEmergencyMode && (
               <div className="rf__layout-toggle" role="group" aria-label="Deadline info layout">
                 <button
                   type="button"
@@ -517,9 +539,23 @@ export default function RequestForm() {
             )}
           </div>
 
-          {/* Delivery Week */}
+          {/* Delivery Week / Delivery Date */}
           {isView ? (
-            <ReadField label="Delivery Week" value={formatDateRange(startDate, endDate)} />
+            <ReadField
+              label={isEmergencyMode ? 'Delivery Date' : 'Delivery Week'}
+              value={isEmergencyMode ? formatDate(startDate) : formatDateRange(startDate, endDate)}
+            />
+          ) : isEmergencyMode ? (
+            <div className="rf__field rf__field--full">
+              <label className="rf__label">Delivery Date *</label>
+              <DatePicker
+                value={startDate}
+                minDate={minEmergencyDate}
+                onChange={handleEmergencyDateChange}
+              />
+              <p className="rf__date-range-summary">{formatDateFull(startDate)}</p>
+              {errors.deliveryDate && <span className="rf__err">{errors.deliveryDate}</span>}
+            </div>
           ) : (
             <div className={`rf__req-details-layout${deadlinePosition === 'side' ? ' rf__req-details-layout--side' : ''}`}>
               <div className="rf__field rf__field--full">
@@ -608,9 +644,11 @@ export default function RequestForm() {
                   <button type="button" className="rf__ds-clear-btn" onClick={handleClearSlots} disabled={totalSlots === 0}>
                     <ClearIcon /> Clear
                   </button>
-                  <button type="button" className="rf__ds-copy-btn" onClick={openCopyModal}>
-                    <CopyIcon /> Copy Configuration
-                  </button>
+                  {!isEmergencyMode && (
+                    <button type="button" className="rf__ds-copy-btn" onClick={openCopyModal}>
+                      <CopyIcon /> Copy Configuration
+                    </button>
+                  )}
                 </>
               )}
             </div>
