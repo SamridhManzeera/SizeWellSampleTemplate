@@ -41,6 +41,8 @@ const ROUTES = {
   LOGIN_MOCKUP_V6: '/mockups/login-v6',
   FMT_DASHBOARD: '/fmt/dashboard',
   FMT_ALLOCATION_TABLE: '/fmt/allocation-table',
+  FMT_EMERGENCY_REQUESTS: '/fmt/emergency-requests',
+  FMT_EMERGENCY_REQUESTS_VIEW: '/fmt/emergency-requests/:id',
 };
 
 // projecttype returned by the login API; drives which private routes/layout are shown
@@ -208,6 +210,14 @@ const ROUTES_CONFIG = {
   FMT_ALLOCATION_TABLE: {
     path: ROUTES.FMT_ALLOCATION_TABLE,
     title: 'Allocation Table',
+  },
+  FMT_EMERGENCY_REQUESTS: {
+    path: ROUTES.FMT_EMERGENCY_REQUESTS,
+    title: 'Emergency Requests',
+  },
+  FMT_EMERGENCY_REQUESTS_VIEW: {
+    path: ROUTES.FMT_EMERGENCY_REQUESTS_VIEW,
+    title: 'Emergency Request',
   },
 };
 

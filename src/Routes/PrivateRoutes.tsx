@@ -19,6 +19,7 @@ import UserManagement from '../Views/UserManagement/UserManagement';
 import Dashboard from '../Views/Dashboard';
 import FmtDashboard from '../Views/FMT/Dashboard';
 import FmtAllocationTable from '../Views/FMT/AllocationTable';
+import FmtEmergencyRequests from '../Views/FMT/EmergencyRequests';
 import SpaceFormListing, {
   SpaceRequestFormLayout,
   SpaceViewFormLayout,
@@ -165,6 +166,17 @@ export const SLOT_ALLOCATION_ROUTES: Array<CustomRouter> = [
     path: ROUTES_CONFIG.FMT_ALLOCATION_TABLE.path,
     element: <FmtAllocationTable />,
     title: ROUTES_CONFIG.FMT_ALLOCATION_TABLE.title,
+  },
+  // /fmt/emergency-requests must come before /fmt/emergency-requests/:id so it isn't caught by the param route
+  {
+    path: ROUTES_CONFIG.FMT_EMERGENCY_REQUESTS.path,
+    element: <FmtEmergencyRequests />,
+    title: ROUTES_CONFIG.FMT_EMERGENCY_REQUESTS.title,
+  },
+  {
+    path: ROUTES_CONFIG.FMT_EMERGENCY_REQUESTS_VIEW.path,
+    element: <SLTRequestView />,
+    title: ROUTES_CONFIG.FMT_EMERGENCY_REQUESTS_VIEW.title,
   },
   {
     path: '*',
